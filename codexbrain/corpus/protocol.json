@@ -1,0 +1,44 @@
+{
+  "id": "codex-voynich-structure-v1",
+  "schema": "codex-protocol/v1",
+  "algorithm": "codex-analysis-1.0.0",
+  "frozenDate": "2026-11-04",
+  "registration": "Locally frozen before the first Codex suite execution; not an external preregistration or an independent replication.",
+  "sources": ["ZL", "IT"],
+  "policies": ["strict", "first-reading"],
+  "partitions": ["development", "heldout"],
+  "permutations": 499,
+  "seed": 4082026,
+  "scope": "P0 paragraph loci only. Common locus IDs shared by both transcriptions. Missing loci are excluded from both, not imputed.",
+  "split": "Group by folio number, keeping recto, verso and panels together; f85 and f86 are conservatively grouped together. FNV-1a of group + |codex-split-v1 modulo 5 equals 0 for heldout. This is a frozen internal validation split, not evidence of statistical independence between folios.",
+  "strict": "Strip IVTFF comments and paragraph markers. Treat illustration interruptions as run boundaries. Split on certain dots only. Retain lowercase a-z tokens only. Reject entire candidates containing uncertainty, commas, alternative readings, ligatures, uppercase letters or rare-glyph codes. Rejected tokens break adjacency runs.",
+  "first-reading": "Sensitivity projection only: select first bracketed reading; flatten brace ligatures; lowercase; treat uncertain commas as spaces. Reject all remaining non-a-z candidates. It is not a corrected transcription or evidence that the selected reading is true.",
+  "tests": [
+    {
+      "id": "repeat",
+      "name": "Adjacent-token repetition",
+      "statistic": "Fraction of within-line, within-run adjacent token pairs that are identical.",
+      "null": "Token order is exchangeable within each folio page/panel, retaining that page's token multiset and all retained run lengths.",
+      "alternative": "Observed adjacent-token repetition is greater than this constrained shuffle null.",
+      "tail": "upper"
+    },
+    {
+      "id": "entropy",
+      "name": "Within-token conditional entropy",
+      "statistic": "Empirical H(next EVA character | current EVA character), in bits, over internal token bigrams. No cross-token pairs.",
+      "null": "Character order is exchangeable independently inside each retained token, retaining every token's length and character multiset.",
+      "alternative": "Observed within-token conditional entropy is lower than this constrained shuffle null.",
+      "tail": "lower"
+    }
+  ],
+  "statistics": "One-sided Monte Carlo p=(extreme+1)/(499+1), inclusive ties. Effect=observed minus null mean. Null 2.5/97.5 percentiles are descriptive shuffle ranges, not confidence intervals. Holm adjustment covers all 16 source × policy × partition × hypothesis comparisons. Family alpha=0.05. Round published numerics to 10 decimal places.",
+  "rng": "xorshift32, unsigned output divided by 2^32, Fisher-Yates shuffle. Each comparison starts with seed XOR FNV-1a(source|policy|partition|test). Zero state becomes 1.",
+  "limits": [
+    "EVA characters are transcription conventions, not established original glyph units or phonemes.",
+    "Strict exclusion is not random and may introduce selection bias; the first-reading projection measures one sensitivity, not all uncertainty.",
+    "ZL and IT are not independent manuscripts and share editorial history. Agreement is transcription robustness, not independent confirmation.",
+    "Rejection of these narrow exchangeability nulls does not establish language, encryption, meaning, authorship or decipherment.",
+    "No natural-language baseline, cipher emulator, decoding procedure or singulion-study replication is included.",
+    "Heldout results are displayed once the fixed suite runs; they must not be reused as an untouched test set for future tuned hypotheses."
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "protocol": "codex-tandem/1",
+  "generated": "2026-11-04T14:25:43.310Z",
+  "file": "peers.json",
+  "bytes": 248892,
+  "sha256": "cd38396414563746384830b9f16f4da46fd60956943cedaffb1864b1184c2725",
+  "peers": {
+    "deepanswers": {
+      "title": "Deep Answers",
+      "host": "https://deepanswers.pplx.app",
+      "access": "public",
+      "pages": 11,
+      "hash": {
+        "physics": "375829fdc8ee3ba06f47ccf279ca8908c104f35c59005c68b4913b78173b7e52",
+        "cosmos": "f544660d09888b7509ab16e490dd1441453d8565dfd0ca1edc003323df307a7c",
+        "life": "200ae4c508cbed5a28e0fb8304ddf941d04a62bf90fe107efcb6aa0301c13064",
+        "mind": "945e1e34166df5cab959357efeed5c7c52038a584ffc0239fc640c8f0a5ee63f",
+        "math": "7b1931d9dc6c416aa0924720e0dd50ee1a2709d6b08f2171ca289fb73b577de7",
+        "philosophy": "a292b3a04751750a37014e81eb711c225bfff7130ff723128025905eae28849f",
+        "puzzles": "5a44b4a70e0a9c450904856285c05ff32b581aa53917d80e58384644fddc7f46"
+      }
+    },
+    "babelfish": {
+      "title": "Babel Fish",
+      "host": "https://babelfish.pplx.app",
+      "access": "gated (HTTP 401 for anonymous visitors at relay time)",
+      "pages": 85,
+      "hash": "42ca2e013b472241cf0e12fb956f2bc138f9a0bbebe2993c914305b20063f96b"
+    },
+    "hub": {
+      "title": "AI Hub",
+      "host": "https://hubbrain.pplx.app",
+      "access": "public reads; writes need a registered agent key (none held)",
+      "pages": 9,
+      "hash": {}
+    }
+  }
+}

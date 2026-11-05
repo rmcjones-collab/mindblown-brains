@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Brain API · MindBlown</title>
+<meta name="description" content="The read API of the MindBlown brains on this host: discovery, neurons, synapses, sources, graph, search and feed documents, with clients for JavaScript, Python and MCP.">
+<link rel="preconnect" href="https://api.fontshare.com">
+<link href="https://api.fontshare.com/v2/css?f[]=clash-display@500,600,700&f[]=satoshi@400,500,700&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='-1%20-1%2034%2034'%3E%3Ccircle%20cx='16'%20cy='16'%20r='4.2'%20fill='%23fde68a'/%3E%3Cline%20x1='16.00'%20y1='12.00'%20x2='16.00'%20y2='5.00'%20stroke='%23f4897b'%20stroke-width='1.4'%20stroke-linecap='round'/%3E%3Ccircle%20cx='16.00'%20cy='4.00'%20r='1.6'%20fill='%23f4897b'/%3E%3Cline%20x1='19.00'%20y1='13.00'%20x2='24.00'%20y2='8.00'%20stroke='%23f4db7b'%20stroke-width='1.4'%20stroke-linecap='round'/%3E%3Ccircle%20cx='25.00'%20cy='7.00'%20r='1.3'%20fill='%23f4db7b'/%3E%3Cline%20x1='20.00'%20y1='16.00'%20x2='27.00'%20y2='16.00'%20stroke='%23bdf47b'%20stroke-width='1.4'%20stroke-linecap='round'/%3E%3Ccircle%20cx='28.00'%20cy='16.00'%20r='1.6'%20fill='%23bdf47b'/%3E%3Cline%20x1='19.00'%20y1='19.00'%20x2='24.00'%20y2='24.00'%20stroke='%237bf48a'%20stroke-width='1.4'%20stroke-linecap='round'/%3E%3Ccircle%20cx='25.00'%20cy='25.00'%20r='1.3'%20fill='%237bf48a'/%3E%3Cline%20x1='16.00'%20y1='20.00'%20x2='16.00'%20y2='27.00'%20stroke='%237bf4db'%20stroke-width='1.4'%20stroke-linecap='round'/%3E%3Ccircle%20cx='16.00'%20cy='28.00'%20r='1.6'%20fill='%237bf4db'/%3E%3Cline%20x1='13.00'%20y1='19.00'%20x2='8.00'%20y2='24.00'%20stroke='%237bbcf4'%20stroke-width='1.4'%20stroke-linecap='round'/%3E%3Ccircle%20cx='7.00'%20cy='25.00'%20r='1.3'%20fill='%237bbcf4'/%3E%3Cline%20x1='12.00'%20y1='16.00'%20x2='5.00'%20y2='16.00'%20stroke='%238b7bf4'%20stroke-width='1.4'%20stroke-linecap='round'/%3E%3Ccircle%20cx='4.00'%20cy='16.00'%20r='1.6'%20fill='%238b7bf4'/%3E%3Cline%20x1='13.00'%20y1='13.00'%20x2='8.00'%20y2='8.00'%20stroke='%23dc7bf4'%20stroke-width='1.4'%20stroke-linecap='round'/%3E%3Ccircle%20cx='7.00'%20cy='7.00'%20r='1.3'%20fill='%23dc7bf4'/%3E%3Cdefs%3E%3CclipPath%20id='L'%3E%3Ccircle%20cx='16'%20cy='16'%20r='5.2'/%3E%3C/clipPath%3E%0A%3CradialGradient%20id='G'%20cx='38%'%20cy='32%'%20r='78%'%3E%3Cstop%20offset='0'%20stop-color='%231a2238'/%3E%3Cstop%20offset='.7'%20stop-color='%230a0e19'/%3E%3Cstop%20offset='1'%20stop-color='%2306080f'/%3E%3C/radialGradient%3E%0A%3ClinearGradient%20id='RG'%20x1='0'%20y1='0'%20x2='1'%20y2='1'%3E%3Cstop%20offset='0'%20stop-color='%23ffffff'/%3E%3Cstop%20offset='1'%20stop-color='%23aeb9d6'/%3E%3C/linearGradient%3E%0A%3ClinearGradient%20id='HG'%20x1='0'%20y1='0'%20x2='1'%20y2='1'%3E%3Cstop%20offset='0'%20stop-color='%23dde4f5'/%3E%3Cstop%20offset='1'%20stop-color='%238f9bb8'/%3E%3C/linearGradient%3E%3C/defs%3E%0A%3Cline%20x1='18.41'%20y1='21.82'%20x2='19.67'%20y2='24.87'%20stroke='url(%23HG)'%20stroke-width='2'%20stroke-linecap='round'/%3E%0A%3Ccircle%20cx='18.37'%20cy='21.72'%20r='1.0'%20fill='url(%23RG)'/%3E%0A%3Cg%20clip-path='url(%23L)'%3E%3Ccircle%20cx='16'%20cy='16'%20r='5.2'%20fill='url(%23G)'/%3E%0A%3Ccircle%20cx='16'%20cy='16'%20r='5.2'%20fill='none'%20stroke='%23000'%20stroke-opacity='.35'%20stroke-width='1.2'/%3E%3C/g%3E%0A%3Ccircle%20cx='16'%20cy='16'%20r='5.2'%20fill='none'%20stroke='url(%23RG)'%20stroke-opacity='.92'%20stroke-width='1.1'/%3E%0A%3Cpath%20d='M12.57%2014.96%20A3.64%203.64%200%200%201%2014.96%2012.57'%20fill='none'%20stroke='%23fff'%20stroke-opacity='.5'%20stroke-width='.5'%20stroke-linecap='round'/%3E%0A%3Cpath%20d='M18.86%2018.34%20A3.64%203.64%200%200%201%2017.56%2019.33'%20fill='none'%20stroke='%23fff'%20stroke-opacity='.18'%20stroke-width='.4'%20stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="./api.css">
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="../" title="Back to the brain">
+    <svg viewBox="-1 -1 34 34" width="26" height="26" aria-hidden="true"><circle cx="16" cy="16" r="4.2" fill="#fde68a"/><circle cx="14.95" cy="14.95" r="1.1" fill="#fff" fill-opacity=".45"/><line x1="16.00" y1="12.00" x2="16.00" y2="5.00" stroke="#f4897b" stroke-width="1.4" stroke-linecap="round"/><circle cx="16.00" cy="4.00" r="1.6" fill="#f4897b"/><circle cx="15.52" cy="3.52" r="0.51" fill="#fff" fill-opacity=".45"/><line x1="19.00" y1="13.00" x2="24.00" y2="8.00" stroke="#f4db7b" stroke-width="1.4" stroke-linecap="round"/><circle cx="25.00" cy="7.00" r="1.3" fill="#f4db7b"/><circle cx="24.61" cy="6.61" r="0.42" fill="#fff" fill-opacity=".45"/><line x1="20.00" y1="16.00" x2="27.00" y2="16.00" stroke="#bdf47b" stroke-width="1.4" stroke-linecap="round"/><circle cx="28.00" cy="16.00" r="1.6" fill="#bdf47b"/><circle cx="27.52" cy="15.52" r="0.51" fill="#fff" fill-opacity=".45"/><line x1="19.00" y1="19.00" x2="24.00" y2="24.00" stroke="#7bf48a" stroke-width="1.4" stroke-linecap="round"/><circle cx="25.00" cy="25.00" r="1.3" fill="#7bf48a"/><circle cx="24.61" cy="24.61" r="0.42" fill="#fff" fill-opacity=".45"/><line x1="16.00" y1="20.00" x2="16.00" y2="27.00" stroke="#7bf4db" stroke-width="1.4" stroke-linecap="round"/><circle cx="16.00" cy="28.00" r="1.6" fill="#7bf4db"/><circle cx="15.52" cy="27.52" r="0.51" fill="#fff" fill-opacity=".45"/><line x1="13.00" y1="19.00" x2="8.00" y2="24.00" stroke="#7bbcf4" stroke-width="1.4" stroke-linecap="round"/><circle cx="7.00" cy="25.00" r="1.3" fill="#7bbcf4"/><circle cx="6.61" cy="24.61" r="0.42" fill="#fff" fill-opacity=".45"/><line x1="12.00" y1="16.00" x2="5.00" y2="16.00" stroke="#8b7bf4" stroke-width="1.4" stroke-linecap="round"/><circle cx="4.00" cy="16.00" r="1.6" fill="#8b7bf4"/><circle cx="3.52" cy="15.52" r="0.51" fill="#fff" fill-opacity=".45"/><line x1="13.00" y1="13.00" x2="8.00" y2="8.00" stroke="#dc7bf4" stroke-width="1.4" stroke-linecap="round"/><circle cx="7.00" cy="7.00" r="1.3" fill="#dc7bf4"/><circle cx="6.61" cy="6.61" r="0.42" fill="#fff" fill-opacity=".45"/><defs><clipPath id="mb-lens"><circle cx="16" cy="16" r="5.5"/></clipPath>
+<radialGradient id="mb-glass" cx="38%" cy="32%" r="78%"><stop offset="0" stop-color="#1a2238"/><stop offset=".7" stop-color="#0a0e19"/><stop offset="1" stop-color="#06080f"/></radialGradient>
+<linearGradient id="mb-ring" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#aeb9d6"/></linearGradient>
+<linearGradient id="mb-handle" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#dde4f5"/><stop offset="1" stop-color="#8f9bb8"/></linearGradient></defs>
+<line x1="18.39" y1="21.77" x2="19.79" y2="25.15" stroke="url(#mb-handle)" stroke-width="1.5" stroke-linecap="round"/>
+<circle cx="18.36" cy="21.70" r="1.0" fill="url(#mb-ring)"/>
+<g clip-path="url(#mb-lens)"><circle cx="16" cy="16" r="5.5" fill="url(#mb-glass)"/><g transform="translate(16 16) scale(0.31) translate(-16 -16)"><circle cx="16" cy="16" r="4.2" fill="#fde68a"/><circle cx="14.95" cy="14.95" r="1.1" fill="#fff" fill-opacity=".45"/><line x1="16.00" y1="12.00" x2="16.00" y2="5.00" stroke="#f4897b" stroke-width="1.4" stroke-linecap="round"/><circle cx="16.00" cy="4.00" r="1.6" fill="#f4897b"/><circle cx="15.52" cy="3.52" r="0.51" fill="#fff" fill-opacity=".45"/><line x1="19.00" y1="13.00" x2="24.00" y2="8.00" stroke="#f4db7b" stroke-width="1.4" stroke-linecap="round"/><circle cx="25.00" cy="7.00" r="1.3" fill="#f4db7b"/><circle cx="24.61" cy="6.61" r="0.42" fill="#fff" fill-opacity=".45"/><line x1="20.00" y1="16.00" x2="27.00" y2="16.00" stroke="#bdf47b" stroke-width="1.4" stroke-linecap="round"/><circle cx="28.00" cy="16.00" r="1.6" fill="#bdf47b"/><circle cx="27.52" cy="15.52" r="0.51" fill="#fff" fill-opacity=".45"/><line x1="19.00" y1="19.00" x2="24.00" y2="24.00" stroke="#7bf48a" stroke-width="1.4" stroke-linecap="round"/><circle cx="25.00" cy="25.00" r="1.3" fill="#7bf48a"/><circle cx="24.61" cy="24.61" r="0.42" fill="#fff" fill-opacity=".45"/><line x1="16.00" y1="20.00" x2="16.00" y2="27.00" stroke="#7bf4db" stroke-width="1.4" stroke-linecap="round"/><circle cx="16.00" cy="28.00" r="1.6" fill="#7bf4db"/><circle cx="15.52" cy="27.52" r="0.51" fill="#fff" fill-opacity=".45"/><line x1="13.00" y1="19.00" x2="8.00" y2="24.00" stroke="#7bbcf4" stroke-width="1.4" stroke-linecap="round"/><circle cx="7.00" cy="25.00" r="1.3" fill="#7bbcf4"/><circle cx="6.61" cy="24.61" r="0.42" fill="#fff" fill-opacity=".45"/><line x1="12.00" y1="16.00" x2="5.00" y2="16.00" stroke="#8b7bf4" stroke-width="1.4" stroke-linecap="round"/><circle cx="4.00" cy="16.00" r="1.6" fill="#8b7bf4"/><circle cx="3.52" cy="15.52" r="0.51" fill="#fff" fill-opacity=".45"/><line x1="13.00" y1="13.00" x2="8.00" y2="8.00" stroke="#dc7bf4" stroke-width="1.4" stroke-linecap="round"/><circle cx="7.00" cy="7.00" r="1.3" fill="#dc7bf4"/><circle cx="6.61" cy="6.61" r="0.42" fill="#fff" fill-opacity=".45"/></g>
+<circle cx="16" cy="16" r="5.5" fill="none" stroke="#000" stroke-opacity=".35" stroke-width="1.2"/></g>
+<circle cx="16" cy="16" r="5.5" fill="none" stroke="url(#mb-ring)" stroke-opacity=".92" stroke-width="0.75"/>
+<path d="M12.37 14.90 A3.85 3.85 0 0 1 14.90 12.37" fill="none" stroke="#fff" stroke-opacity=".5" stroke-width=".5" stroke-linecap="round"/>
+<path d="M19.02 18.48 A3.85 3.85 0 0 1 17.65 19.52" fill="none" stroke="#fff" stroke-opacity=".18" stroke-width=".4" stroke-linecap="round"/></svg>
+    <span class="brand-text"><span class="title">MindBlown</span><span class="sub" id="host-title">Brain API</span></span>
+  </a>
+  <nav class="brains" id="brain-nav" aria-label="Brains on this host"></nav>
+  <div class="proto"><code>mindblown-brain/1</code></div>
+</header>
+
+<main>
+  <section class="hero">
+    <h1>Every brain here has an API.</h1>
+    <p class="lede">Each MindBlown brain on this host is also a set of plain JSON documents: its lobes, neurons, synapses, sources, links, a graph, a search index and a feed. Any app, script, automation or AI assistant can read them. No key, no backend, no rate limit beyond the host's.</p>
+    <div class="stats" id="host-stats" aria-live="polite"></div>
+    <div class="discover">
+      <span class="k">Discovery</span>
+      <a id="disc-link" href="../.well-known/mindblown.json"><code>/.well-known/mindblown.json</code></a>
+      <span class="or">or</span>
+      <a href="./index.json"><code>/api/index.json</code></a>
+    </div>
+  </section>
+
+  <section class="brain-grid" id="brain-grid" aria-label="Brains"></section>
+
+  <section class="try" id="try">
+    <div class="try-head">
+      <h2>Call it</h2>
+      <p>Pick a brain and a document; the explorer fetches it from this host and shows the result. Page documents need a page id.</p>
+    </div>
+    <div class="try-grid">
+      <form class="controls" id="try-form" autocomplete="off">
+        <label>Brain <select id="t-brain"></select></label>
+        <label>Document <select id="t-endpoint"></select></label>
+        <label id="t-page-wrap" hidden>Page <input id="t-page" list="t-pages" placeholder="type to find a neuron…"><datalist id="t-pages"></datalist></label>
+        <label id="t-query-wrap" hidden>Query <input id="t-query" placeholder="words to search for"></label>
+        <div class="row">
+          <button type="submit" class="go">Fetch</button>
+          <a id="t-open" class="open" target="_blank" rel="noopener">open raw ↗</a>
+          <span id="t-meta" class="meta"></span>
+        </div>
+      </form>
+      <div class="result">
+        <div class="result-bar"><span id="r-url" class="url"></span><button type="button" id="r-copy" class="copy" title="Copy the response">copy</button></div>
+        <pre id="r-body" class="body" aria-live="polite">Loading the host's brains…</pre>
+      </div>
+    </div>
+  </section>
+
+  <section class="snippets">
+    <div class="snip-head">
+      <h2>Connect an app</h2>
+      <p>The same documents from a shell, a browser, Python, or an AI assistant through MCP. The clients are served from this host; copy the files or load them from here.</p>
+    </div>
+    <div class="tabs" role="tablist" id="tabs">
+      <button role="tab" aria-selected="true" data-tab="curl">curl</button>
+      <button role="tab" data-tab="js">JavaScript</button>
+      <button role="tab" data-tab="py">Python</button>
+      <button role="tab" data-tab="mcp">MCP</button>
+      <button role="tab" data-tab="feed">Feeds &amp; automations</button>
+      <button role="tab" data-tab="graph">Graph tools</button>
+    </div>
+    <div class="tab-body"><pre id="snippet"></pre><button type="button" class="copy" id="s-copy">copy</button></div>
+  </section>
+
+  <section class="docs">
+    <h2>Documents of a brain</h2>
+    <table class="ep">
+      <thead><tr><th>Path</th><th>What it holds</th><th>Size</th></tr></thead>
+      <tbody id="ep-table"></tbody>
+    </table>
+    <div class="notes">
+      <h3>Two transports</h3>
+      <p>Every <code>X.json</code> has an <code>X.js</code> twin. The twin wraps the same document in a call to <code>window.MINDBLOWN_API.receive({protocol, brain, endpoint, data})</code>, so a page on another origin can read a brain through a <code>&lt;script&gt;</code> tag even when this host sends no CORS headers. The JavaScript client switches automatically; servers and scripts use the JSON directly.</p>
+      <h3>Page ids in paths</h3>
+      <p>A page id such as <code>projects/tidewatch</code> becomes <code>projects~2ftidewatch</code>: letters, digits, <code>.</code>, <code>_</code> and <code>-</code> stay, every other UTF-8 byte becomes <code>~hh</code>. <code>pages.json</code> lists the ready-made <code>api</code> path of every page, so clients rarely need to encode anything.</p>
+      <h3>Networks and shared neurons</h3>
+      <p>When a host carries several brains, <code>/api/network/v1/network.json</code> lists them with the neuron ids they share and the peer hosts this network points at. Follow <code>peers</code> to walk from one MindBlown site to the next: each one has the same discovery document.</p>
+      <h3>Writing back</h3>
+      <p>These documents are read-only by design. A brain's manifest may name a <code>write</code> route: the <a href="https://hubbrain.pplx.app/connect.html">AI Hub protocol</a> (<code>mindblown-ai/1</code>) for brains that live there, or the Build module's <code>.mindblown.json</code> import for local brains.</p>
+      <p class="fine">Spec: <a href="./PROTOCOL.md">PROTOCOL.md</a> · contract: <a id="openapi-link" href="#">openapi.json</a> · clients: <a href="./sdk/mindblown-brain.js">mindblown-brain.js</a>, <a href="./sdk/mindblown_brain.py">mindblown_brain.py</a>, <a href="./sdk/mindblown-mcp.mjs">mindblown-mcp.mjs</a></p>
+    </div>
+  </section>
+</main>
+<footer class="foot"><span id="foot-gen"></span></footer>
+
+<script src="./sdk/mindblown-brain.js"></script>
+<script src="./api.js"></script>
+</body>
+</html>

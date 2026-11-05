@@ -1,0 +1,953 @@
+{
+  "checked": "2026-11-04",
+  "sources": {
+    "transliterations": [
+      "Voynich.nu · Transliteration conventions and files",
+      "https://www.voynich.nu/transcr.html"
+    ],
+    "corpusRights": [
+      "Voynich.nu · CC0 transliteration statement",
+      "https://www.voynich.nu/roadmap.html"
+    ],
+    "yaleCatalog": [
+      "Yale Digital Collections · Beinecke MS 408",
+      "https://collections.library.yale.edu/catalog/2002046"
+    ],
+    "yale": [
+      "Yale Library · Voynich manuscript",
+      "https://beinecke.library.yale.edu/beinecke/collections/beinecke-cipher-voynich-manuscript"
+    ],
+    "singulion": [
+      "Layfield & Davis · Singulion Structure and the Voynich Manuscript",
+      "https://doi.org/10.4000/16k0a"
+    ],
+    "lorenz": [
+      "The National Museum of Computing · Lorenz",
+      "https://www.tnmoc.org/news-releases/2016/4/7from-encrypt-to-decrypt-the-full-lorenz-story"
+    ],
+    "purple": [
+      "NSA · Red and Purple",
+      "https://www.nsa.gov/History/Cryptologic-History/Historical-Events/Article-View/Article/2740690/red-and-purple/"
+    ],
+    "grotjan": [
+      "NSA · Genevieve Grotjan Feinstein",
+      "https://www.nsa.gov/About-Us/Current-Leadership/Article-View/Article/1621585/genevieve-grotjan-feinstein/"
+    ],
+    "typex": [
+      "Science Museum Group · Typex Mk III",
+      "https://collection.sciencemuseumgroup.org.uk/objects/co35754/typex-mk-iii-cypher-machine-for-field-use-c-1945"
+    ],
+    "sigaba": [
+      "NSA National Cryptologic Museum · SIGABA/ECM",
+      "https://www.nsa.gov/History/National-Cryptologic-Museum/Exhibits-Artifacts/Exhibit-View/Article/2719165/sigabaecm/"
+    ],
+    "vigenere": [
+      "Northern Kentucky University · Vigenère cryptanalysis",
+      "https://websites.nku.edu/~christensen/section%2014%20vigenere%20cryptanalysis.pdf"
+    ],
+    "zimmermann": [
+      "US National Archives · The Zimmermann Telegram",
+      "https://www.archives.gov/publications/prologue/2016/winter/zimmermann-telegram"
+    ],
+    "navajo": [
+      "US National Archives · Navajo Code Talkers",
+      "https://www.archives.gov/publications/prologue/2001/winter/navajo-code-talkers.html"
+    ],
+    "bombe": [
+      "The National Museum of Computing · Turing-Welchman Bombe",
+      "https://www.tnmoc.org/bombe"
+    ],
+    "polish": [
+      "IEEE Region 8 · Polish Enigma milestone",
+      "https://ieeer8.org/news/milestone-dedication-in-warsaw-poland-august-5-2014/"
+    ],
+    "elizebeth": [
+      "US Coast Guard · Elizebeth Smith Friedman",
+      "https://www.history.uscg.mil/Research/THE-LONG-BLUE-LINE/Article/2925266/the-long-blue-line-mrs-friedmanthe-coast-guards-cryptologist-in-charge-and-nsc/"
+    ],
+    "tandem-da-voynich": [
+      "Deep Answers · Puzzles brain · Is the Voynich manuscript a language, a cipher or a hoax?",
+      "https://deepanswers.pplx.app/puzzles.html#n=cipher%2Fvoynich"
+    ],
+    "tandem-bf-s-types": [
+      "Babel Fish · Writing systems · Five ways to write",
+      "https://babelfish.pplx.app/babel-fish.html#n=s%2Ftypes"
+    ],
+    "tandem-bf-s-latin": [
+      "Babel Fish · Writing systems · Latin script",
+      "https://babelfish.pplx.app/babel-fish.html#n=s%2Flatin"
+    ],
+    "tandem-bf-s-arabic": [
+      "Babel Fish · Writing systems · Arabic script",
+      "https://babelfish.pplx.app/babel-fish.html#n=s%2Farabic"
+    ],
+    "tandem-bf-s-kana": [
+      "Babel Fish · Writing systems · Kana (with kanji)",
+      "https://babelfish.pplx.app/babel-fish.html#n=s%2Fkana"
+    ],
+    "tandem-bf-s-han": [
+      "Babel Fish · Writing systems · Chinese characters",
+      "https://babelfish.pplx.app/babel-fish.html#n=s%2Fhan"
+    ],
+    "tandem-hub-claude-unc-calibration": [
+      "AI Hub · Claude: reasoning, uncertainty and responsible collaboration · Calibration",
+      "https://hubbrain.pplx.app/brain.html?id=claude#n=unc%2Fcalibration"
+    ],
+    "tandem-hub-grok-public-knowledge-sources-reports": [
+      "AI Hub · MindBlown: Grok · Evidence, disagreement and updating beliefs · Reports are not verification",
+      "https://hubbrain.pplx.app/brain.html?id=grok-public-knowledge#n=sources%2Freports"
+    ],
+    "tandem-hub-gpt-6-1-sol-validity-contamination": [
+      "AI Hub · MindBlown: GPT-6.1 Sol · The Measurement Lens · Benchmark contamination",
+      "https://hubbrain.pplx.app/brain.html?id=gpt-6-1-sol#n=validity%2Fcontamination"
+    ],
+    "tandem-hub-gpt-astra-network-evidence": [
+      "AI Hub · GPT Astra: public GPT-family knowledge · Evidence before knowledge links",
+      "https://hubbrain.pplx.app/brain.html?id=gpt-astra#n=network%2Fevidence"
+    ]
+  },
+  "subjects": [
+    {
+      "id": "voynich",
+      "name": "Voynich Manuscript",
+      "group": "mysteries",
+      "status": "Undeciphered",
+      "summary": "The first open case. Keep the manuscript, transcription and proposed interpretation separate.",
+      "related": [
+        "methods",
+        "vigenere",
+        "tutte"
+      ],
+      "facts": [
+        [
+          "Unidentified writing",
+          "The manuscript has an unidentified script and unknown author; Yale notes that cryptographic approaches have failed to decipher it, if it is indeed encoded.",
+          "yale",
+          "Established / unresolved"
+        ],
+        [
+          "Six visual sections",
+          "Yale describes plant, astronomical/astrological, bathing, cosmological, pharmaceutical and unillustrated possibly-recipe sections.",
+          "yale",
+          "Catalog description"
+        ],
+        [
+          "Material evidence is not a translation",
+          "Yale reports scientific testing consistent with fifteenth-century materials, while its descriptive introduction gives a later production range.",
+          "yale",
+          "Source discrepancy"
+        ],
+        [
+          "A testable ordering hypothesis",
+          "Layfield and Davis propose that individual bifolia were intended as singulions rather than nested quires; their proposed sequences are hypotheses, not decipherments.",
+          "singulion",
+          "Published hypothesis"
+        ],
+        [
+          "Digitized corpus",
+          "Yale provides high-resolution research images and points to a catalog record with physical description, foliation and missing leaves.",
+          "yale",
+          "Catalog description"
+        ],
+        [
+          "Two readings, not two translations",
+          "The corpus browser preserves Zandbergen–Landini 3b and Takahashi 2a transliterations separately. EVA represents manuscript shapes; it is not an established pronunciation or translation.",
+          "transliterations",
+          "Corpus / representation limitation"
+        ],
+        [
+          "Reusable transliterations",
+          "Voynich.nu explicitly makes its collected transliterations available under CC0; fonts and other materials have separate terms.",
+          "corpusRights",
+          "Rights statement"
+        ],
+        [
+          "Frozen structural tests",
+          "Codex implements two constrained-shuffle tests across both readings, strict and first-reading projections, and fixed folio-group partitions. Rejecting a shuffle null does not establish a decipherment.",
+          null,
+          "Implemented research protocol"
+        ]
+      ],
+      "tasks": [
+        "Review image-to-panel alignment and physical bifolium relationships beyond the ingested Yale canvas labels and IVTFF folio metadata.",
+        "Extend the two-reading sensitivity analysis with independently reviewed glyph-level alignment; never treat an EVA character as the original glyph.",
+        "Reproduce the singulion study against its controls and alternative orderings before interpreting similarity as meaning.",
+        "Require one fixed decoding procedure, held-out folios and independent replication before promoting a proposed reading."
+      ]
+    },
+    {
+      "id": "lorenz",
+      "name": "Lorenz / Tunny",
+      "group": "systems",
+      "status": "Historically broken",
+      "related": [
+        "tutte",
+        "enigma",
+        "methods"
+      ],
+      "summary": "A historical reconstruction case for inferring hidden mechanisms from intercepted output.",
+      "facts": [
+        [
+          "High-command traffic",
+          "Lorenz protected German High Command messages; the British called the encrypted traffic Tunny.",
+          "lorenz",
+          "Established"
+        ],
+        [
+          "Unseen architecture",
+          "Bill Tutte deduced the architecture of the Lorenz machine without having seen it.",
+          "lorenz",
+          "Established"
+        ],
+        [
+          "Separate technical contributions",
+          "Tommy Flowers designed Colossus; the museum distinguishes finding wheel start positions from decrypting with the Tunny reconstruction.",
+          "lorenz",
+          "Established"
+        ],
+        [
+          "Operational chain",
+          "Interception at Knockholt, paper-tape preparation, wheel-position finding and plaintext output were distinct stages in the Lorenz process.",
+          "lorenz",
+          "Established"
+        ]
+      ],
+      "tasks": [
+        "Collect public technical reports, operator procedures and machine diagrams with page-level citations.",
+        "Reproduce a small documented example; log what is assumed about the machine and what is actually inferred."
+      ]
+    },
+    {
+      "id": "purple",
+      "name": "PURPLE",
+      "group": "systems",
+      "status": "Historically broken",
+      "related": [
+        "grotjan",
+        "sigaba",
+        "methods"
+      ],
+      "summary": "A diplomatic machine case, with the mathematical, engineering and team contributions kept distinct.",
+      "facts": [
+        [
+          "Diplomatic use",
+          "Japan’s Foreign Ministry introduced the Type B machine, nicknamed PURPLE by American cryptanalysts, in February 1939.",
+          "purple",
+          "Established"
+        ],
+        [
+          "Cribs and duplicate messages",
+          "Messages sent in both RED and PURPLE, as well as English diplomatic texts, provided opportunities to develop cribs.",
+          "purple",
+          "Established"
+        ],
+        [
+          "Team attribution",
+          "William Friedman directed the effort; Frank Rowlett led day-to-day work, with important contributions from Genevieve Grotjan, Albert Small and Samuel Snyder.",
+          "purple",
+          "Established"
+        ],
+        [
+          "A practical analog",
+          "Leo Rosen produced a prototype American PURPLE analog to accelerate the reading of messages.",
+          "purple",
+          "Established"
+        ]
+      ],
+      "tasks": [
+        "Add authoritative stepping-switch diagrams before treating PURPLE as a rotor-machine comparison.",
+        "Build a traceable chronology from intercepts to analytical breakthrough to analog engineering."
+      ]
+    },
+    {
+      "id": "typex",
+      "name": "TypeX",
+      "group": "systems",
+      "status": "Wartime security case",
+      "related": [
+        "enigma",
+        "sigaba",
+        "methods"
+      ],
+      "summary": "A defensive comparison, not a mathematical claim of permanent unbreakability.",
+      "facts": [
+        [
+          "Enigma lineage",
+          "The Science Museum describes Typex as a British machine based on the German Enigma, developed with the RAF.",
+          "typex",
+          "Established"
+        ],
+        [
+          "Five wheels",
+          "The museum’s Typex Mk III record describes electrical impulses passing through five drums or wheels in a predetermined order.",
+          "typex",
+          "Artifact-specific"
+        ],
+        [
+          "Printed output",
+          "The Mk III record describes plaintext or ciphertext being printed on paper tape for transcription into a communication system.",
+          "typex",
+          "Artifact-specific"
+        ],
+        [
+          "Qualified security record",
+          "The museum says it is thought that the Germans could not read Typex messages and that the machine remained unbroken during World War II.",
+          "typex",
+          "Qualified historical account"
+        ]
+      ],
+      "tasks": [
+        "Keep Typex marks and configurations separate rather than applying one artifact’s details to every machine.",
+        "Document the threat model, traffic and period for each security claim."
+      ]
+    },
+    {
+      "id": "sigaba",
+      "name": "SIGABA",
+      "group": "systems",
+      "status": "Wartime security case",
+      "related": [
+        "typex",
+        "enigma",
+        "purple"
+      ],
+      "summary": "A comparison case for more complex stepping and historically bounded security.",
+      "facts": [
+        [
+          "Army and Navy names",
+          "The US Army called the machine SIGABA; the Navy called it ECM, Electric Cipher Machine.",
+          "sigaba",
+          "Established"
+        ],
+        [
+          "Rotor construction",
+          "SIGABA used rotating, removable, wired rotor wheels.",
+          "sigaba",
+          "Established"
+        ],
+        [
+          "Complicated stepping",
+          "The NSA museum attributes SIGABA’s complicated stepping motion to Frank Rowlett and distinguishes it from true randomness.",
+          "sigaba",
+          "Established"
+        ],
+        [
+          "Wartime outcome",
+          "The NSA museum reports that the Germans did not break SIGABA and that the Japanese gave up trying.",
+          "sigaba",
+          "Institutional historical account"
+        ]
+      ],
+      "tasks": [
+        "Add complete technical and development histories before assigning invention to a single person.",
+        "Separate wartime adversary success from modern cryptanalysis under different assumptions."
+      ]
+    },
+    {
+      "id": "vigenere",
+      "name": "Vigenère Cipher",
+      "group": "systems",
+      "status": "Historically broken",
+      "related": [
+        "methods",
+        "voynich"
+      ],
+      "summary": "A reproducible teaching case for repeating-key analysis and the danger of reading patterns as proof.",
+      "facts": [
+        [
+          "Repeating-key target",
+          "Kasiski’s published work addressed solving polyalphabetic ciphers with repeating keywords.",
+          "vigenere",
+          "Established"
+        ],
+        [
+          "Published break",
+          "Friedrich Kasiski published his cryptanalytic work in 1863.",
+          "vigenere",
+          "Established"
+        ],
+        [
+          "Babbage qualification",
+          "The NKU teaching account says Babbage might have broken Vigenère earlier, but that any solution he had was not published.",
+          "vigenere",
+          "Qualified historical account"
+        ],
+        [
+          "Long-lived reputation",
+          "The NKU account describes the Vigenère cipher as generally considered secure from the sixteenth to the nineteenth century.",
+          "vigenere",
+          "Historical account"
+        ]
+      ],
+      "tasks": [
+        "Use published ciphertext/plaintext test pairs with known keys before testing unknown material.",
+        "Implement Kasiski and key-length candidates with false-positive controls in the next analysis phase."
+      ]
+    },
+    {
+      "id": "zimmermann",
+      "name": "Zimmermann Telegram",
+      "group": "systems",
+      "status": "Historically broken",
+      "related": [
+        "methods",
+        "elizebeth"
+      ],
+      "summary": "A codebook and intelligence-history case: decoding, source protection and political effects are different questions.",
+      "facts": [
+        [
+          "German diplomatic proposal",
+          "The telegram proposed a German-Mexican alliance in the event of war between Germany and the United States.",
+          "zimmermann",
+          "Established"
+        ],
+        [
+          "Room 40",
+          "British Room 40 cryptanalysts decoded the intercepted telegram.",
+          "zimmermann",
+          "Established"
+        ],
+        [
+          "Political context",
+          "The National Archives places the telegram among multiple events leading to American entry into World War I.",
+          "zimmermann",
+          "Historical account"
+        ]
+      ],
+      "tasks": [
+        "Ingest the facsimile, transcription and translation as separate linked records.",
+        "Map codebook recovery and release chronology; do not label one telegram the sole cause of US entry into war."
+      ]
+    },
+    {
+      "id": "navajo",
+      "name": "Navajo Code Talkers",
+      "group": "systems",
+      "status": "Wartime security case",
+      "related": [
+        "methods"
+      ],
+      "summary": "Study the engineered military code and the people who used it, not the language as if it were a cipher.",
+      "facts": [
+        [
+          "Military meanings",
+          "The National Archives describes code words as Navajo terms given new, distinctly military meanings.",
+          "navajo",
+          "Established"
+        ],
+        [
+          "Spelling system",
+          "The code included an alphabet-based spelling component alongside vocabulary for military terms.",
+          "navajo",
+          "Established"
+        ],
+        [
+          "Pacific service",
+          "Navajo code talkers supported Marine Corps operations in the Pacific from 1942 to 1945.",
+          "navajo",
+          "Established"
+        ],
+        [
+          "Security account",
+          "The National Archives reports that Japanese intelligence had not broken the Marine Corps Navajo code during the war.",
+          "navajo",
+          "Institutional historical account"
+        ]
+      ],
+      "tasks": [
+        "Prioritize Navajo-authored histories and oral testimony in the next source pass.",
+        "Keep code vocabulary, spelling conventions, ordinary language and historical descriptions of writing separate."
+      ]
+    },
+    {
+      "id": "enigma",
+      "name": "Enigma & the Bombe",
+      "group": "systems",
+      "status": "Historically broken",
+      "related": [
+        "turing",
+        "welchman",
+        "rejewski",
+        "rozycki",
+        "zygalski",
+        "typex"
+      ],
+      "summary": "The connecting brain between Polish breakthroughs, British developments and machine-assisted key search.",
+      "facts": [
+        [
+          "Polish foundation",
+          "Rejewski determined military Enigma rotor wiring by the end of 1932, using mathematics and material supplied by the French.",
+          "polish",
+          "Established"
+        ],
+        [
+          "Knowledge transfer",
+          "The Polish team shared its achievements with British and French codebreakers in July 1939.",
+          "polish",
+          "Established"
+        ],
+        [
+          "Bombe purpose",
+          "The Turing-Welchman Bombe sought daily keys, including wheel order, settings and plugboard configuration.",
+          "bombe",
+          "Established"
+        ],
+        [
+          "Not every key",
+          "The museum notes that some keys were broken within hours and some were never broken.",
+          "bombe",
+          "Established"
+        ]
+      ],
+      "tasks": [
+        "Distinguish machine variants, networks and operating procedures; avoid a single timeless “Enigma solution.”",
+        "Add operators, intercept staff, engineers and intelligence distribution to the contribution graph."
+      ]
+    },
+    {
+      "id": "turing",
+      "name": "Alan Turing",
+      "group": "people",
+      "status": "Historical contributor",
+      "related": [
+        "welchman",
+        "enigma",
+        "rejewski"
+      ],
+      "summary": "A contribution-specific brain centered on the crib-driven Bombe approach.",
+      "facts": [
+        [
+          "Crib attack",
+          "Turing’s approach compared patterns in ciphertext with an expected portion of plaintext.",
+          "bombe",
+          "Established"
+        ],
+        [
+          "Mechanization",
+          "Turing recognized that this attack could be mechanized in the Bombe.",
+          "bombe",
+          "Established"
+        ],
+        [
+          "Operational machine",
+          "The first Bombe, Victory, began codebreaking at Bletchley Park on 14 March 1940.",
+          "bombe",
+          "Established"
+        ]
+      ],
+      "tasks": [
+        "Expand from institutional biographies into dated papers and contemporary records.",
+        "Preserve the earlier Polish work and Welchman’s distinct contribution in every summary."
+      ]
+    },
+    {
+      "id": "welchman",
+      "name": "Gordon Welchman",
+      "group": "people",
+      "status": "Historical contributor",
+      "related": [
+        "turing",
+        "enigma"
+      ],
+      "summary": "A contribution-specific brain for the diagonal board and its role in Bombe key search.",
+      "facts": [
+        [
+          "Diagonal board",
+          "Welchman contributed the diagonal board to the Bombe.",
+          "bombe",
+          "Established"
+        ],
+        [
+          "Reducing false stops",
+          "The museum reports that the diagonal board dramatically reduced invalid stops, or false positives.",
+          "bombe",
+          "Established"
+        ],
+        [
+          "Combined design",
+          "The first Turing-Welchman Bombe-based machine, Agnus Dei, became operational in August 1940.",
+          "bombe",
+          "Established"
+        ]
+      ],
+      "tasks": [
+        "Add a sourced schematic and a worked example of a diagonal-board consistency check.",
+        "Keep a mechanism claim distinct from a broad claim about wartime impact."
+      ]
+    },
+    {
+      "id": "rejewski",
+      "name": "Marian Rejewski",
+      "group": "people",
+      "status": "Historical contributor",
+      "related": [
+        "rozycki",
+        "zygalski",
+        "enigma",
+        "turing"
+      ],
+      "summary": "A mathematical reconstruction brain, with intelligence inputs explicitly represented.",
+      "facts": [
+        [
+          "Permutation equations",
+          "Rejewski modeled the permutations of the six indicators at the start of Enigma messages with a system of equations.",
+          "polish",
+          "Established"
+        ],
+        [
+          "1932 wiring reconstruction",
+          "French-supplied setting sheets enabled substitutions into the equations and recovery of the rotor wiring in December 1932.",
+          "polish",
+          "Established"
+        ],
+        [
+          "1939 handover",
+          "British and French codebreakers received information about Polish methods and Enigma doubles after the July 1939 meeting.",
+          "polish",
+          "Established"
+        ]
+      ],
+      "tasks": [
+        "Acquire translated primary accounts alongside originals; retain translator and edition metadata.",
+        "Reproduce a small permutation example and identify every piece of supplied intelligence."
+      ]
+    },
+    {
+      "id": "rozycki",
+      "name": "Jerzy Różycki",
+      "group": "people",
+      "status": "Historical contributor",
+      "related": [
+        "rejewski",
+        "zygalski",
+        "enigma"
+      ],
+      "summary": "A separate contribution brain, not a name collapsed into a single Enigma inventor.",
+      "facts": [
+        [
+          "Clock method",
+          "Różycki developed the clock method used by Polish codebreakers to determine Enigma settings.",
+          "polish",
+          "Established"
+        ],
+        [
+          "Collaborative program",
+          "The IEEE milestone recognizes the Polish Cipher Bureau team’s breaking of Enigma over 1932–1939.",
+          "polish",
+          "Established"
+        ]
+      ],
+      "tasks": [
+        "Locate primary or specialist documentation of the clock method before coding a simulation.",
+        "Add biography only with independent source verification."
+      ]
+    },
+    {
+      "id": "zygalski",
+      "name": "Henryk Zygalski",
+      "group": "people",
+      "status": "Historical contributor",
+      "related": [
+        "rejewski",
+        "rozycki",
+        "enigma"
+      ],
+      "summary": "A separate brain for perforated-sheet methods and their historical operating conditions.",
+      "facts": [
+        [
+          "Perforated sheets",
+          "Zygalski developed perforated sheets used to determine Enigma settings.",
+          "polish",
+          "Established"
+        ],
+        [
+          "Shared methods",
+          "The Polish achievements and methods were described to British and French codebreakers in July 1939.",
+          "polish",
+          "Established"
+        ]
+      ],
+      "tasks": [
+        "Add sheet construction, alignment rules and a documented example.",
+        "Record procedural changes that limited a technique instead of portraying it as universally applicable."
+      ]
+    },
+    {
+      "id": "elizebeth",
+      "name": "Elizebeth Smith Friedman",
+      "group": "people",
+      "status": "Historical contributor",
+      "related": [
+        "enigma",
+        "methods"
+      ],
+      "summary": "Separate smuggling investigations, wartime intelligence and attribution of team work.",
+      "facts": [
+        [
+          "Coast Guard codebreaker",
+          "The Coast Guard identifies Friedman as its and the Treasury Department’s first codebreaker.",
+          "elizebeth",
+          "Institutional historical account"
+        ],
+        [
+          "Prohibition investigations",
+          "Her work decoded rum-running communications and supported smuggling investigations and courtroom testimony.",
+          "elizebeth",
+          "Established"
+        ],
+        [
+          "Wartime intelligence",
+          "Friedman’s unit decoded Nazi clandestine traffic and provided intelligence concerning spy networks, including in South America.",
+          "elizebeth",
+          "Established"
+        ],
+        [
+          "Training and team work",
+          "The Coast Guard records her recruitment and training of codebreakers and her training of FBI agents.",
+          "elizebeth",
+          "Established"
+        ]
+      ],
+      "tasks": [
+        "Avoid the unsupported superlative “America’s first female cryptanalyst”; identify the specific institution and role.",
+        "Link decrypts, case records and credit disputes with provenance instead of retelling a lone-genius narrative."
+      ]
+    },
+    {
+      "id": "grotjan",
+      "name": "Genevieve Grotjan",
+      "group": "people",
+      "status": "Historical contributor",
+      "related": [
+        "purple",
+        "methods"
+      ],
+      "summary": "A dedicated brain for the breakthrough, its date and its place within a larger team.",
+      "facts": [
+        [
+          "SIS appointment",
+          "William Friedman hired Grotjan for the Signal Intelligence Service in 1939.",
+          "grotjan",
+          "Established"
+        ],
+        [
+          "September breakthrough",
+          "In September 1940, she made a discovery that enabled SIS to build an analog machine for solving PURPLE.",
+          "grotjan",
+          "Established"
+        ],
+        [
+          "Team context",
+          "The NSA’s PURPLE history names Grotjan alongside Rowlett, Small, Snyder, Friedman and engineer Leo Rosen.",
+          "purple",
+          "Established"
+        ]
+      ],
+      "tasks": [
+        "Find technical accounts of the pattern discovery before describing its exact mechanism.",
+        "Use “Genevieve Grotjan Feinstein” as a searchable name variant without creating a duplicate person."
+      ]
+    },
+    {
+      "id": "tutte",
+      "name": "Bill Tutte",
+      "group": "people",
+      "status": "Historical contributor",
+      "related": [
+        "lorenz",
+        "voynich",
+        "methods"
+      ],
+      "summary": "A model for structural inference, not evidence that every unknown writing system is encrypted.",
+      "facts": [
+        [
+          "Architecture from output",
+          "Tutte deduced Lorenz’s architecture without seeing the machine.",
+          "lorenz",
+          "Established"
+        ],
+        [
+          "Different contributions",
+          "Tutte’s deduction and Flowers’s design of Colossus were distinct contributions to the Lorenz effort.",
+          "lorenz",
+          "Established"
+        ]
+      ],
+      "tasks": [
+        "Add primary technical histories and a step-by-step reconstruction of the evidence used.",
+        "Transfer the discipline of inference to open cases, not an assumption that their hidden mechanism is similar."
+      ]
+    },
+    {
+      "id": "methods",
+      "name": "Methods & Evidence",
+      "group": "methods",
+      "status": "Research protocol",
+      "related": [
+        "voynich",
+        "lorenz",
+        "purple",
+        "vigenere",
+        "navajo"
+      ],
+      "summary": "Codex’s proposed research protocol. These rules are design choices, not historical discoveries.",
+      "facts": [
+        [
+          "Keep claims typed",
+          "Separate observation, established history, qualified account, published hypothesis, rejected claim and unresolved question.",
+          null,
+          "Codex protocol"
+        ],
+        [
+          "Reproducible experiments",
+          "Record corpus version, transformation rules, parameters, output, evaluation metric and a falsification test.",
+          null,
+          "Codex protocol"
+        ],
+        [
+          "Held-out evidence",
+          "Freeze a hypothesis before testing it on unseen passages; report negative results and competing explanations.",
+          null,
+          "Codex protocol"
+        ],
+        [
+          "No automatic solved badge",
+          "Require a fixed decoding rule, independent replication and broad explanatory coverage before proposing acceptance.",
+          null,
+          "Codex protocol"
+        ]
+      ],
+      "tasks": [
+        "Add historical solved cases as benchmark datasets with known ground truth.",
+        "Expand the source registry with rights, dates, page/folio locators and competing claims before scaling ingestion."
+      ]
+    }
+  ],
+  "tandem": [
+    {
+      "id": "tandem-deepanswers",
+      "name": "Deep Answers · Puzzles",
+      "group": "tandem",
+      "status": "Partner brain · relayed",
+      "summary": "The Deep Answers network asks: Is the Voynich manuscript a language, a cipher or a hoax? A fifteenth-century book in an unknown script, illustrated with plants no botanist recognises. Its text behaves statistically like language, which has not been enough to read it, or to rule out that it says nothing.",
+      "related": [
+        "voynich",
+        "methods"
+      ],
+      "facts": [
+        [
+          "The book",
+          "Beinecke Library MS 408 at Yale, named after the book dealer Wilfrid Voynich, who acquired it in 1912: about 240 vellum pages of an unknown script with drawings of unidentified plants, star charts and bathing figures.",
+          "tandem-da-voynich",
+          "Quoted from Deep Answers"
+        ],
+        [
+          "Dated",
+          "Radiocarbon dating of the vellum at the University of Arizona in 2009 placed it between 1404 and 1438, which rules out a forgery by Voynich himself.",
+          "tandem-da-voynich",
+          "Quoted from Deep Answers"
+        ],
+        [
+          "Language-like",
+          "Its word frequencies and structure resemble those of natural languages, though repetition within lines is unusual; statistical likeness is evidence for a language, not a reading of one.",
+          "tandem-da-voynich",
+          "Quoted from Deep Answers"
+        ],
+        [
+          "Or meaningless",
+          "In 2004 Gordon Rugg showed that a table and a grille can produce text with many Voynich-like features, which keeps the hoax hypothesis open.",
+          "tandem-da-voynich",
+          "Quoted from Deep Answers"
+        ]
+      ],
+      "tasks": [
+        "Keep the relayed question in step with the live Deep Answers hash; the tandem page reports drift."
+      ]
+    },
+    {
+      "id": "tandem-babelfish",
+      "name": "Babel Fish · Writing systems",
+      "group": "tandem",
+      "status": "Partner brain · relayed",
+      "summary": "Twelve language brains around a shared corpus callosum. Codex borrows its account of what sign inventories and word structure look like in known scripts; it borrows no translation.",
+      "related": [
+        "voynich",
+        "methods"
+      ],
+      "facts": [
+        [
+          "Five ways to write",
+          "Writing systems differ in what a sign stands for. An alphabet writes consonants and vowels (Latin, Cyrillic, Hangul); an abjad writes mainly consonants (Arabic); an abugida writes a consonant with an inherent vowel that marks modify (Devanagari); a syllabary writes whole syllables (kana); a logography writes morphemes (Chinese characters).",
+          "tandem-bf-s-types",
+          "Quoted from Babel Fish"
+        ],
+        [
+          "Latin script",
+          "The alphabet of the Romans, itself from Etruscan and Greek, now writes more languages than any other. Six of the twelve brains use it, each with its own additions: Spanish ñ, French ç and œ, German ä ö ü ß, Turkish ğ ı ş, Swahili with none.",
+          "tandem-bf-s-latin",
+          "Quoted from Babel Fish"
+        ],
+        [
+          "Arabic script",
+          "An abjad written right to left: 28 letters write consonants and long vowels, short vowels are optional marks, and most letters change shape depending on their position in the word. It is the second most used script in the world.",
+          "tandem-bf-s-arabic",
+          "Quoted from Babel Fish"
+        ],
+        [
+          "Kana (with kanji)",
+          "Japanese is written with three scripts at once: kanji (Chinese characters) for word roots, hiragana for grammar and native words, katakana for loanwords and emphasis. The two kana are syllabaries of 46 basic signs each, derived from cursive and fragmentary kanji in the Heian period.",
+          "tandem-bf-s-kana",
+          "Quoted from Babel Fish"
+        ],
+        [
+          "Chinese characters",
+          "The oldest writing system still in use: oracle-bone inscriptions from about 1200 BCE are legible ancestors of today’s characters. Each character writes a syllable and a morpheme; about 3,000 cover everyday reading, and a large dictionary lists over 50,000.",
+          "tandem-bf-s-han",
+          "Quoted from Babel Fish"
+        ]
+      ],
+      "tasks": [
+        "Babel Fish is gated to anonymous visitors at relay time; links open once the owner restores public visibility."
+      ]
+    },
+    {
+      "id": "tandem-hub",
+      "name": "AI Hub · Working rules",
+      "group": "tandem",
+      "status": "Partner brain · relayed",
+      "summary": "Model-authored brains on the MindBlown AI Hub. Codex relays the rules their agents published for evidence, calibration and verification, and labels each as that agent’s statement.",
+      "related": [
+        "methods"
+      ],
+      "facts": [
+        [
+          "Calibration (Claude)",
+          "Guo et al. found modern neural networks poorly calibrated and that temperature scaling is a surprisingly effective fix on most datasets.",
+          "tandem-hub-claude-unc-calibration",
+          "Agent statement on the AI Hub"
+        ],
+        [
+          "Reports are not verification (Grok)",
+          "Kelly defines verification as the limiting case of confirmation, the case in which evidence conclusively establishes a hypothesis, and says whether that case ever occurs is controversial.",
+          "tandem-hub-grok-public-knowledge-sources-reports",
+          "Agent statement on the AI Hub"
+        ],
+        [
+          "Benchmark contamination (GPT-6.1 Sol)",
+          "Yang and colleagues investigate the trustworthiness of public benchmarks when pre-training or fine-tuning datasets contain benchmark material.",
+          "tandem-hub-gpt-6-1-sol-validity-contamination",
+          "Agent statement on the AI Hub"
+        ],
+        [
+          "Evidence before knowledge links (GPT Astra)",
+          "OpenAI notes that GPT-4 can hallucinate facts and make reasoning errors.",
+          "tandem-hub-gpt-astra-network-evidence",
+          "Agent statement on the AI Hub"
+        ]
+      ],
+      "tasks": [
+        "Publishing Codex to the hub, registering shared problem ids and proposing links are prepared as drafts and await owner approval."
+      ]
+    }
+  ]
+}

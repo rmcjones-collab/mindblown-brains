@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MindBlown: GTA network — overview</title>
+<meta name="description" content="A network of MindBlown brains about Grand Theft Auto: the GTA brain and the auxiliary Leo's Black Book brain, wired together through shared economy and canon neurons.">
+<link rel="preconnect" href="https://api.fontshare.com">
+<link href="https://api.fontshare.com/v2/css?f[]=clash-display@500,600,700&f[]=satoshi@400,500,700&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='6' fill='%23ff8a3d'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="./style.css">
+<style>
+  html, body { overflow: auto; height: auto; }
+  body { background: radial-gradient(1200px 800px at 50% 0%, #0e1322 0%, var(--bg) 70%) fixed; }
+  .net-top { position: static; height: 64px; padding: 0 20px; display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 20px; max-width: 1180px; margin: 0 auto; }
+  .net-top .brand { pointer-events: auto; }
+  main { max-width: 1180px; margin: 0 auto; padding: 8px 20px 80px; }
+  h1 { font-family: var(--font-display); font-weight: 600; font-size: clamp(30px, 5vw, 46px); line-height: 1.05; margin: 36px 0 10px; letter-spacing: -0.01em; }
+  .lede { color: var(--text-2); font-size: 16px; max-width: 760px; margin: 0 0 30px; line-height: 1.5; }
+  .lede b { color: var(--text); font-weight: 500; }
+  h2 { font-family: var(--font-display); font-weight: 600; font-size: 22px; margin: 44px 0 6px; }
+  .hint { color: var(--text-3); font-size: 13px; margin: 0 0 16px; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+  .card { display: block; color: inherit; text-decoration: none; background: var(--glass); border: 1px solid var(--line); border-radius: var(--radius); padding: 20px 22px 18px; position: relative; overflow: hidden; transition: border-color .2s, transform .2s; }
+  .card:hover { border-color: var(--line-strong); transform: translateY(-2px); }
+  .card::before { content: ''; position: absolute; inset: -40% auto auto -20%; width: 60%; aspect-ratio: 1; border-radius: 50%; background: radial-gradient(circle, var(--c) 0%, transparent 65%); opacity: .18; }
+  .card .k { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--text-3); }
+  .card h3 { font-family: var(--font-display); font-weight: 600; font-size: 24px; margin: 6px 0 4px; display: flex; align-items: center; gap: 10px; }
+  .card h3 .sw { width: 12px; height: 12px; border-radius: 50%; background: var(--c); box-shadow: 0 0 14px var(--c); display: inline-block; }
+  .card p { color: var(--text-2); font-size: 14px; line-height: 1.45; margin: 4px 0 12px; }
+  .card .stats { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12.5px; color: var(--text-3); }
+  .card .stats b { color: var(--text); font-weight: 500; }
+  .card .open { position: absolute; right: 18px; top: 20px; font-size: 12px; color: var(--text-3); }
+  .card:hover .open { color: var(--text); }
+  .card.soon { border-style: dashed; opacity: .75; }
+  .card.soon::before { display: none; }
+  .diagram { background: var(--glass); border: 1px solid var(--line); border-radius: var(--radius); padding: 10px; }
+  .diagram svg { width: 100%; height: auto; display: block; }
+  .diagram text { font-family: var(--font-body); fill: var(--text-2); font-size: 11px; }
+  .diagram .hub text { font-family: var(--font-display); font-weight: 600; font-size: 15px; fill: var(--text); }
+  .diagram a { cursor: pointer; }
+  .diagram a:hover text { fill: var(--text); }
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; background: var(--glass); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
+  th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--text-3); font-weight: 500; }
+  tr:last-child td { border-bottom: 0; }
+  td.n { white-space: nowrap; }
+  td .d { display: block; color: var(--text-3); font-size: 12px; margin-top: 2px; max-width: 520px; }
+  td a { color: var(--text); text-decoration: none; display: inline-block; padding: 2px 9px; border-radius: 999px; border: 1px solid var(--line-strong); white-space: nowrap; }
+  td a:hover { background: rgba(255,255,255,.06); }
+  td a .c { color: var(--text-3); }
+  td .none { color: var(--text-3); font-size: 12px; }
+  .lobe-tag { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--text-3); margin: 26px 0 8px; }
+  .lobe-tag .sw { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+  footer { color: var(--text-3); font-size: 12px; margin-top: 50px; line-height: 1.6; }
+  footer code { color: var(--text-2); }
+  .tbl { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  @media (max-width: 700px) {
+    .net-top { height: auto; padding: 12px 16px 4px; grid-template-columns: 1fr; }
+    .net-top .brand { display: grid; grid-template-columns: auto 1fr; }
+    .net-top .brand-text .sub { display: none; }
+    .net-top .brand .title { font-size: 18px; }
+    .net-top .brains.dd { margin-left: auto; }
+    main { padding-left: 16px; padding-right: 16px; }
+    h1 { margin-top: 18px; }
+    .diagram { display: none; }
+    .diagram-note { display: block !important; }
+    td .d { display: none; }
+    th, td { padding: 8px 10px; white-space: nowrap; }
+  }
+</style>
+</head>
+<body>
+<header class="net-top">
+  <div class="brand">
+    <svg class="logo" viewBox="0 0 32 32" width="32" height="32" aria-hidden="true">
+      <circle cx="16" cy="16" r="4.2" fill="currentColor"/>
+      <g fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M16 12V5M16 20v7M12 16H5M20 16h7M13 13l-5-5M19 19l5 5M19 13l5-5M13 19l-5 5"/></g>
+      <g fill="currentColor"><circle cx="16" cy="4" r="1.6"/><circle cx="16" cy="28" r="1.6"/><circle cx="4" cy="16" r="1.6"/><circle cx="28" cy="16" r="1.6"/><circle cx="7" cy="7" r="1.3"/><circle cx="25" cy="25" r="1.3"/><circle cx="25" cy="7" r="1.3"/><circle cx="7" cy="25" r="1.3"/></g>
+    </svg>
+    <div class="brand-text">
+      <span class="title">MindBlown: GTA network</span>
+      <span class="sub">a network of brains · shared economy and canon neurons</span>
+    </div>
+    <nav class="brains" aria-label="Brains"><a href="index.html">Network</a><a href="gta.html">Grand Theft Auto</a><a href="leo.html">Leo's Black Book</a><a href="overview.html" class="on">Overview</a><a href="https://rmcjones-collab.github.io/mindblown-demo/" class="home" title="Back to MindBlown">MindBlown ↗</a></nav>
+  </div>
+</header>
+<main>
+  <h1>One game, one book, one vocabulary.</h1>
+  <p class="hint">This page is the index. The <a href="index.html" style="color:var(--text)">Network</a> tab shows both brains on one screen.</p>
+  <p class="lede">Each brain in this network is its own map: <b>Grand Theft Auto</b> has the series, GTA VI and Leonida, the previewed VI systems, the GTA V and Online economy, Rockstar and the community; <b>Leo's Black Book</b>, the auxiliary brain, has the book site, the seed ledger, Leo the bot, The Lot, the content engine and hosting. What joins them is a set of <b id="n-shared">…</b> shared neurons in the GTA economy and Sources &amp; canon lobes: the same id, title and definition in every brain, each brain adding its own synapses. Open a shared neuron in one brain and the side panel offers the same neuron in the other.</p>
+
+  <section class="cards" id="cards"></section>
+
+  <h2>How the brains connect</h2>
+  <p class="hint">Hubs on the outside, shared neurons down the middle. Click a shared neuron to open it in a brain.</p>
+  <div class="diagram" id="diagram"></div>
+  <p class="hint diagram-note" style="display:none">The wiring diagram needs a wider screen; the table below lists the same connections.</p>
+
+  <h2>Shared vocabulary</h2>
+  <p class="hint">Every row is one neuron id that exists in more than one brain. The pills show how many synapses each brain contributes and open that brain on the neuron.</p>
+  <div id="tables"></div>
+
+  <h2>Waiting for a second brain</h2>
+  <p class="hint">Shared-vocabulary neurons that only one brain uses so far; the next brain that cites them lights up a connection.</p>
+  <div id="only"></div>
+
+  <footer>
+    Built from <code>build_gta_data.py</code>, <code>build_leo_data.py</code> and <code>build_network.py</code> (<code>mb_shared.py</code> holds the registry of shared ids). Adding a brain means writing one more generator that calls <code>shared(...)</code> for the economy and canon neurons it touches. Private preview: the Leo brain cites a private repo and memory notes. <span id="built"></span>
+  </footer>
+</main>
+<script src="./network-data.js"></script>
+<script src="./app.js"></script>
+<script src="./improbability-drive.js"></script><!-- builds the brain dropdown; the renderer itself stays idle on this page -->
+<script>
+(() => {
+  const N = window.MINDBLOWN_NETWORK; if (!N) return;
+  const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const pl = (n, w) => `${n} ${w}${n === 1 ? '' : 's'}`;
+  const link = (b, id) => `${b.href}#n=${encodeURIComponent(id)}`;
+  const brains = N.brains, byId = Object.fromEntries(brains.map(b => [b.id, b]));
+  const sharedIds = Object.keys(N.shared).sort((a, b) => a.localeCompare(b));
+  document.getElementById('n-shared').textContent = sharedIds.length;
+  document.getElementById('built').textContent = 'Network built ' + N.built + '.';
+
+  // cards
+  document.getElementById('cards').innerHTML = brains.map(b => `
+    <a class="card" href="${esc(b.href)}" style="--c:${esc(b.color)}">
+      <span class="k">Brain</span><span class="open">Open brain →</span>
+      <h3><span class="sw"></span>${esc(b.title)}</h3>
+      <p>${esc(b.blurb)}</p>
+      <div class="stats"><span><b>${b.neurons}</b> neurons</span><span><b>${b.subNeurons}</b> sub-neurons</span><span><b>${b.synapses}</b> synapses</span><span><b>${b.sources}</b> sources</span><span><b>${Object.values(N.shared).filter(v => v[b.id]).length}</b> shared</span></div>
+    </a>`).join('') + `
+    <div class="card soon" style="--c:#6f7b99"><span class="k">Next</span><h3><span class="sw" style="background:#6f7b99;box-shadow:none"></span>Another brain</h3><p>A new brain plugs in by reusing the same econ/* and canon/* ids. Candidates: Leo's Pocket, GTA VI Online once announced, Red Dead.</p><div class="stats"><span>same renderer</span><span>same registry</span></div></div>`;
+
+  // diagram: hubs left/right, shared neurons stacked in the middle, grouped by lobe
+  const lobeColor = { econ: '#22d3ee', canon: '#a78bfa' };
+  const groups = ['econ', 'canon'];
+  const rows = groups.flatMap(g => sharedIds.filter(id => N.registry[id].lobe === g).map(id => ({ id, g })));
+  const W = 1140, rowH = 20, padT = 40, H = padT + rows.length * rowH + 30;
+  const hubX = [120, W - 120], midX = W / 2, hubY = H / 2;
+  let svg = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Diagram of the two brains joined by shared neurons">`;
+  rows.forEach((r, i) => {
+    const y = padT + i * rowH + 10, c = lobeColor[r.g];
+    const counts = N.shared[r.id];
+    brains.forEach((b, bi) => {
+      if (!counts[b.id]) return;
+      const x0 = hubX[bi], cx1 = x0 + (midX - x0) * 0.5, w = Math.min(3, 0.6 + counts[b.id].synapses * 0.35);
+      svg += `<path d="M${x0} ${hubY} C ${cx1} ${hubY}, ${cx1} ${y}, ${midX} ${y}" fill="none" stroke="${c}" stroke-opacity="0.35" stroke-width="${w}"/>`;
+    });
+    const first = brains.find(b => counts[b.id]);
+    svg += `<a href="${esc(link(first, r.id))}"><circle cx="${midX}" cy="${y}" r="4" fill="${c}"/><circle cx="${midX}" cy="${y}" r="7" fill="none" stroke="#fff" stroke-opacity=".45" stroke-dasharray="2.5 2.5"/>`;
+    svg += `<text x="${midX + 14}" y="${y + 4}">${esc(N.registry[r.id].title)}</text>`;
+    const left = brains.filter(b => counts[b.id]).map(b => `${b.short} ${counts[b.id].synapses}`).join(' · ');
+    svg += `<text x="${midX - 14}" y="${y + 4}" text-anchor="end" fill-opacity=".8">${esc(left)}</text></a>`;
+  });
+  brains.forEach((b, bi) => {
+    const x = hubX[bi];
+    svg += `<a class="hub" href="${esc(b.href)}"><circle cx="${x}" cy="${hubY}" r="34" fill="${esc(b.color)}" fill-opacity=".18"/><circle cx="${x}" cy="${hubY}" r="20" fill="${esc(b.color)}"/><text x="${x}" y="${hubY + 50}" text-anchor="middle">${esc(b.title)}</text><text x="${x}" y="${hubY + 68}" text-anchor="middle" style="font-family:var(--font-body);font-weight:400;font-size:11px;fill:var(--text-3)">${b.neurons} neurons · ${b.synapses} synapses</text></a>`;
+  });
+  svg += `<text x="${midX}" y="22" text-anchor="middle" style="fill:var(--text-3);letter-spacing:.1em;text-transform:uppercase;font-size:10px">shared neurons · synapses per brain</text></svg>`;
+  document.getElementById('diagram').innerHTML = svg;
+
+  // tables grouped by lobe
+  const lobeName = { econ: 'GTA economy', canon: 'Sources & canon' };
+  document.getElementById('tables').innerHTML = groups.map(g => {
+    const ids = sharedIds.filter(id => N.registry[id].lobe === g);
+    if (!ids.length) return '';
+    return `<div class="lobe-tag"><span class="sw" style="background:${lobeColor[g]}"></span>${esc(lobeName[g])} · ${ids.length} shared</div>
+    <div class="tbl"><table><thead><tr><th>Neuron</th>${brains.map(b => `<th>${esc(b.title)}</th>`).join('')}</tr></thead><tbody>` +
+      ids.map(id => `<tr><td class="n"><b>${esc(N.registry[id].title)}</b><span class="d">${esc(N.registry[id].desc)}</span></td>` +
+        brains.map(b => N.shared[id][b.id] ? `<td><a href="${esc(link(b, id))}">${pl(N.shared[id][b.id].synapses, 'synapse')} <span class="c">· ${pl(N.shared[id][b.id].connections, 'link')} →</span></a></td>` : `<td><span class="none">—</span></td>`).join('') + `</tr>`).join('') +
+      `</tbody></table></div>`;
+  }).join('');
+
+  // only-in-one list
+  const only = Object.entries(N.onlyIn || {}).sort((a, b) => a[0].localeCompare(b[0]));
+  document.getElementById('only').innerHTML = only.length ? `<div class="tbl"><table><thead><tr><th>Neuron</th><th>So far only in</th></tr></thead><tbody>` +
+    only.map(([id, bid]) => `<tr><td class="n"><b>${esc(N.registry[id].title)}</b><span class="d">${esc(N.registry[id].desc)}</span></td><td><a href="${esc(link(byId[bid], id))}">${esc(byId[bid].title)} →</a></td></tr>`).join('') + `</tbody></table></div>` : '<p class="hint">Every shared-vocabulary neuron is used by at least two brains.</p>';
+})();
+</script>
+</body>
+</html>

@@ -4,7 +4,7 @@
  "about": "Ten puzzles written for the Mensa brain (mensabrain.pplx.app, repo rmcjones-collab/mindblown-mensa), where each seals a fact about Mensa's Mind Games. Deep Answers accepts them with tools/accept_puzzles.py --from-mensa-brain, which reads the brain's wiki with the same strict puzzle grammar its builder uses. They form rungs 1 and 2 of the ladder: here each one seals a fact about what Mensa is and how puzzles are used to measure anything at all. Nothing here is affiliated with or endorsed by Mensa.",
  "sources": {
   "MBRAIN": {
-   "uri": "https://mensabrain.pplx.app/",
+   "uri": "https://rmcjones-collab.github.io/mindblown-brains/mensabrain/",
    "label": "MindBlown · Mensa brain (mensabrain.pplx.app)"
   },
   "MENSA_FAQ": {

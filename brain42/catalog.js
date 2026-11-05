@@ -17,14 +17,14 @@ window.MINDBLOWN_CATALOG = {
       { id: 'life',        title: 'Life',        short: 'Life',        color: '#4ade80', data: 'life-data.js',        href: 'life.html',        fictional: true },
       { id: 'programming', title: 'Programming', short: 'Programming', color: '#60a5fa', data: 'programming-data.js', href: 'programming.html', fictional: true }
     ] },
-    { id: 'gta', title: 'GTA network', short: 'GTA', host: 'https://gtabrain.pplx.app', brains: [
+    { id: 'gta', title: 'GTA network', short: 'GTA', host: 'https://rmcjones-collab.github.io/mindblown-brains/gtabrain/', brains: [
       { id: 'gta', title: 'Grand Theft Auto', short: 'GTA', color: '#ff8a3d', data: 'gta-data.js', href: 'gta.html' },
       { id: 'leo', title: "Leo's Black Book", short: 'Leo', color: '#f1e6c8', data: 'leo-data.js', href: 'leo.html' }
     ] },
     { id: 'brain42', title: 'Brain 42', short: '42', host: 'https://rmcjones-collab.github.io/mindblown-brains/brain42/', brains: [
       { id: 'brain42', title: '42', short: '42', color: '#fde68a', data: 'data/brain42-data.js', href: 'index.html' }   // published as brain42.pplx.app/index.html (build-publication renames the page)
     ] },
-    { id: 'codex', title: 'Codex', short: 'Codex', host: 'https://codexbrain.pplx.app', brains: [   // decipherment research; public sources only, no decipherment claimed
+    { id: 'codex', title: 'Codex', short: 'Codex', host: 'https://rmcjones-collab.github.io/mindblown-brains/codexbrain/', brains: [   // decipherment research; public sources only, no decipherment claimed
       { id: 'codex', title: 'Codex Brain', short: 'Codex', color: '#dfb97a', data: 'index-data.js', href: 'index.html' },
       { id: 'voynich', title: 'Voynich Manuscript', short: 'Voynich', color: '#dfb97a', data: 'voynich-data.js', href: 'voynich.html' },
       { id: 'lorenz', title: 'Lorenz / Tunny', short: 'Lorenz', color: '#86bcc6', data: 'lorenz-data.js', href: 'lorenz.html' },
