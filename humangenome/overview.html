@@ -1,0 +1,647 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MindBlown: Human genome network — overview</title>
+<meta name="description" content="Overview of the MindBlown human genome network: the whole genome, chromosomes 1–22, X, Y and the mitochondrial genome, each a distinct brain, wired together through shared concept, reference and method neurons.">
+<link rel="preconnect" href="https://api.fontshare.com">
+<link href="https://api.fontshare.com/v2/css?f[]=clash-display@500,600,700&f[]=satoshi@400,500,700&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='6' fill='%23ff8a3d'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="./style.css">
+<style>
+  /* the nav is a <nav class="brains"> of links plus a <select> of chromosomes; app.js turns it into the shared brain dropdown */
+  @media (max-width: 900px) { .brains.dd { margin-left: auto; } }
+</style>
+<style>
+  html, body { overflow: auto; height: auto; }
+  body { background: radial-gradient(1200px 800px at 50% 0%, #0e1322 0%, var(--bg) 70%) fixed; }
+  .net-top { position: static; height: 64px; padding: 0 20px; display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 20px; max-width: 1180px; margin: 0 auto; }
+  .net-top .brand { pointer-events: auto; }
+  main { max-width: 1180px; margin: 0 auto; padding: 8px 20px 80px; }
+  h1 { font-family: var(--font-display); font-weight: 600; font-size: clamp(30px, 5vw, 46px); line-height: 1.05; margin: 36px 0 10px; letter-spacing: -0.01em; }
+  .lede { color: var(--text-2); font-size: 16px; max-width: 800px; margin: 0 0 30px; line-height: 1.5; }
+  .lede b { color: var(--text); font-weight: 500; }
+  h2 { font-family: var(--font-display); font-weight: 600; font-size: 22px; margin: 44px 0 6px; }
+  .hint { color: var(--text-3); font-size: 13px; margin: 0 0 16px; }
+  .hint a { color: var(--text); }
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(215px, 1fr)); gap: 12px; }
+  .card { display: block; color: inherit; text-decoration: none; background: var(--glass); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px 16px 14px; position: relative; overflow: hidden; transition: border-color .2s, transform .2s; }
+  .card:hover { border-color: var(--line-strong); transform: translateY(-2px); }
+  .card::before { content: ''; position: absolute; inset: -40% auto auto -20%; width: 60%; aspect-ratio: 1; border-radius: 50%; background: radial-gradient(circle, var(--c) 0%, transparent 65%); opacity: .16; }
+  .card .k { font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--text-3); }
+  .card h3 { font-family: var(--font-display); font-weight: 600; font-size: 19px; margin: 4px 0 6px; display: flex; align-items: center; gap: 8px; }
+  .card h3 .sw { width: 10px; height: 10px; border-radius: 50%; background: var(--c); box-shadow: 0 0 12px var(--c); display: inline-block; flex: none; }
+  .card .bp { color: var(--text-2); font-size: 12.5px; margin: 0 0 8px; }
+  .card .stats { display: flex; flex-wrap: wrap; gap: 4px 10px; font-size: 12px; color: var(--text-3); }
+  .card .stats b { color: var(--text); font-weight: 500; }
+  .cards.sats { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+  .card.sat p { color: var(--text-2); font-size: 13px; line-height: 1.45; margin: 0 0 10px; }
+  .pills a.sat { opacity: .75; border-style: dashed; }
+  .card.hub { grid-column: 1 / -1; padding: 20px 22px 18px; }
+  .card.hub h3 { font-size: 26px; }
+  .card.hub p { color: var(--text-2); font-size: 14px; line-height: 1.45; margin: 4px 0 12px; max-width: 760px; }
+  .diagram { background: var(--glass); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 14px 8px; }
+  .diagram svg { width: 100%; height: auto; display: block; }
+  .diagram text { font-family: var(--font-body); fill: var(--text-2); font-size: 11px; }
+  .diagram a:hover rect { stroke: #fff; stroke-opacity: .7; }
+  .diagram a:hover text { fill: var(--text); }
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; background: var(--glass); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
+  th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--text-3); font-weight: 500; }
+  tr:last-child td { border-bottom: 0; }
+  td.n { white-space: nowrap; width: 260px; }
+  td .d { display: block; color: var(--text-3); font-size: 12px; margin-top: 2px; max-width: 240px; white-space: normal; }
+  td .pills { display: flex; flex-wrap: wrap; gap: 4px; }
+  td a { color: var(--text); text-decoration: none; display: inline-block; padding: 1px 8px; border-radius: 999px; border: 1px solid var(--line-strong); white-space: nowrap; font-size: 12px; border-left: 3px solid var(--c, var(--line-strong)); }
+  td a:hover { background: rgba(255,255,255,.06); }
+  td a .c { color: var(--text-3); }
+  td .cnt { color: var(--text-3); font-size: 12px; white-space: nowrap; }
+  .lobe-tag { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--text-3); margin: 26px 0 8px; }
+  .lobe-tag .sw { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+  footer { color: var(--text-3); font-size: 12px; margin-top: 50px; line-height: 1.6; }
+  footer code { color: var(--text-2); }
+  footer a { color: var(--text-2); }
+  .tbl { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  @media (max-width: 700px) {
+    .net-top { height: auto; padding: 12px 16px 4px; grid-template-columns: 1fr; }
+    .net-top .brand { display: grid; grid-template-columns: auto 1fr; }
+    .net-top .brand-text .sub { display: none; }
+    .net-top .brand .title { font-size: 18px; }
+    .net-top .brains.dd { margin-left: auto; }
+    main { padding-left: 16px; padding-right: 16px; }
+    h1 { margin-top: 18px; }
+    .diagram { display: none; }
+    .diagram-note { display: block !important; }
+    td .d { display: none; }
+    td.n { width: auto; }
+    .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    .card { padding: 12px 12px 10px; }
+    .card h3 { font-size: 16px; }
+    .card .stats { font-size: 11.5px; }
+    th, td { padding: 8px 10px; }
+  }
+</style>
+</head>
+<body>
+<header class="net-top">
+  <div class="brand">
+    <svg class="logo" viewBox="0 0 32 32" width="32" height="32" aria-hidden="true">
+      <circle cx="16" cy="16" r="4.2" fill="currentColor"/>
+      <g fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M16 12V5M16 20v7M12 16H5M20 16h7M13 13l-5-5M19 19l5 5M19 13l5-5M13 19l-5 5"/></g>
+      <g fill="currentColor"><circle cx="16" cy="4" r="1.6"/><circle cx="16" cy="28" r="1.6"/><circle cx="4" cy="16" r="1.6"/><circle cx="28" cy="16" r="1.6"/><circle cx="7" cy="7" r="1.3"/><circle cx="25" cy="25" r="1.3"/><circle cx="25" cy="7" r="1.3"/><circle cx="7" cy="25" r="1.3"/></g>
+    </svg>
+    <div class="brand-text">
+      <span class="title">MindBlown: Human genome</span>
+      <span class="sub">a network of 26 brains · shared concept, reference and method neurons</span>
+    </div>
+    <nav class="brains" aria-label="Brains"><a href="index.html">Network</a><a href="overview.html" class="on">Overview</a><a href="genome.html">Genome</a><select aria-label="Open a chromosome brain" onchange="if(this.value)location.href=this.value"><option value="">Chromosome…</option><option value="chr1.html">Chromosome 1</option><option value="chr2.html">Chromosome 2</option><option value="chr3.html">Chromosome 3</option><option value="chr4.html">Chromosome 4</option><option value="chr5.html">Chromosome 5</option><option value="chr6.html">Chromosome 6</option><option value="chr7.html">Chromosome 7</option><option value="chr8.html">Chromosome 8</option><option value="chr9.html">Chromosome 9</option><option value="chr10.html">Chromosome 10</option><option value="chr11.html">Chromosome 11</option><option value="chr12.html">Chromosome 12</option><option value="chr13.html">Chromosome 13</option><option value="chr14.html">Chromosome 14</option><option value="chr15.html">Chromosome 15</option><option value="chr16.html">Chromosome 16</option><option value="chr17.html">Chromosome 17</option><option value="chr18.html">Chromosome 18</option><option value="chr19.html">Chromosome 19</option><option value="chr20.html">Chromosome 20</option><option value="chr21.html">Chromosome 21</option><option value="chr22.html">Chromosome 22</option><option value="chrX.html">Chromosome X</option><option value="chrY.html">Chromosome Y</option><option value="chrMT.html">Mitochondrial genome</option></select><select aria-label="Open a satellite brain" onchange="if(this.value)location.href=this.value"><option value="">Satellite…</option><option value="sat-coverage.html">Coverage monitor</option><option value="sat-citations.html">Citation monitor</option><option value="sat-integrity.html">Integrity monitor</option><option value="sat-linker.html">Linker agent</option><option value="sat-curator.html">Curator agent</option></select></nav>
+  </div>
+</header>
+<main>
+  <h1>One genome, 26 brains.</h1>
+  <p class="hint">This page is the index. The <a href="index.html">Network</a> tab shows every brain on one screen <span id="digest-note">(a digest: each neuron keeps up to <span id="n-cap">…</span> synapses per brain there, so a shared neuron pools that many from every brain that uses it; open a brain for all of them)</span>.</p>
+  <p class="lede">The <b>Human genome</b> brain is the hub: size, composition, variation, the karyotype and the road from the Human Genome Project to the telomere-to-telomere assembly and the pangenome. Each of the <b>24 chromosomes</b> and the <b>mitochondrial genome</b> is its own brain: landmark genes, conditions mapped to it, centromere and bands, and when it was sequenced. What joins them is a set of <b id="n-shared">…</b> shared neurons in the Genome concepts, References &amp; projects and Sequencing &amp; methods lobes: the same id, title and definition in every brain, each brain adding its own cited synapses. Open a shared neuron in one brain and the side panel offers the same neuron in the others.</p>
+
+  <section class="cards" id="cards"></section>
+
+  <h2>The karyotype as a network</h2>
+  <p class="hint">Bars are scaled to GRCh38 length (UCSC hg38.chrom.sizes, mtDNA exaggerated to stay visible); the mark is the centromere. The number under each bar is how many shared neurons that brain contributes. Click a bar to open the brain.</p>
+  <div class="diagram" id="diagram"></div>
+  <p class="hint diagram-note" style="display:none">The karyotype diagram needs a wider screen; the cards above open the same brains.</p>
+
+  <h2>Shared vocabulary</h2>
+  <p class="hint">Every row is one neuron id that exists in more than one brain. Each pill is a brain that uses it, with the number of synapses it contributes; the pill opens that brain on the neuron.</p>
+  <div id="tables"></div>
+
+  <h2>Only in the hub so far</h2>
+  <p class="hint">Shared-vocabulary neurons that only the Human genome brain uses; the next chromosome brain that cites them lights up a connection.</p>
+  <div id="only"></div>
+
+  <h2>Satellites</h2>
+  <p class="hint">Brains that watch the genome brains rather than the genome. <b>Monitors</b> read the built brains and report (coverage, citations, integrity); <b>agents</b> propose links and facts, and what they learn is written to <code>satellites/learned/</code> and picked up by the generators on the next build. Same renderer, same shared ids: a monitor's concept neuron is the same neuron as the chromosomes'.</p>
+  <section class="cards sats" id="sats"></section>
+
+  <footer>
+    Built from <code>build_genome_data.py</code>, <code>build_chromosome_data.py &lt;chr&gt;</code> (one generic generator for all 25 chromosome brains), <code>satellites/run.py</code> (monitors and agents) and <code>build_network.py</code>; <code>mb_shared.py</code> holds the registry of shared ids. Sizes from <a href="https://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/hg38.chrom.sizes">UCSC hg38.chrom.sizes</a>, centromeres from <a href="https://hgdownload.soe.ucsc.edu/goldenPath/hg38/database/centromeres.txt.gz">UCSC centromeres.txt</a>. <span id="built"></span>
+  </footer>
+</main>
+<script src="./network-data.js"></script>
+<script src="./app.js"></script>
+<script src="./improbability-drive.js"></script><!-- builds the brain dropdown; the renderer itself stays idle on this page -->
+<script>
+(() => {
+  const N = window.MINDBLOWN_NETWORK; if (!N) return;
+  const SIZES = {"1": 248956422, "2": 242193529, "3": 198295559, "4": 190214555, "5": 181538259, "6": 170805979, "7": 159345973, "8": 145138636, "9": 138394717, "10": 133797422, "11": 135086622, "12": 133275309, "13": 114364328, "14": 107043718, "15": 101991189, "16": 90338345, "17": 83257441, "18": 80373285, "19": 58617616, "20": 64444167, "21": 46709983, "22": 50818468, "X": 156040895, "Y": 57227415, "MT": 16569}, CEN = {"1": 123479591, "10": 40640101, "11": 52751711, "12": 35977329, "13": 17025624, "14": 17086761, "15": 18404463, "16": 37288413, "17": 24714921, "18": 18161052, "19": 25844927, "2": 93139351, "20": 28237290, "21": 11890184, "22": 14004553, "3": 92214016, "4": 50728006, "5": 48272853, "6": 59191911, "7": 59848836, "8": 44955504, "9": 44454096, "X": 60509060, "Y": 10430491};
+  const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const fmt = n => n.toLocaleString('en-US');
+  const mb = n => (n / 1e6).toFixed(n < 1e6 ? 3 : 1) + ' Mb';
+  const link = (b, id) => `${b.href}#n=${encodeURIComponent(id)}`;
+  const brains = N.brains.filter(b => !b.satellite), sats = N.brains.filter(b => b.satellite), byId = Object.fromEntries(N.brains.map(b => [b.id, b]));
+  const sharedIds = Object.keys(N.shared).filter(id => brains.filter(b => N.shared[id][b.id]).length > 1).sort((a, b) => a.localeCompare(b));   // shared between genome brains; satellite pills are added per row
+  const nShared = b => Object.values(N.shared).filter(v => v[b.id]).length;
+  document.getElementById('n-shared').textContent = sharedIds.length;
+  if (N.maxSyn) document.getElementById('n-cap').textContent = N.maxSyn; else document.getElementById('digest-note').textContent = '(the full merge: every synapse of every brain)';
+  document.getElementById('built').textContent = 'Network built ' + N.built + '.';
+
+  // cards: hub first, then chromosomes in karyotype order
+  document.getElementById('cards').innerHTML = brains.map(b => {
+    const c = b.id.slice(3), hub = b.id === 'genome';
+    const bp = hub ? '' : `<div class="bp">${c === 'MT' ? fmt(SIZES[c]) + ' bp' : mb(SIZES[c])} · GRCh38</div>`;
+    return `<a class="card${hub ? ' hub' : ''}" href="${esc(b.href)}" style="--c:${esc(b.color)}">
+      <span class="k">${hub ? 'Hub brain' : 'Brain'}</span>
+      <h3><span class="sw"></span>${esc(b.title)}</h3>${hub ? `<p>${esc(b.blurb)}</p>` : bp}
+      <div class="stats"><span><b>${b.neurons}</b> neurons</span><span><b>${b.subNeurons}</b> sub</span><span><b>${b.synapses}</b> synapses</span><span><b>${b.sources}</b> sources</span><span><b>${nShared(b)}</b> shared</span></div>
+    </a>`; }).join('');
+
+  // satellites: one card each with the status numbers the satellite left in satellites/out/*.json
+  const S = N.satellites || {};
+  const stat = (b, s) => !s ? [['no run yet', '']] : b.id === 'sat-coverage' ? [[Math.round(s.geneCoverage * 100) + '%', 'gene extracts used'], [s.silentPairs, 'silent concept pairs'], [s.thinNeurons, 'single-synapse neurons'], [s.hubOnly, 'hub-only ids']]
+    : b.id === 'sat-citations' ? [[s.urls, 'URLs checked'], [s.ok, 'reachable'], [s.redirect, 'redirected'], [(s.blocked || 0) + s.error, 'walled / unreachable']]
+    : b.id === 'sat-integrity' ? [[s.checks - s.failing + '/' + s.checks, 'checks clean'], [s.hard, 'hard failures'], [s.isolated, 'isolated neurons'], [s.medianVisibility + '%', 'digest visibility']]
+    : b.id === 'sat-linker' ? [[s.learnedTotal, 'links learned so far'], [s.present, 'mentions already linked'], [s.pending, 'awaiting review'], [s.cross, 'cross-brain']]
+    : [[s.learnedFacts, 'facts learned so far'], [s.appliedFacts, 'on their neurons'], [s.pending, 'awaiting review']];
+  document.getElementById('sats').innerHTML = sats.map(b => `<a class="card sat" href="${esc(b.href)}" style="--c:${esc(b.color)}">
+      <span class="k">${esc(b.kind)}</span>
+      <h3><span class="sw"></span>${esc(b.title)}</h3><p>${esc(b.blurb)}</p>
+      <div class="stats">${stat(b, S[b.id]).map(([v, l]) => `<span><b>${esc(v)}</b> ${esc(l)}</span>`).join('')}<span><b>${b.neurons}</b> neurons</span></div>
+    </a>`).join('');
+
+  // karyotype diagram: one bar per chromosome brain, height ∝ bp
+  const chrs = brains.filter(b => b.id !== 'genome');
+  const W = 1140, top = 26, maxH = 230, base = top + maxH, gap = W / chrs.length, bw = Math.min(26, gap * 0.6);
+  const maxBp = Math.max(...chrs.map(b => SIZES[b.id.slice(3)]));
+  let svg = `<svg viewBox="0 0 ${W} ${base + 58}" role="img" aria-label="Karyotype of the 25 chromosome brains scaled by length">`;
+  chrs.forEach((b, i) => {
+    const c = b.id.slice(3), bp = SIZES[c], h = Math.max(6, maxH * bp / maxBp), x = gap * i + (gap - bw) / 2, y = base - h;
+    svg += `<a href="${esc(b.href)}"><title>${esc(b.title)} · ${fmt(bp)} bp · ${b.synapses} synapses</title>`;
+    svg += `<rect x="${x}" y="${y}" width="${bw}" height="${h}" rx="${bw / 2}" fill="${esc(b.color)}" fill-opacity=".85" stroke="${esc(b.color)}" stroke-opacity="0"/>`;
+    if (CEN[c]) { const cy = y + h * (CEN[c] / bp); svg += `<rect x="${x - 2}" y="${cy - 2}" width="${bw + 4}" height="4" fill="#0b0e14" fill-opacity=".9"/>`; }
+    svg += `<text x="${x + bw / 2}" y="${base + 16}" text-anchor="middle" style="fill:var(--text);font-weight:500">${esc(b.short.replace('Chr ', ''))}</text>`;
+    svg += `<text x="${x + bw / 2}" y="${base + 31}" text-anchor="middle" style="fill:var(--text-3);font-size:10px">${c === 'MT' ? (bp / 1e3).toFixed(1) + ' kb' : Math.round(bp / 1e6)}</text>`;
+    svg += `<text x="${x + bw / 2}" y="${base + 48}" text-anchor="middle" style="fill:${esc(b.color)};font-size:10.5px">${nShared(b)}</text></a>`;
+  });
+  svg += `<text x="0" y="14" style="fill:var(--text-3);letter-spacing:.1em;text-transform:uppercase;font-size:10px">chromosome brains · bar = GRCh38 length (Mb) · centromere marked · shared neurons below</text></svg>`;
+  document.getElementById('diagram').innerHTML = svg;
+
+  // shared-vocabulary tables grouped by lobe; one row per id, one pill per brain
+  const lobeColor = { concept: '#a78bfa', ref: '#22d3ee', method: '#34d399' };
+  const lobeName = { concept: 'Genome concepts', ref: 'References & projects', method: 'Sequencing & methods' };
+  const row = id => { const v = N.shared[id]; const bs = brains.filter(b => v[b.id]), ss = sats.filter(b => v[b.id]);
+    return `<tr><td class="n"><b>${esc(N.registry[id].title)}</b><span class="d">${esc(N.registry[id].desc)}</span></td><td><span class="cnt">${bs.length} brains · ${bs.reduce((s, b) => s + v[b.id].synapses, 0)} synapses</span></td><td><div class="pills">` +
+      bs.concat(ss).map(b => `<a href="${esc(link(b, id))}" style="--c:${esc(b.color)}"${b.satellite ? ' class="sat" title="satellite"' : ''}>${esc(b.short)} <span class="c">${v[b.id].synapses}</span></a>`).join('') + `</div></td></tr>`; };
+  document.getElementById('tables').innerHTML = ['concept', 'ref', 'method'].map(g => {
+    const ids = sharedIds.filter(id => N.registry[id].lobe === g);
+    if (!ids.length) return '';
+    return `<div class="lobe-tag"><span class="sw" style="background:${lobeColor[g]}"></span>${esc(lobeName[g])} · ${ids.length} shared</div>
+    <div class="tbl"><table><thead><tr><th>Neuron</th><th>Used by</th><th>Brains · synapses</th></tr></thead><tbody>${ids.map(row).join('')}</tbody></table></div>`;
+  }).join('');
+
+  // only-in-one list
+  const only = Object.entries(N.onlyIn || {}).sort((a, b) => a[0].localeCompare(b[0]));
+  document.getElementById('only').innerHTML = only.length ? `<div class="tbl"><table><thead><tr><th>Neuron</th><th>So far only in</th></tr></thead><tbody>` +
+    only.map(([id, bid]) => `<tr><td class="n"><b>${esc(N.registry[id].title)}</b><span class="d">${esc(N.registry[id].desc)}</span></td><td><a href="${esc(link(byId[bid], id))}" style="--c:${esc(byId[bid].color)}">${esc(byId[bid].title)} →</a></td></tr>`).join('') + `</tbody></table></div>` : '<p class="hint">Every shared-vocabulary neuron is used by at least two brains.</p>';
+})();
+</script>
+<script data-pplx-inline-edit>
+(function () {
+  if (window === window.top) return;
+
+  const allowedParentOrigins = ["https://www.perplexity.ai","https://perplexity.ai","https://testing.perplexity.ai","https://staging.perplexity.ai","https://*.preview.i.perplexity.ai","http://perplexity.localhost","http://localhost:1420","http://127.0.0.1:1420","http://localhost:3000","http://127.0.0.1:3000","http://localhost:5173","http://127.0.0.1:5173"];
+  const MAX_FONT_BYTES = 500 * 1024;
+  const MAX_TOTAL_FONT_BYTES = 2 * 1024 * 1024;
+  const DEFAULT_LINE_HEIGHT = 16;
+  let scrollForwarding = false;
+  let scrollRaf = 0;
+  let trustedTopOrigin = null;
+
+  // Allow entries like "https://*.preview.i.perplexity.ai" — the wildcard
+  // matches a single DNS label (no dots), so "https://*.foo" cannot stretch
+  // across multiple labels.
+  function matchesAllowedOrigin(origin) {
+    if (!origin) return false;
+    for (const entry of allowedParentOrigins) {
+      if (!entry.includes("*")) {
+        if (entry === origin) return true;
+        continue;
+      }
+      const pattern = new RegExp(
+        "^" +
+          entry.replace(/[.+?^${}()|[\]\\]/g, "\\$&").replace(/\*/g, "[^.]+") +
+          "$",
+      );
+      if (pattern.test(origin)) return true;
+    }
+    return false;
+  }
+
+  // Trust decision: when the sender is same-origin-visible (event.origin is a
+  // real origin like https://www.perplexity.ai) we trust event.origin directly.
+  // When event.origin is "null" (opaque broker srcdoc), we fall back to the
+  // broker's stamped `parentOrigin` to identify the top window. The fallback
+  // is claim-only — we rely on the browser's native `targetOrigin` enforcement
+  // on the response path (see postToTrustedTop) to ensure replies can't be
+  // delivered to anyone but the actual top window of that claimed origin.
+  function getTrustedParentOrigin(event) {
+    const forwardedParentOrigin =
+      typeof event.data.parentOrigin === "string" ? event.data.parentOrigin : null;
+    const parentOrigin = event.origin === "null" ? forwardedParentOrigin : event.origin;
+    return matchesAllowedOrigin(parentOrigin) ? parentOrigin : null;
+  }
+
+  // All responses go to window.top with targetOrigin = the allowlisted origin.
+  // An attacker that iframes us inside their own null-origin broker can claim
+  // any parentOrigin they like, but the browser will drop the reply whenever
+  // the real top's origin doesn't match — so the screenshot never leaves.
+  function postToTrustedTop(message) {
+    if (!trustedTopOrigin) return;
+    try {
+      window.top.postMessage(message, trustedTopOrigin);
+    } catch (_error) {}
+  }
+
+  const PICK_CAPABILITIES = ["pick"];
+  const PICK_CHAIN_LENGTH = 4;
+  const PICK_MAX_TEXT_CHARS = 120;
+  const PICK_MAX_HTML_CHARS = 300;
+
+  function truncate(value, maxChars) {
+    return value.length > maxChars ? value.slice(0, maxChars - 1) + "…" : value;
+  }
+
+  function isPickableElement(element) {
+    return (
+      element instanceof Element &&
+      element !== document.documentElement &&
+      element !== document.body
+    );
+  }
+
+  function resolvePickTarget(x, y) {
+    if (!Number.isFinite(x) || !Number.isFinite(y)) return null;
+    const element = document.elementFromPoint(x, y);
+    return isPickableElement(element) ? element.closest("svg") || element : null;
+  }
+
+  function pickLabel(element) {
+    if (element.id) return element.localName + "#" + element.id;
+    return [element.localName].concat(Array.from(element.classList).slice(0, 2)).join(".");
+  }
+
+  // Only attributes that help find the element in source. data-* values and URL
+  // query strings or fragments can carry tokens.
+  const PICK_ATTRIBUTES = new Set([
+    "id",
+    "class",
+    "name",
+    "type",
+    "role",
+    "alt",
+    "aria-label",
+    "href",
+    "src",
+  ]);
+
+  function pickAttributeValue(attribute) {
+    return attribute.name === "href" || attribute.name === "src"
+      ? attribute.value.split(/[?#]/)[0]
+      : attribute.value;
+  }
+
+  function describePickElement(element) {
+    const chain = [];
+    for (
+      let current = element;
+      isPickableElement(current) && chain.length < PICK_CHAIN_LENGTH;
+      current = current.parentElement
+    ) {
+      chain.unshift(current);
+    }
+    const attributes = Array.from(element.attributes)
+      .filter((attribute) => PICK_ATTRIBUTES.has(attribute.name))
+      .map((attribute) => ` ${attribute.name}="${pickAttributeValue(attribute).replace(/"/g, "&quot;")}"`)
+      .join("");
+    const text = (element.innerText || element.textContent || "").replace(/\s+/g, " ").trim();
+    return {
+      chain: chain.map(pickLabel),
+      html: truncate(`<${element.localName}${attributes}>`, PICK_MAX_HTML_CHARS),
+      text: text ? truncate(text, PICK_MAX_TEXT_CHARS) : undefined,
+    };
+  }
+
+  // Hover asks once per frame, and innerText on a large section forces layout,
+  // so only the rect is re-read while the pointer stays on the same element.
+  // Clicks ask for fresh details since the page may have changed the element.
+  let lastPick = null;
+
+  function describePickTarget(element, fresh) {
+    if (fresh || lastPick?.element !== element) {
+      lastPick = { element, details: describePickElement(element) };
+    }
+    const rect = element.getBoundingClientRect();
+    return {
+      rect: { x: rect.left, y: rect.top, width: rect.width, height: rect.height },
+      ...lastPick.details,
+    };
+  }
+
+  function inlineAll(original, clone) {
+    if (original.nodeType !== 1 || clone.nodeType !== 1) return;
+
+    try {
+      const computedStyle = getComputedStyle(original);
+      // cssText on a computed style is the serialized declaration in modern
+      // Chromium/Safari — a single read beats enumerating ~400 longhand
+      // properties. Firefox returns "" here, so we fall back on empty.
+      const serialized = computedStyle.cssText;
+      if (serialized) {
+        clone.style.cssText = serialized;
+      } else {
+        const parts = new Array(computedStyle.length);
+        for (let index = 0; index < computedStyle.length; index += 1) {
+          const property = computedStyle[index];
+          parts[index] = `${property}:${computedStyle.getPropertyValue(property)};`;
+        }
+        clone.style.cssText = parts.join("");
+      }
+    } catch (_error) {}
+
+    const originalChildren = original.children;
+    const clonedChildren = clone.children;
+    for (
+      let index = 0;
+      index < originalChildren.length && index < clonedChildren.length;
+      index += 1
+    ) {
+      inlineAll(originalChildren[index], clonedChildren[index]);
+    }
+  }
+
+  function extractFontUrl(srcValue) {
+    const matches = [
+      ...srcValue.matchAll(
+        /url\(["']?([^"')]+)["']?\)(?:\s*format\(["']?([^"')]+)["']?\))?/gi,
+      ),
+    ];
+    if (matches.length === 0) return null;
+    const woff2 = matches.find((m) => m[2] && m[2].toLowerCase().includes("woff2"));
+    if (woff2) return woff2[1];
+    const woff = matches.find((m) => m[2] && m[2].toLowerCase().includes("woff"));
+    if (woff) return woff[1];
+    return matches[0][1];
+  }
+
+  // Cache resolved font URL -> data URI across captures. Fonts on a page
+  // essentially never change, and a batch run emits multiple captures back to
+  // back — without this we'd refetch + re-base64 every time.
+  const fontDataUriCache = new Map();
+  const SRC_DECLARATION_RE = /src\s*:\s*[^;}]+/i;
+
+  async function fetchAsDataUri(url) {
+    if (fontDataUriCache.has(url)) return fontDataUriCache.get(url);
+    let dataUri = null;
+    try {
+      const response = await fetch(url, { mode: "cors", credentials: "omit" });
+      if (response.ok) {
+        const blob = await response.blob();
+        if (blob.size <= MAX_FONT_BYTES) {
+          dataUri = await new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onloadend = () =>
+              resolve(typeof reader.result === "string" ? reader.result : null);
+            reader.onerror = () => resolve(null);
+            reader.readAsDataURL(blob);
+          });
+        }
+      }
+    } catch (_error) {
+      dataUri = null;
+    }
+    fontDataUriCache.set(url, dataUri);
+    return dataUri;
+  }
+
+  function collectFontFaceRuleTexts() {
+    const rules = [];
+    for (const sheet of document.styleSheets) {
+      let cssRules;
+      try {
+        cssRules = sheet.cssRules;
+      } catch (_error) {
+        continue;
+      }
+      if (!cssRules) continue;
+      for (const rule of cssRules) {
+        const cssText = rule.cssText || "";
+        if (cssText.startsWith("@font-face")) rules.push(cssText);
+      }
+    }
+    return rules;
+  }
+
+  async function buildInlinedFontCss() {
+    const ruleTexts = collectFontFaceRuleTexts();
+    if (ruleTexts.length === 0) return null;
+
+    const resolved = ruleTexts.map((cssText) => {
+      if (!SRC_DECLARATION_RE.test(cssText)) return null;
+      const srcMatch = cssText.match(/src\s*:\s*([^;}]+)[;}]/i);
+      if (!srcMatch) return null;
+      const url = extractFontUrl(srcMatch[1]);
+      if (!url) return null;
+      try {
+        return { cssText, url: new URL(url, document.baseURI).href };
+      } catch (_error) {
+        return null;
+      }
+    });
+
+    const dataUris = await Promise.all(
+      resolved.map((entry) => (entry ? fetchAsDataUri(entry.url) : Promise.resolve(null))),
+    );
+
+    const inlined = [];
+    let totalBytes = 0;
+    for (let index = 0; index < resolved.length; index += 1) {
+      const entry = resolved[index];
+      const dataUri = dataUris[index];
+      if (!entry || !dataUri) continue;
+      const approxBytes = dataUri.length * 0.75;
+      if (totalBytes + approxBytes > MAX_TOTAL_FONT_BYTES) break;
+      totalBytes += approxBytes;
+      inlined.push(entry.cssText.replace(SRC_DECLARATION_RE, `src: url("${dataUri}")`));
+    }
+    return inlined.length > 0 ? inlined.join("\n") : null;
+  }
+
+  function stripExternal(clone) {
+    const images = clone.querySelectorAll("img");
+    for (let index = 0; index < images.length; index += 1) {
+      const src = images[index].getAttribute("src");
+      if (src && !src.startsWith("data:")) images[index].removeAttribute("src");
+    }
+
+    const elements = clone.querySelectorAll("*");
+    for (let index = 0; index < elements.length; index += 1) {
+      const style = elements[index].style.cssText;
+      if (style && style.includes("url(")) {
+        elements[index].style.cssText = style.replace(
+          /url\(["']?(?!data:)[^)"']*["']?\)/gi,
+          "none",
+        );
+      }
+    }
+  }
+
+  function emitScroll() {
+    scrollRaf = 0;
+    if (!scrollForwarding) return;
+    postToTrustedTop({
+      type: "INLINE_EDIT_SCROLL",
+      scrollX: window.scrollX,
+      scrollY: window.scrollY,
+      capabilities: PICK_CAPABILITIES,
+    });
+  }
+
+  window.addEventListener(
+    "scroll",
+    function () {
+      if (!scrollForwarding || scrollRaf) return;
+      scrollRaf = requestAnimationFrame(emitScroll);
+    },
+    { passive: true, capture: true },
+  );
+
+  async function handleCaptureRequest(event) {
+    const requestId = event.data.requestId;
+    const scrollX = window.scrollX;
+    const scrollY = window.scrollY;
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+
+    function postResult(dataUrl) {
+      postToTrustedTop({
+        type: "INLINE_EDIT_SCREENSHOT_RESULT",
+        requestId,
+        dataUrl,
+        scrollX,
+        scrollY,
+      });
+    }
+
+    try {
+      // Wait for any pending web fonts to resolve so both inline metrics and
+      // the @font-face inlining below see the same loaded faces.
+      if (document.fonts && document.fonts.ready) {
+        try {
+          await document.fonts.ready;
+        } catch (_error) {}
+      }
+
+      const clone = document.documentElement.cloneNode(true);
+      inlineAll(document.documentElement, clone);
+
+      const removedNodes = clone.querySelectorAll("script,link[rel=\"stylesheet\"],style");
+      for (let index = 0; index < removedNodes.length; index += 1) {
+        removedNodes[index].remove();
+      }
+
+      stripExternal(clone);
+
+      // Re-embed web fonts as data-URI @font-face rules so the SVG rasterizer
+      // can resolve them — external font URLs aren't fetched during
+      // foreignObject rendering, which would otherwise force a fallback face
+      // and change text metrics.
+      const inlinedFontCss = await buildInlinedFontCss();
+      if (inlinedFontCss) {
+        const styleEl = document.createElement("style");
+        styleEl.textContent = inlinedFontCss;
+        const head = clone.querySelector("head");
+        if (head) head.appendChild(styleEl);
+        else clone.insertBefore(styleEl, clone.firstChild);
+      }
+
+      const html = new XMLSerializer().serializeToString(clone);
+      const svg =
+        `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">` +
+        '<foreignObject width="100%" height="100%">' +
+        `<div xmlns="http://www.w3.org/1999/xhtml" style="width:${width}px;height:${height}px;overflow:hidden">` +
+        `<div style="position:relative;left:-${scrollX}px;top:-${scrollY}px">` +
+        html +
+        "</div></div></foreignObject></svg>";
+      const svgUrl = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+      const image = new Image();
+      image.onload = function () {
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        canvas.getContext("2d").drawImage(image, 0, 0);
+        postResult(canvas.toDataURL("image/png"));
+      };
+      image.onerror = function () {
+        postResult(null);
+      };
+      image.src = svgUrl;
+    } catch (_error) {
+      postResult(null);
+    }
+  }
+
+  window.addEventListener("message", function (event) {
+    if (!event.data) return;
+    // Only accept messages from the direct parent frame. Blocks sibling /
+    // unrelated-window postMessage senders that could otherwise reach us.
+    if (event.source !== window.parent) return;
+
+    const trustedParentOrigin = getTrustedParentOrigin(event);
+    if (!trustedParentOrigin) return;
+    trustedTopOrigin = trustedParentOrigin;
+
+    if (event.data.type === "INLINE_EDIT_PICK") {
+      const element = resolvePickTarget(event.data.x, event.data.y);
+      postToTrustedTop({
+        type: "INLINE_EDIT_PICK_RESULT",
+        seq: event.data.seq,
+        target: element ? describePickTarget(element, event.data.fresh === true) : null,
+      });
+      return;
+    }
+
+    if (event.data.type === "INLINE_EDIT_SCROLL_START") {
+      scrollForwarding = true;
+      emitScroll();
+      return;
+    }
+
+    if (event.data.type === "INLINE_EDIT_SCROLL_STOP") {
+      scrollForwarding = false;
+      if (scrollRaf) cancelAnimationFrame(scrollRaf);
+      scrollRaf = 0;
+      return;
+    }
+
+    if (event.data.type === "INLINE_EDIT_SCROLL_BY") {
+      const { deltaX, deltaY, deltaMode } = event.data;
+      if (!scrollForwarding || !Number.isFinite(deltaX) || !Number.isFinite(deltaY)) return;
+      if (deltaMode !== 0 && deltaMode !== 1 && deltaMode !== 2) return;
+      const lineHeight =
+        parseFloat(getComputedStyle(document.documentElement).lineHeight) || DEFAULT_LINE_HEIGHT;
+      const scaleX = deltaMode === 1 ? lineHeight : deltaMode === 2 ? window.innerWidth : 1;
+      const scaleY = deltaMode === 1 ? lineHeight : deltaMode === 2 ? window.innerHeight : 1;
+      // The selection overlay receives the wheel event instead of this iframe.
+      // Instant scrolling preserves trackpad deltas even on smooth-scroll sites.
+      window.scrollBy({ left: deltaX * scaleX, top: deltaY * scaleY, behavior: "instant" });
+      emitScroll();
+      return;
+    }
+
+    if (event.data.type !== "INLINE_EDIT_CAPTURE_REQUEST") return;
+
+    handleCaptureRequest(event);
+  });
+})();
+
+
+</script></body>
+</html>

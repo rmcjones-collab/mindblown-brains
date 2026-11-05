@@ -1,0 +1,723 @@
+:root {
+  --bg: #06080f;
+  --bg-2: #0b0f1a;
+  --glass: rgba(10, 14, 26, 0.72);
+  --glass-strong: rgba(10, 14, 26, 0.9);
+  --line: rgba(160, 180, 220, 0.14);
+  --line-strong: rgba(160, 180, 220, 0.28);
+  --text: #e9eefb;
+  --text-2: #a7b2cc;
+  --text-3: #6f7b99;
+  --accent: #ff8a3d;
+  --font-display: 'Clash Display', 'Satoshi', system-ui, sans-serif;
+  --font-body: 'Satoshi', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --radius: 12px;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; height: 100%; background: var(--bg); color: var(--text); font-family: var(--font-body); overflow: hidden; }
+button { font: inherit; color: inherit; }
+input { font: inherit; }
+
+#stage { position: fixed; inset: 0; background:
+  radial-gradient(1200px 800px at 50% 45%, #0e1322 0%, var(--bg) 70%); }
+#brain { position: absolute; inset: 0; width: 100%; height: 100%; display: block; cursor: grab; touch-action: none; }
+#brain.grabbing { cursor: grabbing; }
+#brain.pointer { cursor: pointer; }
+
+/* header */
+#top {
+  position: absolute; top: 0; left: 0; right: 0; height: 64px; padding: 0 20px;
+  display: grid; grid-template-columns: minmax(0, 2fr) minmax(220px, 1fr) auto; align-items: center; gap: 20px;
+  pointer-events: none;
+}
+#top > * { pointer-events: auto; }
+.brand { display: flex; align-items: center; gap: 12px; color: var(--accent); min-width: 0; }
+.brand-text { display: flex; flex-direction: column; line-height: 1.05; flex: none; max-width: 260px; }
+.brand .title { font-family: var(--font-display); font-weight: 600; font-size: 24px; letter-spacing: -0.01em; color: var(--text); white-space: nowrap; }
+.brand .sub { font-size: 12px; color: var(--text-3); margin-top: 3px; }
+
+.search { position: relative; justify-self: center; width: min(440px, 100%); }
+#q {
+  width: 100%; height: 40px; padding: 0 14px 0 38px; border-radius: 999px;
+  border: 1px solid var(--line); background: var(--glass); color: var(--text);
+  outline: none; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%23a7b2cc' stroke-width='1.8' stroke-linecap='round'%3E%3Ccircle cx='7' cy='7' r='4.5'/%3E%3Cpath d='M10.5 10.5 14 14'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: 14px center;
+}
+#q::placeholder { color: var(--text-3); }
+#q:focus { border-color: rgba(255, 138, 61, 0.6); }
+.results {
+  position: absolute; top: 46px; left: 0; right: 0; margin: 0; padding: 6px; list-style: none;
+  background: var(--glass-strong); border: 1px solid var(--line); border-radius: var(--radius);
+  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); max-height: 60vh; overflow: auto; z-index: 5;
+}
+.results li { padding: 8px 10px; border-radius: 8px; cursor: pointer; display: grid; grid-template-columns: 10px 1fr; gap: 10px; align-items: baseline; }
+.results li:hover, .results li.active { background: rgba(255, 255, 255, 0.06); }
+.results .sw { width: 8px; height: 8px; border-radius: 50%; display: inline-block; transform: translateY(-1px); }
+.results .rt { font-size: 14px; }
+.results .rs { font-size: 12px; color: var(--text-3); display: block; margin-top: 1px; }
+.results .empty { color: var(--text-3); font-size: 13px; cursor: default; display: block; }
+
+.stats { font-size: 12px; color: var(--text-3); text-align: right; line-height: 1.5; font-variant-numeric: tabular-nums; }
+.stats b { color: var(--text-2); font-weight: 500; }
+
+/* lobes */
+#lobes {
+  position: absolute; left: 20px; top: 84px; width: 210px; padding: 12px 12px 10px;
+  background: var(--glass); border: 1px solid var(--line); border-radius: var(--radius);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  /* a brain with many lobes keeps every lobe and switch reachable on a short screen: the panel scrolls above the connectome panel */
+  display: flex; flex-direction: column; max-height: calc(100vh - 170px); overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.18) transparent; box-sizing: border-box;
+}
+#lobes > .lobes-head, #lobes > .switches { flex-shrink: 0; }
+#lobe-list { flex: 1 1 auto; min-height: 64px; overflow-y: auto; overscroll-behavior: contain; margin-right: -6px; padding-right: 6px; }
+#lobe-list.more-below { -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 28px), transparent); mask-image: linear-gradient(to bottom, #000 calc(100% - 28px), transparent); }   /* more lobes below: fade the foot (app.js) */
+/* scrollbars: thin, rounded, the same glass as the panels */
+#lobe-list, .panel, .results, .nav-menu { scrollbar-width: thin; scrollbar-color: rgba(160, 180, 220, 0.28) transparent; }
+#lobe-list::-webkit-scrollbar, .panel::-webkit-scrollbar, .results::-webkit-scrollbar, .nav-menu::-webkit-scrollbar { width: 6px; }
+#lobe-list::-webkit-scrollbar-track, .panel::-webkit-scrollbar-track, .results::-webkit-scrollbar-track, .nav-menu::-webkit-scrollbar-track { background: transparent; }
+#lobe-list::-webkit-scrollbar-thumb, .panel::-webkit-scrollbar-thumb, .results::-webkit-scrollbar-thumb, .nav-menu::-webkit-scrollbar-thumb { background: rgba(160, 180, 220, 0.28); border-radius: 999px; }
+#lobe-list::-webkit-scrollbar-thumb:hover, .panel::-webkit-scrollbar-thumb:hover, .results::-webkit-scrollbar-thumb:hover, .nav-menu::-webkit-scrollbar-thumb:hover { background: rgba(255, 138, 61, 0.55); }
+.lobes-head { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-3); margin: 0 0 8px 4px; user-select: none; }
+.lobe {
+  display: grid; grid-template-columns: 12px 1fr auto; align-items: center; gap: 10px;
+  width: 100%; padding: 7px 6px; border: 0; background: transparent; border-radius: 8px; text-align: left; cursor: pointer;
+  font-size: 13px; color: var(--text);
+}
+.lobe:hover { background: rgba(255, 255, 255, 0.05); }
+.lobe .sw { width: 10px; height: 10px; border-radius: 50%; box-shadow: 0 0 10px currentColor; }
+.lobe .n { font-size: 11px; color: var(--text-3); font-variant-numeric: tabular-nums; }
+.lobe.off { color: var(--text-3); }
+.lobe.off .sw { opacity: 0.25; box-shadow: none; }
+.switches { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--line); display: flex; flex-direction: column; gap: 6px; }
+.switches .hub-act { display: block; margin: 0 6px 4px; color: var(--text); text-align: center; text-decoration: none; font: inherit; font-size: 12px; }
+.switch { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-2); cursor: pointer; padding: 4px 6px; }
+.switch input { accent-color: var(--accent); margin: 0; }
+
+/* zoom level pill */
+.level {
+  position: absolute; left: 50%; bottom: 22px; transform: translateX(-50%);
+  display: flex; align-items: center; gap: 10px; padding: 8px 14px 8px 12px;
+  background: var(--glass); border: 1px solid var(--line); border-radius: 999px; font-size: 13px;
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); white-space: nowrap;
+}
+.level .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 12px var(--accent); }
+.level #level-text { font-weight: 500; }
+.level .hint { color: var(--text-3); font-size: 12px; padding-left: 10px; border-left: 1px solid var(--line); }
+
+.zoom-ctl { position: absolute; right: 20px; bottom: 22px; display: flex; flex-direction: column; gap: 6px; }
+.zoom-ctl button {
+  width: 38px; height: 38px; border-radius: 10px; border: 1px solid var(--line); background: var(--glass);
+  color: var(--text); font-size: 18px; cursor: pointer; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+}
+.zoom-ctl button:hover { background: rgba(255, 255, 255, 0.08); }
+
+/* tooltip */
+.tip {
+  position: absolute; pointer-events: none; max-width: 280px; padding: 8px 10px; border-radius: 10px;
+  background: var(--glass-strong); border: 1px solid var(--line); font-size: 12px; line-height: 1.4; color: var(--text-2);
+  transform: translate(14px, 14px); z-index: 4;
+}
+.tip b { color: var(--text); font-weight: 500; display: block; font-size: 13px; }
+.tip .k { color: var(--text-3); font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; }
+
+/* detail panel */
+.panel {
+  position: absolute; right: 20px; top: 84px; bottom: 80px; width: 360px; padding: 18px 18px 20px; overflow: auto;
+  background: var(--glass-strong); border: 1px solid var(--line); border-radius: 16px;
+  backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); z-index: 3;
+}
+.panel .close { position: absolute; top: 10px; right: 10px; width: 30px; height: 30px; border-radius: 8px; border: 0; background: transparent; color: var(--text-3); font-size: 20px; cursor: pointer; }
+.panel .close:hover { background: rgba(255, 255, 255, 0.06); color: var(--text); }
+.panel .kind { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-3); }
+.panel .kind .sw { width: 8px; height: 8px; border-radius: 50%; box-shadow: 0 0 8px currentColor; }
+.panel h2 { font-family: var(--font-display); font-weight: 600; font-size: 22px; line-height: 1.15; margin: 8px 24px 8px 0; letter-spacing: -0.01em; }
+.panel .desc { font-size: 14px; line-height: 1.5; color: var(--text-2); margin: 0 0 14px; }
+.panel .meta { font-size: 12px; color: var(--text-3); margin-bottom: 14px; display: flex; gap: 14px; flex-wrap: wrap; }
+.panel h3 { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-3); margin: 18px 0 8px; font-weight: 500; display: flex; justify-content: space-between; }
+.panel h3 span { font-weight: 400; letter-spacing: 0; text-transform: none; }
+.panel ul { list-style: none; margin: 0; padding: 0; }
+.syn { padding: 8px 10px; border-radius: 8px; border: 1px solid transparent; cursor: pointer; margin-bottom: 4px; }
+.syn:hover, .syn.active { background: rgba(255, 255, 255, 0.05); border-color: var(--line); }
+.syn .lead { font-size: 13px; font-weight: 500; color: var(--text); }
+.syn .txt { font-size: 12.5px; line-height: 1.45; color: var(--text-2); margin-top: 2px; }
+.syn .lk { font-size: 11px; color: var(--text-3); margin-top: 4px; }
+.nb { display: grid; grid-template-columns: 10px 1fr auto; gap: 10px; align-items: baseline; padding: 7px 10px; border-radius: 8px; cursor: pointer; }
+.nb:hover { background: rgba(255, 255, 255, 0.05); }
+.nb .sw { width: 8px; height: 8px; border-radius: 50%; display: inline-block; transform: translateY(-1px); }
+.nb .t { font-size: 13px; }
+.nb .note { font-size: 11.5px; color: var(--text-3); display: block; }
+.nb .w { font-size: 11px; color: var(--text-3); font-variant-numeric: tabular-nums; }
+.src { font-family: ui-monospace, 'SF Mono', Menlo, monospace; font-size: 11.5px; color: var(--text-2); padding: 4px 10px; display: flex; gap: 8px; align-items: center; }
+.src .sk { font-family: var(--font-body); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-3); width: 56px; }
+.panel .back { margin-top: 14px; font-size: 12px; color: var(--text-3); }
+.panel .back button { border: 0; background: none; color: var(--accent); cursor: pointer; padding: 0; }
+
+/* loading */
+.loading { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; background: var(--bg); color: var(--text-2); font-size: 14px; z-index: 10; transition: opacity 0.6s ease; }
+.loading.done { opacity: 0; pointer-events: none; }
+.loading .pulse { width: 14px; height: 14px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 0 rgba(255, 138, 61, 0.6); animation: pulse 1.4s ease-out infinite; }
+@keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(255, 138, 61, 0.6); } 100% { box-shadow: 0 0 0 28px rgba(255, 138, 61, 0); } }
+@media (prefers-reduced-motion: reduce) { .loading .pulse { animation: none; } }
+
+/* responsive */
+@media (max-width: 900px) {
+  #top { grid-template-columns: 1fr; height: auto; padding: 12px 14px 0; gap: 10px; }
+  .brand .title { font-size: 20px; }
+  .stats { display: none; }
+  .search { width: 100%; justify-self: stretch; }
+  #lobes { top: auto; bottom: 64px; left: 12px; width: 180px; padding: 8px 10px; max-height: 46vh; overflow-y: auto; }
+  #lobe-list { flex: 0 0 auto; overflow: visible; margin-right: 0; padding-right: 0; }   /* mobile: the whole panel scrolls */
+  #lobes .lobes-head { margin: 0; padding: 2px 4px; cursor: pointer; }
+  #lobes .lobes-head::after { content: ' ▸'; }
+  #lobes.open .lobes-head::after { content: ' ▾'; }
+  #lobes.open .lobes-head { margin-bottom: 6px; }
+  #lobes:not(.open) #lobe-list, #lobes:not(.open) .switches { display: none; }
+  .level { left: 12px; right: 12px; transform: none; bottom: 14px; justify-content: center; }
+  .level .hint { display: none; }
+  .zoom-ctl { right: 12px; bottom: 72px; }
+  .panel { left: 12px; right: 12px; width: auto; top: auto; bottom: 0; max-height: 56vh; border-radius: 16px 16px 0 0; z-index: 6; }
+}
+
+/* brain switcher: one dropdown of every brain, same spot in the header on every page (app.js builds it) */
+.brains { display: inline-flex; flex-wrap: wrap; row-gap: 4px; min-width: 0; gap: 4px; margin-left: 14px; padding: 3px; border-radius: 999px; border: 1px solid var(--line); background: var(--glass); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+.brains a { font-size: 12px; font-weight: 500; color: var(--text-3); text-decoration: none; padding: 5px 11px; border-radius: 999px; line-height: 1; white-space: nowrap; }
+.brains a:hover { color: var(--text); }
+.brains a.on { color: #0b0e14; background: var(--text); }
+.brains.dd { position: relative; display: inline-block; padding: 0; border: 0; background: none; backdrop-filter: none; -webkit-backdrop-filter: none; margin-left: 14px; align-self: center; }
+.brains.dd .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; flex: 0 0 auto; box-shadow: 0 0 8px currentColor; }
+.brains.dd .dot.none { background: var(--text-3); box-shadow: none; }
+.nav-btn { display: inline-flex; align-items: center; gap: 8px; height: 32px; padding: 0 10px 0 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--glass); color: var(--text); font-size: 13px; font-weight: 500; cursor: pointer; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); white-space: nowrap; max-width: 240px; }
+.nav-btn .cur { overflow: hidden; text-overflow: ellipsis; }
+.nav-btn .chev { color: var(--text-3); font-size: 11px; transition: transform 0.15s; }
+.nav-btn:hover, .brains.open .nav-btn { border-color: var(--line-strong); background: rgba(255, 255, 255, 0.08); }
+.brains.open .nav-btn .chev { transform: rotate(180deg); }
+.nav-menu { position: absolute; top: 38px; left: 0; min-width: 220px; max-height: min(70vh, 480px); overflow-y: auto; margin: 0; padding: 6px; list-style: none; background: var(--glass-strong); border: 1px solid var(--line); border-radius: var(--radius); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); z-index: 7; box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45); }
+.nav-menu a { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 8px; color: var(--text-2); text-decoration: none; font-size: 13px; white-space: nowrap; }
+.nav-menu a:hover, .nav-menu a:focus-visible { background: rgba(255, 255, 255, 0.06); color: var(--text); outline: none; }
+.nav-menu a.on { color: var(--text); background: rgba(255, 255, 255, 0.08); }
+.nav-menu a.on::after { content: '●'; margin-left: auto; font-size: 8px; color: var(--accent); }
+.brains.flip .nav-menu { left: auto; right: 0; }
+.nav-menu .sep { height: 1px; margin: 6px 4px; background: var(--line); }
+@media (max-width: 900px) { .brains { margin-left: 8px; } .brains a { padding: 5px 9px; } .brains.dd { margin-left: 8px; } .nav-btn { height: 30px; font-size: 12px; max-width: 160px; } }
+@media (max-width: 1560px) { .brains:not(.dd) a { padding: 4px 8px; font-size: 11px; } }
+@media (max-width: 1100px) and (min-width: 901px) { .brand .sub { display: none; } .brand .title { font-size: 20px; } .stats { font-size: 11px; } #top { grid-template-columns: minmax(0, 3fr) minmax(200px, 1fr) auto; } }
+
+/* network: shared-neuron jump rows in the panel */
+.nb.net { display: block; padding: 0; }
+.nb.net a { display: grid; grid-template-columns: 10px 1fr; gap: 10px; align-items: baseline; padding: 7px 10px; color: inherit; text-decoration: none; }
+.nb.net .note { color: var(--accent); }
+
+/* tools: select / pan / release / labels / screenshot, stacked above the zoom buttons */
+.zoom-ctl.tools { bottom: 170px; }
+.zoom-ctl.tools button { display: inline-flex; align-items: center; justify-content: center; }
+.zoom-ctl.tools button svg { display: block; }
+.zoom-ctl.tools button.on { background: var(--text); color: #0b0e14; }
+#labels-toggle.off { color: var(--text-3); }
+#labels-toggle.off svg { opacity: 0.6; }
+#brain.select { cursor: crosshair; }
+#brain.select.pointer { cursor: grab; }
+#brain.moving { cursor: grabbing; }
+#brain.space { cursor: grab; }
+@media (max-width: 900px) { .zoom-ctl.tools { display: none; } }
+
+/* ===== Neural edition additions ===== */
+:root { --gold: #ffd27a; --warn: #fb7185; --good: #4fd1c5; }
+#brain.routing { cursor: crosshair; }
+#brain.routing.pointer { cursor: cell; }
+
+/* connectome panel (below the lobes) */
+.connectome {
+  position: absolute; left: 20px; top: 84px; width: 210px; max-height: calc(100vh - 120px); overflow: hidden; display: flex; flex-direction: column;
+  background: var(--glass); border: 1px solid var(--line); border-radius: var(--radius);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); transform: translateY(var(--cx-offset, 0px));
+}
+.cx-head { display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 10px 14px 10px 16px; border: 0; background: transparent; cursor: pointer; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-3); text-align: left; }
+.cx-head:hover { color: var(--text); }
+.cx-head .chev { transition: transform .2s; }
+.connectome.open .cx-head .chev { transform: rotate(90deg); }
+.cx-body-wrap { display: none; padding: 0 12px 12px; overflow: auto; min-height: 0; }
+.connectome.open .cx-body-wrap { display: block; }
+.connectome.open .cx-head { color: var(--text); }
+.metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 10px; margin: 0 0 6px; }
+.metrics div { padding: 6px 8px; border-radius: 8px; background: rgba(255,255,255,0.035); }
+.metrics dt { font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-3); }
+.metrics dd { margin: 2px 0 0; font-size: 14px; font-weight: 500; color: var(--text); font-variant-numeric: tabular-nums; }
+.metrics dd.good { color: var(--good); }
+.metrics .dim, .dim { color: var(--text-3); font-size: 11px; font-weight: 400; }
+.connectome h4 { font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-3); margin: 12px 0 6px 2px; font-weight: 500; display: flex; justify-content: space-between; }
+.connectome h4 span { letter-spacing: 0; }
+.chips { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 4px; }
+.chip { font-size: 11px; padding: 3px 8px; border-radius: 999px; border: 1px solid var(--line); color: var(--text-2); cursor: pointer; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.chip:hover { background: rgba(255,255,255,0.06); color: var(--text); }
+.chip.gold { border-color: rgba(255,210,122,0.5); color: var(--gold); }
+.chip.warn { border-color: rgba(251,113,133,0.45); color: var(--warn); }
+.note-p { font-size: 11.5px; line-height: 1.45; color: var(--text-3); margin: 4px 2px 6px; }
+.note-p b { color: var(--text-2); font-weight: 500; }
+.cx-controls { margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--line); display: flex; flex-direction: column; gap: 6px; }
+.slider { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--text-2); padding: 4px 6px; }
+.slider span { display: flex; justify-content: space-between; }
+.slider output { color: var(--text-3); font-variant-numeric: tabular-nums; }
+.slider input { width: 100%; accent-color: var(--accent); margin: 0; }
+.btn { font-size: 12px; padding: 7px 12px; border-radius: 8px; border: 1px solid var(--line); background: rgba(255,255,255,0.04); color: var(--text); cursor: pointer; }
+.btn:hover { background: rgba(255,255,255,0.09); }
+.btn.on { border-color: rgba(255,138,61,0.7); color: var(--accent); }
+.btn.sm { font-size: 11px; padding: 5px 10px; align-self: flex-start; margin: 2px 6px; color: var(--text-2); }
+
+/* panel: roles, metrics, route */
+.badges { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 4px; }
+.badge { font-size: 10.5px; letter-spacing: 0.06em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; border: 1px solid var(--line-strong); color: var(--text-2); }
+.badge.gold { border-color: rgba(255,210,122,0.6); color: var(--gold); background: rgba(255,210,122,0.08); }
+.badge.warn { border-color: rgba(251,113,133,0.5); color: var(--warn); }
+.badge.sm { font-size: 9px; padding: 1px 5px; vertical-align: middle; }
+.panel .metrics { grid-template-columns: repeat(3, 1fr); gap: 6px; margin: 8px 0 4px; }
+.panel .actions { margin: 10px 0 2px; }
+.panel .actions .btn { width: 100%; }
+ol.route { list-style: none; margin: 0; padding: 0; counter-reset: hop; }
+ol.route .nb { position: relative; padding-left: 26px; }
+ol.route .nb::before { counter-increment: hop; content: counter(hop); position: absolute; left: 6px; top: 7px; font-size: 10px; color: var(--text-3); font-variant-numeric: tabular-nums; }
+.nb.pruned { opacity: 0.45; }
+.nb .learn { color: var(--gold); }
+
+/* toast */
+.toast { position: absolute; left: 50%; bottom: 72px; transform: translateX(-50%); padding: 8px 14px; border-radius: 999px; background: var(--glass-strong); border: 1px solid var(--line); font-size: 12.5px; color: var(--text); z-index: 7; white-space: nowrap; max-width: calc(100vw - 32px); box-sizing: border-box; text-align: center; }
+@media (max-width: 900px) { .toast { white-space: normal; border-radius: 16px; } }   /* long messages (the genome-layout toast) wrap on a phone instead of running off-screen */
+
+/* stacking: lobes above, connectome below it */
+#lobes { z-index: 2; }
+.connectome { top: auto; bottom: 22px; max-height: min(58vh, 620px); }
+@media (max-width: 900px) {
+  .connectome { display: none; }
+  .panel .metrics { grid-template-columns: repeat(3, 1fr); }
+}
+
+.metrics dt .g { text-transform: none; font-style: normal; }
+#lobes.folded #lobe-list, #lobes.folded .switches { display: none; }
+#lobes.folded { padding: 10px 12px; }
+#lobes.folded .lobes-head { margin: 0 0 0 4px; cursor: pointer; }
+#lobes.folded .lobes-head::after { content: ' ▸'; }
+@media (min-width: 901px) { #lobes .lobes-head { cursor: pointer; } }
+@media (max-width: 600px) {
+  .brand { flex-wrap: wrap; row-gap: 8px; min-width: 0; }
+  .brains:not(.dd) { margin-left: 0; max-width: 100%; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+  .brains:not(.dd)::-webkit-scrollbar { display: none; }
+  .brains.dd { margin-left: 0; }
+  .brains a { padding: 5px 7px; font-size: 11.5px; }
+}
+
+/* header fit at intermediate widths: keep the brand on one line, let the brain nav scroll,
+   keep the stats on one line, and collapse the search to its icon when it gets narrow */
+@media (min-width: 901px) {
+  .brand { min-width: 0; }
+  .brand .title, .brand .sub { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }   /* a long tagline ends in an ellipsis instead of running under the brain nav */
+  .brains:not(.dd) { min-width: 0; flex: 0 1 auto; overflow-x: auto; scrollbar-width: thin; scrollbar-color: var(--line) transparent; }
+  .brains::-webkit-scrollbar { height: 4px; }
+  .brains::-webkit-scrollbar-thumb { background: var(--line); border-radius: 2px; }
+  .stats { white-space: nowrap; }
+  .search { container-type: inline-size; min-width: 54px; }
+  .search:focus-within { min-width: 240px; }   /* a focused search always has room to show what is typed */
+  @container (max-width: 200px) { #q::placeholder { color: transparent; } }
+}
+
+/* the dock pill: a pill like the Drive's plus small buttons. Used by the Synapse Manager (synapses.html, see js/synapse-dock.js);
+   the mice's chat (guide.html) has its own styles further down */
+.mice-dock { position: absolute; left: 20px; bottom: 66px; display: flex; align-items: center; gap: 8px; z-index: 6; max-width: calc(100vw - 24px); }
+.mice-btn { display: flex; align-items: center; gap: 10px; padding: 9px 16px 9px 13px; border-radius: 999px; border: 1px solid rgba(255, 59, 59, 0.45); background: var(--glass-strong); color: var(--text); font: inherit; font-size: 13px; font-weight: 500; cursor: pointer; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); white-space: nowrap; box-sizing: border-box; min-width: 0; }
+.mice-btn:hover { background: rgba(255, 59, 59, 0.1); }
+.mice-btn:focus-visible, .mice-clear:focus-visible { outline: 2px solid #ff3b3b; outline-offset: 2px; }
+.mice-btn .short { display: none; }
+.mice-btn .dot { width: 10px; height: 10px; border-radius: 50%; background: #ff3b3b; box-shadow: 0 0 12px #ff3b3b; flex: none; }
+.mice-btn.paused .dot { background: var(--text-3); box-shadow: none; }
+.mice-btn.done .dot { background: #ff3b3b; opacity: 0.45; box-shadow: none; }
+.mice-btn.working .dot { animation: mice-pulse 0.45s ease-in-out infinite alternate; }
+.mice-btn output { color: var(--text-3); font-size: 12px; max-width: 340px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mice-btn output:not(:empty)::before { content: ''; display: inline-block; width: 1px; height: 12px; background: var(--line); margin: 0 10px -2px 0; }
+.mice-clear { padding: 8px 12px; border-radius: 999px; border: 1px solid var(--line-strong); background: var(--glass-strong); color: var(--text-3); font: inherit; font-size: 12px; cursor: pointer; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+.mice-clear:hover { color: var(--text); border-color: rgba(255, 59, 59, 0.45); }
+@keyframes mice-pulse { from { transform: scale(0.8); opacity: 0.6; } to { transform: scale(1.35); opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .mice-btn.working .dot { animation: none; } }
+/* the Synapse Manager dock (synapses.html): a readout, not a button */
+.syn-status { cursor: default; border-color: rgba(253, 230, 138, 0.4); }
+.syn-status:hover { background: var(--glass-strong); }
+.syn-status .dot { background: #fde68a; box-shadow: 0 0 12px #fde68a; }
+.syn-status[data-tier="lean"] .dot { background: #94a3b8; box-shadow: none; }
+.syn-status[data-tier="ample"] .dot, .syn-status[data-tier="frontier"] .dot { background: #34d399; box-shadow: 0 0 12px #34d399; }
+.syn-status.working { border-color: rgba(255, 59, 59, 0.45); }
+.syn-status #syn-out { color: var(--text-3); font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 640px; }
+.syn-status #syn-out:not(:empty)::before { content: ''; display: inline-block; width: 1px; height: 12px; background: var(--line); margin: 0 10px -2px 0; }
+select.mice-clear { appearance: none; -webkit-appearance: none; padding-right: 12px; }
+.mice-clear:disabled { opacity: 0.5; cursor: default; }
+body.has-mice .toast { bottom: 118px; }
+/* origin brains (every engine page): a pale pill above the Drive's, plus the builder's question when a blank brain is waiting; see js/origin.js */
+.origin-dock { position: absolute; left: 20px; bottom: 66px; display: flex; align-items: flex-end; gap: 8px; z-index: 6; max-width: calc(100vw - 24px); }
+.origin-dock.above-mice { bottom: 112px; }
+/* desktop: the scrollable Lobes panel ends above the origin dock (dock top = 100vh - 66px - 37px; with the mice pill, 100vh - 112px - 37px) */
+/* desktop: the scrollable Lobes panel ends 12px above the origin dock whatever its height (one 37px pill, or the builder's open question): lobes top 84px,
+   dock bottom 66px (stacked on a .mice-dock, 112px), height --origin-dock-h from js/origin.js. The dock keeps clear of the zoom column and the Drive's button on the
+   right and wraps (the question onto its own line) when the window is narrow; its empty box passes clicks through to the lobes and canvas */
+@media (min-width: 901px) {
+  body.has-origin #lobes { max-height: calc(100vh - 162px - max(37px, var(--origin-dock-h, 37px))); }
+  body.has-origin:has(.origin-dock.above-mice) #lobes { max-height: calc(100vh - 208px - max(37px, var(--origin-dock-h, 37px))); }
+  .origin-dock { flex-wrap: wrap; max-width: calc(100vw - 20px - 96px); }
+  .origin-ask { width: 400px; }   /* a definite width: the dock is shrink-to-fit, and with wrap on it would otherwise size to the question's shorter max-content and wrap it */
+  .origin-dock:has(.origin-ask:not([hidden])) .origin-btn output { max-width: 120px; }   /* the question says what the status would; keeps pill + question on one line down to ~930px */
+}
+.origin-dock { pointer-events: none; }
+.origin-dock > * { pointer-events: auto; }
+/* toasts clear the origin dock whatever its height: one pill (44px) or the builder's open question; --origin-dock-h is set by js/origin.js.
+   The baseline follows where the dock actually is (.above-mice: stacked on a .mice-dock, as on synapses.html), not body.has-mice: on the Guide
+   the mice's dock is the chat and the origin dock sits at the base position whether the chat is shown or hidden */
+body.has-origin .toast { bottom: calc(66px + max(44px, var(--origin-dock-h, 44px)) + 8px); }
+body:has(.origin-dock.above-mice) .toast { bottom: calc(112px + max(44px, var(--origin-dock-h, 44px)) + 8px); }
+.origin-btn { display: flex; align-items: center; gap: 10px; padding: 9px 16px 9px 13px; border-radius: 999px; border: 1px solid var(--line-strong); background: var(--glass-strong); color: var(--text); font: inherit; font-size: 13px; font-weight: 500; cursor: pointer; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); white-space: nowrap; box-sizing: border-box; min-width: 0; }
+.origin-btn:hover, .origin-btn[aria-pressed="true"] { border-color: rgba(255, 59, 59, 0.45); background: rgba(255, 59, 59, 0.08); }
+.origin-btn:focus-visible { outline: 2px solid #ff3b3b; outline-offset: 2px; }
+.origin-btn .ring { width: 10px; height: 10px; border-radius: 50%; border: 1.5px dashed var(--text-2); flex: none; box-sizing: border-box; }
+.origin-btn.blank .ring { border-color: #ff3b3b; box-shadow: 0 0 10px rgba(255, 59, 59, 0.6); }
+.origin-btn.full .ring { border-style: solid; border-color: #ff3b3b; }
+.origin-btn[aria-pressed="true"] .ring { animation: mice-pulse 0.6s ease-in-out infinite alternate; }
+.origin-btn output { color: var(--text-3); font-size: 12px; max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.origin-btn output:not(:empty)::before { content: ''; display: inline-block; width: 1px; height: 12px; background: var(--line); margin: 0 10px -2px 0; }
+.origin-ask { flex: 0 1 400px; min-width: 0; display: flex; flex-direction: column; gap: 6px; padding: 10px 12px; border-radius: 14px; border: 1px solid rgba(255, 59, 59, 0.35); background: var(--glass-strong); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); font-size: 12px; color: var(--text-2); }
+.origin-ask[hidden] { display: none; }
+.origin-ask label { font-style: normal; color: var(--text); }
+.origin-ask .row { display: flex; gap: 6px; }
+.origin-ask input { flex: 1; min-width: 0; padding: 7px 10px; border-radius: 8px; border: 1px solid var(--line-strong); background: rgba(0, 0, 0, 0.3); color: var(--text); font: inherit; font-size: 13px; }
+.origin-ask input:focus { outline: 2px solid rgba(255, 59, 59, 0.6); outline-offset: 1px; }
+.origin-ask .go { padding: 7px 12px; border-radius: 8px; border: 1px solid rgba(255, 59, 59, 0.55); background: rgba(255, 59, 59, 0.12); color: var(--text); font: inherit; font-size: 12px; font-weight: 500; cursor: pointer; white-space: nowrap; }
+.origin-ask .go:hover { background: rgba(255, 59, 59, 0.22); }
+.origin-ask .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.origin-ask .chips:empty { display: none; }
+.origin-ask .chip { padding: 4px 9px; border-radius: 999px; border: 1px solid var(--line); background: transparent; color: var(--text-2); font: inherit; font-size: 11px; cursor: pointer; }
+.origin-ask .chip:hover { color: var(--text); border-color: rgba(255, 59, 59, 0.45); }
+body.placing-origin canvas { cursor: crosshair !important; }
+.src-link { color: inherit; text-decoration: underline dotted; text-underline-offset: 3px; }
+.src-link:hover { color: #ff6b6b; }
+.badge.mice { border-color: rgba(255, 59, 59, 0.55); color: #ff6b6b; background: rgba(255, 59, 59, 0.08); }
+.lobe .mice-dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #ff3b3b; box-shadow: 0 0 6px #ff3b3b; margin: 0 6px 1px 0; vertical-align: middle; }
+@media (max-width: 900px) {
+  /* the phone Modifiers launcher (modifiers.css) sits at the bar + 12px on the left; the docks stack above it, never over it */
+  .mice-dock { left: 12px; right: auto; bottom: calc(var(--mbar-h) + 62px); transition: bottom 0.25s ease; }
+  body.sheet-full .mice-dock { opacity: 0; pointer-events: none; }
+  body.sheet-dragging .mice-dock { transition: none; }
+  .origin-dock { left: 12px; right: auto; bottom: calc(var(--mbar-h) + 62px); transition: bottom 0.25s ease; max-width: calc(100vw - 24px); flex-wrap: wrap; align-items: center; }
+  .origin-ask { flex-basis: 100%; max-width: none; margin-right: 80px; }   /* its own row (the margin, not a max-width, so Clear cannot share it and push it under the Drive's button), clear of the Drive's button on the right */
+  .origin-dock.above-mice { bottom: calc(var(--mbar-h) + 112px); }
+  body.sheet-full .origin-dock { opacity: 0; pointer-events: none; }
+  body.sheet-dragging .origin-dock { transition: none; }
+  .origin-btn { font-size: 12px; padding: 8px 12px 8px 10px; gap: 8px; min-height: 44px; }
+  .origin-btn output { display: none; }
+  .origin-btn.blank output:not(:empty), .origin-dock:has(.origin-ask[hidden]) .origin-btn output:not(:empty) { display: inline-block; max-width: 140px; font-size: 11px; }
+  .origin-btn output:not(:empty)::before { display: none; }
+  .mice-btn { font-size: 12px; padding: 8px 12px 8px 10px; gap: 8px; min-height: 44px; }
+  .mice-btn .label { display: none; }
+  .mice-btn .short { display: inline; }
+  .mice-btn output { display: none; max-width: 150px; font-size: 11px; }
+  .mice-btn.working output:not(:empty) { display: inline-block; }
+  .mice-btn output:not(:empty)::before { display: none; }
+  .mice-btn.working .short { display: none; }
+  .mice-clear { min-height: 44px; }
+  .syn-status #syn-out { display: inline-block; max-width: 160px; font-size: 11px; }
+  .syn-status .label { display: none; }
+  /* toasts clear the raised docks (dock bottom = bar + 62px, min-height 44px; stacked origin dock = bar + 112px); the origin dock's measured height covers the open question */
+  body.has-mice .toast { bottom: calc(var(--mbar-h) + 118px); }
+  /* min(): when the open question leaves no room above the dock (landscape phones, where the question already reaches the header), the toast keeps a place just under the header instead of leaving the screen */
+  body.has-origin .toast { bottom: min(calc(var(--mbar-h) + 62px + max(44px, var(--origin-dock-h, 44px)) + 12px), calc(100% - 150px)); }
+  body:has(.origin-dock.above-mice) .toast { bottom: min(calc(var(--mbar-h) + 112px + max(44px, var(--origin-dock-h, 44px)) + 12px), calc(100% - 150px)); }
+}
+/* the mice's chat (guide.html): the Ask page's chat, in red, in a corner of the brain; see js/mice-chat.js */
+.mice-chat { position: absolute; left: 20px; bottom: 66px; z-index: 6; width: min(400px, calc(100vw - 40px)); display: flex; flex-direction: column; background: var(--glass-strong); border: 1px solid rgba(255, 59, 59, 0.4); border-radius: 16px; backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35); overflow: hidden; }
+.mice-chat:not(.open) { width: auto; max-width: min(440px, calc(100vw - 40px)); border-radius: 999px; }
+.mice-chat[hidden] { display: none; }
+.mice-head { display: flex; align-items: center; gap: 10px; width: 100%; padding: 9px 14px 9px 13px; border: 0; background: transparent; color: var(--text); font: inherit; font-size: 13px; font-weight: 500; cursor: pointer; text-align: left; min-height: 40px; box-sizing: border-box; }
+.mice-chat.open .mice-head { border-bottom: 1px solid var(--line); padding: 10px 14px; }
+.mice-head:hover { background: rgba(255, 59, 59, 0.08); }
+.mice-head .dot { width: 10px; height: 10px; border-radius: 50%; background: #ff3b3b; box-shadow: 0 0 12px #ff3b3b; flex: none; }
+.mice-head.paused .dot { background: var(--text-3); box-shadow: none; }
+.mice-head.done .dot { opacity: 0.45; box-shadow: none; }
+.mice-head.working .dot { animation: mice-pulse 0.45s ease-in-out infinite alternate; }
+.mice-head .who { font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-2); flex: none; }   /* the eyebrow, as on the Ask page */
+.mice-head output { flex: 1; min-width: 0; color: var(--text-3); font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mice-head output:not(:empty)::before { content: ''; display: inline-block; width: 1px; height: 12px; background: var(--line); margin: 0 10px -2px 0; }
+.mice-head .chev { width: 7px; height: 7px; border-right: 1.5px solid var(--text-3); border-bottom: 1.5px solid var(--text-3); transform: rotate(-135deg); margin: 3px 2px 0 4px; transition: transform 0.2s, margin 0.2s; flex: none; }
+.mice-chat.open .mice-head .chev { transform: rotate(45deg); margin-top: -4px; }
+.mice-body { display: none; flex-direction: column; min-height: 0; }
+.mice-chat.open .mice-body { display: flex; }
+/* the origin-brain dock (js/origin.js) shares the bottom-left corner: it steps to the right of the chat while the chat is showing */
+body:has(.mice-chat:not([hidden])) .origin-dock { left: 440px; max-width: calc(100vw - 440px - 96px); }   /* clear of the zoom column and the Drive's button on the right */
+.mice-log { list-style: none; margin: 0; padding: 10px 12px 4px; overflow: auto; max-height: clamp(160px, calc(100vh - 600px), 440px); display: flex; flex-direction: column; gap: 8px; scrollbar-width: thin; scrollbar-color: #6f7b99 transparent; }
+.mice-turn { flex: none; font-size: 13px; line-height: 1.45; }   /* flex: none — a column flex box with a max-height would otherwise shrink the cards to their borders */
+.mice-turn.act, .mice-turn.note { display: flex; align-items: baseline; gap: 8px; color: var(--text-3); font-size: 12px; padding: 0 2px; }
+.mice-turn.act .dot, .mice-turn.note .dot { width: 6px; height: 6px; border-radius: 50%; background: #ff3b3b; box-shadow: 0 0 6px #ff3b3b; flex: none; transform: translateY(-1px); }
+.mice-turn.note .dot { background: var(--text-3); box-shadow: none; }
+.mice-turn.act .text, .mice-turn.note .text { flex: 1; min-width: 0; }
+.mice-go { border: 0; background: transparent; color: var(--text-3); font: inherit; font-size: 11px; text-decoration: underline; text-underline-offset: 2px; cursor: pointer; padding: 0; flex: none; }
+.mice-go:hover { color: var(--text); }
+.mice-turn.q p { margin: 6px 0 0; font-family: var(--font-display); font-weight: 600; font-size: 15px; letter-spacing: -0.01em; color: var(--text); overflow-wrap: anywhere; }
+.mice-turn.a { border: 1px solid var(--line); border-radius: 12px; background: rgba(255, 255, 255, 0.02); overflow: hidden; }
+.mice-turn.a .head { display: flex; align-items: center; gap: 8px; padding: 7px 12px; border-bottom: 1px solid var(--line); background: rgba(255, 255, 255, 0.02); font-size: 12px; }
+.mice-turn.a .head .dot { width: 7px; height: 7px; border-radius: 50%; background: #ff3b3b; box-shadow: 0 0 8px #ff3b3b; flex: none; }
+.mice-turn.a .head b { font-weight: 600; }
+.mice-turn.a .head .meta { margin-left: auto; color: var(--text-3); font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.mice-turn.a p { margin: 0; padding: 10px 12px; color: var(--text-2); overflow-wrap: anywhere; }
+.mice-turn.a p b { color: var(--text); font-weight: 600; }
+.mice-turn.a .chips { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 12px 10px; }
+.mice-turn.typing .head { border-bottom: 0; }
+.mice-turn.typing .meta::after { content: ''; display: inline-block; width: 6px; height: 6px; border-radius: 50%; margin-left: 6px; background: var(--text-3); animation: mice-pulse 0.5s ease-in-out infinite alternate; }
+.mice-chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--line-strong); background: rgba(255, 255, 255, 0.04); color: var(--text); font: inherit; font-size: 12px; cursor: pointer; max-width: 100%; text-align: left; }
+.mice-chip .dot { width: 7px; height: 7px; border-radius: 50%; flex: none; }
+.mice-chip:hover { border-color: rgba(255, 59, 59, 0.55); background: rgba(255, 59, 59, 0.08); }
+.mice-chip.act { border-color: rgba(255, 59, 59, 0.55); color: #ff8a8a; }
+.mice-chip:disabled { opacity: 0.5; cursor: default; }
+.mice-starters { display: flex; flex-wrap: wrap; gap: 6px; padding: 4px 12px 8px; }
+.mice-starters[hidden] { display: none; }
+.mice-starter { padding: 5px 10px; border-radius: 999px; border: 1px solid var(--line); background: transparent; color: var(--text-2); font: inherit; font-size: 12px; cursor: pointer; }
+.mice-starter:hover { color: var(--text); border-color: var(--line-strong); }
+.mice-composer { display: flex; align-items: center; gap: 8px; margin: 4px 12px 0; padding: 4px 4px 4px 12px; border: 1px solid rgba(255, 59, 59, 0.5); border-radius: 12px; background: rgba(255, 255, 255, 0.03); }
+.mice-composer:focus-within { border-color: #ff3b3b; box-shadow: 0 0 0 3px rgba(255, 59, 59, 0.15); }
+.mice-composer input { flex: 1; min-width: 0; border: 0; background: transparent; color: var(--text); font: inherit; font-size: 13px; padding: 8px 0; outline: none; }
+.mice-composer input::placeholder { color: var(--text-3); }
+.mice-send { padding: 7px 12px; border-radius: 9px; border: 0; background: #ff3b3b; color: #fff; font: inherit; font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+.mice-send:hover { background: #ff5252; }
+.mice-foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 6px 14px 10px; color: var(--text-3); font-size: 11px; }
+.mice-foot .hint { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mice-home { border: 0; background: transparent; color: var(--text-3); font: inherit; font-size: 11px; cursor: pointer; padding: 0; white-space: nowrap; text-decoration: underline; text-underline-offset: 2px; flex: none; }
+.mice-home:hover { color: #ff6b6b; }
+.mice-head:focus-visible, .mice-chip:focus-visible, .mice-starter:focus-visible, .mice-send:focus-visible, .mice-home:focus-visible, .mice-go:focus-visible, .mice-cheese:focus-visible { outline: 2px solid #ff3b3b; outline-offset: 2px; }
+/* the cheese: the mice's switch, above the Don't Panic button (placed by js/mice-chat.js) */
+.mice-cheese { position: fixed; z-index: 6; width: 44px; height: 44px; padding: 0; border-radius: 50%; border: 1px solid rgba(255, 217, 106, 0.5); background: var(--glass-strong); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); display: grid; place-content: center; cursor: pointer; box-shadow: 0 0 18px rgba(255, 200, 80, 0.2); transition: box-shadow 0.2s, border-color 0.2s; }
+.mice-cheese[hidden] { display: none; }
+.mice-cheese svg { width: 26px; height: 26px; display: block; filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.4)); transition: filter 0.2s, opacity 0.2s; }
+.mice-cheese::after { content: ''; position: absolute; top: 1px; right: 1px; width: 9px; height: 9px; border-radius: 50%; background: #ff3b3b; box-shadow: 0 0 8px #ff3b3b; border: 2px solid var(--bg); }
+.mice-cheese:hover { border-color: rgba(255, 217, 106, 0.9); box-shadow: 0 0 24px rgba(255, 200, 80, 0.35); }
+.mice-cheese[aria-pressed="false"] { border-color: var(--line); box-shadow: none; }
+.mice-cheese[aria-pressed="false"] svg { filter: grayscale(1); opacity: 0.6; }
+.mice-cheese[aria-pressed="false"]::after { display: none; }
+@media (prefers-reduced-motion: reduce) { .mice-head.working .dot, .mice-turn.typing .meta::after { animation: none; } }
+@media (max-width: 900px) {
+  .mice-chat { left: 12px; right: auto; bottom: calc(var(--mbar-h) + 12px); width: auto; max-width: calc(100vw - 24px); transition: bottom 0.25s ease, max-height 0.25s ease; }
+  .mice-chat.open { right: 12px; }
+  body:has(.mice-chat:not([hidden])) .origin-dock { left: 12px; max-width: calc(100vw - 24px); bottom: calc(var(--mbar-h) + 62px); }   /* above the chat's pill on phones */
+  body:has(.mice-chat.open:not([hidden])) .origin-dock { display: none; }   /* the open chat is a sheet; the dock waits underneath */
+  .mice-chat:not(.open) .mice-head output { max-width: 150px; font-size: 11px; }
+  .mice-head { min-height: 44px; }
+  .mice-log { max-height: min(42vh, 360px); }
+  .mice-chip, .mice-starter { min-height: 32px; }
+  .mice-foot .hint { display: none; }
+  .mice-foot { justify-content: flex-end; }
+  body.sheet-full .mice-chat, body.sheet-full .mice-cheese { opacity: 0; pointer-events: none; }
+  body.sheet-dragging .mice-chat { transition: none; }
+}
+/* refresh-rate preference (injected by app.js into the lobe switches) */
+.switch.perf { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
+.switch.perf > span { white-space: nowrap; }
+.switch.perf select { font: inherit; font-size: 12px; color: var(--text); background: rgba(255, 255, 255, 0.06); border: 1px solid var(--line); border-radius: 8px; padding: 4px 6px; min-height: 28px; min-width: 0; max-width: 100%; }
+@media (max-width: 900px) {
+  /* phones: 44 px touch targets, no hover-only affordances */
+  .zoom-ctl button, .lobe, .switch, .switch.perf select { min-height: 44px; }
+  .zoom-ctl button { min-width: 44px; }
+  .lobe { padding: 10px 8px; }
+  #tip { display: none; }
+  .panel { max-height: 50vh; }
+}
+
+/* ---------- phone options bar + sheet detents (built by app.js; hidden above 900 px) ---------- */
+.mbar, .mbar-pop, .mbar-sheet, .mbar-scrim, .sheet-handle { display: none; }
+@media (max-width: 900px) {
+  :root { --mbar-h: 148px; }
+  #lobes, .level { display: none; }   /* the bar replaces the collapsed lobe box and the level readout */
+  .zoom-ctl { bottom: calc(var(--mbar-h) + 12px); transition: bottom 0.25s ease; }
+  body.sheet-full .zoom-ctl { opacity: 0; pointer-events: none; }
+  body.sheet-dragging .zoom-ctl, body.sheet-dragging .toast { transition: none; }   /* follow the finger while the sheet is dragged */
+  .toast { bottom: calc(var(--mbar-h) + 16px); pointer-events: none; max-width: calc(100vw - 90px); }   /* never covers the bar or the zoom buttons */
+  .mbar { display: block; position: fixed; left: 0; right: 0; bottom: 0; z-index: 5; padding-bottom: env(safe-area-inset-bottom, 0);
+    background: var(--glass-strong); border-top: 1px solid var(--line); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
+  .mbar[hidden] { display: none; }
+  .mbar-handle { display: flex; align-items: center; gap: 8px; height: 44px; padding: 0 8px 0 10px; touch-action: none; }
+  .mbar-pill { flex: 0 0 auto; min-height: 36px; padding: 0 12px; border-radius: 999px; border: 1px solid var(--line); background: rgba(255, 255, 255, 0.06); color: var(--text); font: inherit; font-size: 12px; font-weight: 500; }
+  .mbar-pill::after { content: ' ▾'; color: var(--text-3); }
+  .mbar.collapsed .mbar-pill::after { content: ' ▴'; }
+  .mbar-level { flex: 1 1 auto; display: flex; align-items: center; justify-content: center; gap: 7px; font-size: 12px; color: var(--text-2); min-width: 0; white-space: nowrap; overflow: hidden; }
+  .mbar-level .dot { width: 8px; height: 8px; border-radius: 50%; background: #4fd1c5; flex: 0 0 auto; }
+  .mbar-custom { flex: 0 0 auto; width: 44px; height: 44px; border: 0; background: transparent; color: var(--text-2); font-size: 20px; line-height: 1; }
+  .mbar-rows { display: block; }
+  .mbar.collapsed .mbar-rows { display: none; }
+  .mbar-row { display: flex; gap: 6px; padding: 0 10px 8px; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; scroll-snap-type: x proximity; }
+  .mbar-row::-webkit-scrollbar { display: none; }
+  .mbar-row.lobes { padding-top: 2px; }
+  .chip { flex: 0 0 auto; display: inline-flex; align-items: stretch; height: 44px; border-radius: 12px; border: 1px solid var(--line); background: rgba(255, 255, 255, 0.04); color: var(--text-3); scroll-snap-align: start; overflow: hidden; }
+  .chip.on { color: var(--text); background: rgba(255, 255, 255, 0.08); }
+  .chip.act .go { padding-left: 12px; color: var(--accent); }
+  .chip .chk { display: flex; align-items: center; padding: 0 6px 0 10px; border-right: 1px solid var(--line); }
+  .chip .chk input { width: 18px; height: 18px; margin: 0; accent-color: var(--accent); }
+  .chip .go { display: inline-flex; align-items: center; gap: 7px; padding: 0 12px 0 10px; border: 0; background: transparent; color: inherit; font: inherit; font-size: 13px; font-weight: 500; white-space: nowrap; -webkit-touch-callout: none; user-select: none; }
+  .chip .sw { width: 9px; height: 9px; border-radius: 50%; box-shadow: 0 0 8px currentColor; }
+  .chip .n { font-size: 11px; color: var(--text-3); font-variant-numeric: tabular-nums; }
+  .chip.has-pop .lbl::after { content: ' ›'; color: var(--text-3); }
+  .chip.act .go { padding-left: 12px; }   /* action chips (Screenshot) have no checkbox: the whole chip is the button */
+  .chip.act .lbl::before { content: '◉ '; color: var(--text-3); }
+  .chip.act.busy { background: rgba(255, 255, 255, 0.14); color: var(--text); }
+  .mbar-pop { display: block; position: fixed; z-index: 7; width: min(300px, calc(100vw - 16px)); padding: 12px 14px; border-radius: 14px; border: 1px solid var(--line); background: var(--glass-strong); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35); }
+  .mbar-pop[hidden] { display: none; }
+  .mbar-pop .ph { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-2); margin-bottom: 8px; }
+  .mbar-pop .pv { color: var(--text); }
+  .mbar-pop input[type=range] { width: 100%; min-height: 44px; accent-color: var(--accent); }
+  .mbar-pop .seg { display: flex; gap: 4px; }
+  .mbar-pop .seg button { flex: 1 1 0; min-height: 44px; border-radius: 10px; border: 1px solid var(--line); background: rgba(255, 255, 255, 0.05); color: var(--text-2); font: inherit; font-size: 12px; }
+  .mbar-pop .seg button.on { background: var(--text); color: #0b0e14; border-color: transparent; }
+  .mbar-scrim { display: block; position: fixed; inset: 0; z-index: 8; background: rgba(0, 0, 0, 0.45); }
+  .mbar-scrim[hidden] { display: none; }
+  .mbar-sheet { display: block; position: fixed; left: 0; right: 0; bottom: 0; z-index: 9; max-height: 82vh; overflow: auto; padding: 14px 16px calc(20px + env(safe-area-inset-bottom, 0)); border-radius: 16px 16px 0 0; border: 1px solid var(--line); border-bottom: 0; background: var(--glass-strong); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); font-size: 14px; }
+  .mbar-sheet[hidden] { display: none; }
+  .mbar-sheet .sh { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+  .mbar-sheet .sh strong { font-family: var(--font-display); font-weight: 600; font-size: 18px; }
+  .mbar-sheet .x { width: 44px; height: 44px; border: 0; background: transparent; color: var(--text-3); font-size: 24px; }
+  .mbar-sheet h4 { margin: 14px 0 6px; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-3); font-weight: 500; }
+  .mbar-sheet ul { list-style: none; margin: 0; padding: 0; }
+  .mbar-sheet li { display: flex; align-items: center; justify-content: space-between; min-height: 44px; border-bottom: 1px solid var(--line); }
+  .mbar-sheet li:last-child { border-bottom: 0; }
+  .mbar-sheet label { display: flex; align-items: center; gap: 10px; }
+  .mbar-sheet input[type=checkbox] { width: 18px; height: 18px; margin: 0; accent-color: var(--accent); }
+  .mbar-sheet .mv button { width: 44px; height: 44px; border: 0; background: transparent; color: var(--text-2); font-size: 12px; }
+  .mbar-sheet .rowopt { min-height: 44px; }
+  .mbar-sheet select { font: inherit; font-size: 13px; color: var(--text); background: rgba(255, 255, 255, 0.06); border: 1px solid var(--line); border-radius: 8px; padding: 6px 8px; min-height: 36px; }
+  .mbar-sheet .reset { margin-top: 10px; width: 100%; min-height: 44px; border-radius: 12px; border: 1px solid var(--line); background: rgba(255, 255, 255, 0.05); color: var(--text-2); font: inherit; font-size: 13px; }
+  /* detail sheet detents: peek · half · full, dragged by the handle; app.js sets the height */
+  .panel { max-height: none; height: min(50vh, 460px); padding-top: 0; transition: height 0.26s cubic-bezier(0.2, 0.8, 0.2, 1); padding-bottom: calc(20px + env(safe-area-inset-bottom, 0)); }
+  .panel.dragging { transition: none; }
+  .panel .close { top: 14px; width: 36px; height: 36px; }
+  .sheet-handle { display: flex; position: sticky; top: 0; width: calc(100% + 36px); margin: 0 -18px 6px; padding: 10px 0 8px; border: 0; background: linear-gradient(var(--glass-strong), transparent); justify-content: center; touch-action: none; cursor: grab; z-index: 2; }
+  .sheet-handle:focus-visible span { outline: 2px solid var(--accent); outline-offset: 4px; }
+  .sheet-handle span { width: 40px; height: 5px; border-radius: 999px; background: var(--text-3); opacity: 0.7; }
+  .panel[data-detent="peek"] { overflow: hidden; }
+  @media (prefers-reduced-motion: reduce) { .panel, .zoom-ctl { transition: none; } }
+}
+
+/* Chemistry brain: the compound chooser in the lobes panel */
+.switch.select-row { padding-bottom: 0; cursor: default; }
+.compound-pick { font: inherit; font-size: 12px; color: var(--text); background: rgba(255, 255, 255, 0.06); border: 1px solid var(--line); border-radius: 8px; padding: 5px 6px; min-height: 28px; margin: 0 6px 2px; max-width: 100%; }
+.compound-pick option, .compound-pick optgroup { background: #0f1526; color: var(--text); }
+/* Chemistry's longer brand name and tagline fit the 260px brand column without an ellipsis */
+@media (min-width: 1101px) { .brain-chemistry .brand .title { font-size: 21px; } .brain-chemistry .brand .sub { font-size: 10.5px; } }
+
+/* ---------- right rail: Brains group (js/app.js MINDBLOWN_RAIL) ----------
+   Brain-placing actions (Origin Brain, Modifier Brain) sit in their own group above the Tools column; app.js sets its bottom from #tools. */
+.zoom-ctl.brain-tools { z-index: 5; }
+/* desktop: the details panel (z-index 3) covers the whole right rail, Brains group included, so the group cannot block the panel's close button or content */
+@media (min-width: 901px) { .zoom-ctl.brain-tools { z-index: 2; } }
+.zoom-ctl.brain-tools button { display: inline-flex; align-items: center; justify-content: center; color: var(--text-2); position: relative; }
+.zoom-ctl.brain-tools button:hover, .zoom-ctl.brain-tools button:focus-visible { color: var(--text); }
+.zoom-ctl.brain-tools button:focus-visible { outline: 2px solid #ff3b3b; outline-offset: 2px; }
+.zoom-ctl.brain-tools button[aria-expanded="true"], .zoom-ctl.brain-tools button[aria-pressed="true"] { color: var(--text); border-color: rgba(255, 59, 59, 0.45); background: rgba(255, 59, 59, 0.1); }
+.zoom-ctl.brain-tools svg { display: block; }
+.origin-rail.blank svg { color: #ff3b3b; filter: drop-shadow(0 0 5px rgba(255, 59, 59, 0.7)); }
+.origin-rail.full svg circle { stroke-dasharray: none; }
+.origin-rail[aria-pressed="true"] svg { animation: mice-pulse 0.6s ease-in-out infinite alternate; }
+.origin-rail.news::after { content: ''; position: absolute; top: 5px; right: 5px; width: 7px; height: 7px; border-radius: 50%; background: #ff3b3b; box-shadow: 0 0 6px #ff3b3b; }
+/* the origin card beside the rail: question, status, Pause / Clear */
+.origin-dock.origin-card { position: fixed; left: auto; bottom: auto; width: 330px; max-width: calc(100vw - 100px); flex-direction: column; align-items: stretch; gap: 8px; padding: 10px 12px 12px; border-radius: 14px; border: 1px solid rgba(255, 59, 59, 0.35); background: var(--glass-strong); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45); z-index: 7; }
+.origin-dock.origin-card[hidden] { display: none; }
+.origin-card .origin-head { display: flex; align-items: center; gap: 8px; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-3); }
+.origin-card .origin-head b { font-weight: 500; flex: 1; }
+.origin-card .origin-head .ring { width: 9px; height: 9px; border-radius: 50%; border: 1.5px dashed #ff3b3b; box-sizing: border-box; }
+.origin-card .origin-fold { width: 24px; height: 24px; border: 0; border-radius: 6px; background: transparent; color: var(--text-3); font-size: 16px; cursor: pointer; }
+.origin-card .origin-fold:hover, .origin-card .origin-fold:focus-visible { background: rgba(255, 255, 255, 0.08); color: var(--text); outline: none; }
+.origin-card .origin-status { font-size: 12px; color: var(--text-2); line-height: 1.4; }
+.origin-card .origin-status:empty { display: none; }
+.origin-ask select { max-width: 100%; min-height: 44px; color: var(--text); background: var(--bg, #14191d); border: 1px solid rgba(255,255,255,.2); border-radius: 6px; padding: 6px; font: inherit; }
+#slarti-controls { font-size: 12px; line-height: 1.4; min-width: 0; }
+#slarti-controls[hidden], #slarti-confirm[hidden] { display: none; }
+#slarti-controls p { margin: 6px 0; }
+#slarti-progress { display: block; overflow-wrap: anywhere; }
+.slarti-actions { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px; }
+#slarti-controls button { min-height: 44px; padding: 6px 9px; border: 1px solid rgba(255,255,255,.2); border-radius: 6px; background: transparent; color: var(--text); font: inherit; cursor: pointer; }
+#slarti-controls button:disabled { opacity: .5; cursor: default; }
+#slarti-controls button:focus-visible, .origin-ask select:focus-visible { outline: 2px solid #70b9af; outline-offset: 2px; }
+#origin-storage, #slarti-warning { color: #f4ce88; font-size: 12px; }
+.origin-card:has(#slarti-controls:not([hidden])) { max-height: calc(100dvh - 160px); overflow-y: auto; }
+.origin-card .origin-ask .row:has(#origin-go) { flex-wrap: wrap; }
+.origin-card .origin-ask .row input { flex: 1 1 140px; }
+.origin-card .origin-ask { flex: none; padding: 0; border: 0; background: none; backdrop-filter: none; -webkit-backdrop-filter: none; }
+.origin-card .origin-actions { display: flex; gap: 6px; justify-content: flex-end; }
+.origin-card .origin-actions:not(:has(button:not([hidden]))) { display: none; }
+/* with the dock on the right, the Lobes panel and toasts no longer make room for it in the bottom-left corner */
+@media (min-width: 901px) { body.has-origin:has(.origin-card) #lobes { max-height: calc(100vh - 170px); } body:has(.mice-chat:not([hidden])) .origin-dock.origin-card { left: auto; max-width: calc(100vw - 100px); } }
+body.has-origin:has(.origin-card).has-mice .toast { bottom: 118px; }
+body.has-origin:has(.origin-card):not(.has-mice) .toast { bottom: 72px; }
+@media (max-width: 900px) {
+  .zoom-ctl.brain-tools button { width: 44px; height: 44px; }
+  /* phones: the card is a sheet above the bar, full width */
+  .origin-dock.origin-card { left: 12px; right: 12px !important; top: auto !important; bottom: calc(var(--mbar-h, 0px) + 62px); width: auto; max-width: none; }
+  body:has(.mice-chat:not([hidden])) .origin-dock.origin-card { left: 12px; max-width: none; }
+  /* the card sheet sits at the bar + 62px; a toast clears it by its measured height (--origin-dock-h, 0 while folded) */
+  body.has-origin:has(.origin-card):not(.has-mice) .toast { bottom: calc(var(--mbar-h) + max(72px, 62px + var(--origin-dock-h, 0px) + 10px)); }
+  body.has-origin:has(.origin-card).has-mice .toast { bottom: calc(var(--mbar-h) + max(118px, 62px + var(--origin-dock-h, 0px) + 10px)); }
+}
+/* landscape phones: the header and the options bar leave about 85-130px of canvas, less than the open question needs stacked under its pill. While the question is
+   open the dock becomes one row on the bar, right of the Modifiers launcher (left 10px, 70px wide) and clear of the zoom column: the pill shrinks to its ring,
+   the question's label sits over the input, Hand-it button and chips (chips scroll sideways). The mice's chat pill (Guide) and a .mice-dock (synapses.html)
+   step aside until it is answered, and toasts move to the top of the screen, as the Drive's do on phones. With the right rail (.origin-card) the card keeps
+   its own sheet position above the bar; only the compact one-row question applies */
+@media (max-width: 900px) and (max-height: 500px) {
+  body:has(.origin-ask:not([hidden])) .origin-dock:not(.origin-card), body:has(.mice-chat:not([hidden])):has(.origin-ask:not([hidden])) .origin-dock:not(.origin-card), .origin-dock.above-mice:has(.origin-ask:not([hidden])) { left: 88px; right: auto; bottom: calc(var(--mbar-h) + 12px); max-width: calc(100vw - 88px - 72px); flex-wrap: nowrap; align-items: flex-end; }
+  .origin-dock:has(.origin-ask:not([hidden])) .origin-btn { padding: 0; width: 44px; justify-content: center; flex: none; }
+  .origin-dock:has(.origin-ask:not([hidden])) .origin-btn .label, .origin-dock:has(.origin-ask:not([hidden])) .origin-btn output { display: none !important; }
+  .origin-dock .origin-ask { flex: 1 1 auto; flex-basis: auto; margin-right: 0; min-width: 0; flex-direction: row; flex-wrap: wrap; align-items: center; gap: 4px 6px; padding: 6px 10px 8px; }
+  .origin-ask label { flex-basis: 100%; font-size: 11px; line-height: 1.3; }
+  .origin-ask .row { flex: 0 1 260px; min-width: 0; }
+  .origin-ask input { padding: 6px 9px; min-width: 90px; }
+  .origin-ask .go { padding: 6px 10px; }
+  .origin-ask .chips { flex: 1 1 0; min-width: 0; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+  .origin-ask .chips:not(:empty) { flex-basis: 100px; min-width: 100px; }   /* a usable touch-scroll strip; on a narrower question it wraps under the row */
+  .origin-ask .chips::-webkit-scrollbar { display: none; }
+  .origin-ask .chip { flex: none; white-space: nowrap; }
+  body:has(.origin-ask:not([hidden])) .mice-chat:not(.open), body:has(.origin-ask:not([hidden])) .mice-dock { visibility: hidden; }
+  body.has-origin:has(.origin-ask:not([hidden])) .toast { top: 12px; bottom: auto; }
+}
+
+/* the origin card with the right rail: desktop keeps the card's own width (main's 400px question is for the bottom dock); landscape phones put the card between
+   the top of the screen and the bar, left of the rail, and scroll it if the question is taller than the canvas */
+.origin-card .origin-ask { width: auto; margin-right: 0; }
+@media (max-width: 900px) and (max-height: 500px) {
+  .origin-dock.origin-card { left: 12px; right: 112px !important; bottom: calc(var(--mbar-h, 0px) + 8px); max-height: calc(100vh - var(--mbar-h, 0px) - 16px); overflow-y: auto; gap: 4px; padding: 6px 10px 8px; }
+  .origin-card .origin-ask { padding: 0; }
+  .origin-card .origin-ask .chips { align-self: center; align-items: center; }
+  body.has-origin:has(.origin-card) .toast, body.has-origin:has(.origin-card).has-mice .toast, body.has-origin:has(.origin-card):not(.has-mice) .toast { top: 8px; bottom: auto; }
+}
+
+/* the mice's chat on short desktop windows (e.g. 932x430): the open chat stops 12px under the folded Lobes header (top 84px + 37px) and scrolls its body, and the Lobes
+   panel ends 12px above the chat (top 84px, chat bottom 66px, height --mice-chat-h from js/mice-chat.js) instead of running underneath it */
+@media (min-width: 901px) {
+  .mice-chat.open { max-height: max(180px, calc(100vh - 66px - 133px)); }   /* under ~380px tall the chat keeps 180px so its body stays usable; Lobes folds above it */
+  .mice-chat.open .mice-head { flex: none; }
+  .mice-chat.open .mice-body { overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; }
+  body:has(.mice-chat:not([hidden])) #lobes, body.has-origin:has(.mice-chat:not([hidden])) #lobes, body.has-origin:has(.origin-card):has(.mice-chat:not([hidden])) #lobes { max-height: calc(100vh - 162px - var(--mice-chat-h, 40px)); }
+}
+/* below ~367px tall the 180px chat would cover the folded Lobes header; hide Lobes while the chat is open (it returns when the chat closes) */
+@media (min-width: 901px) and (max-height: 367px) {
+  body:has(.mice-chat.open) #lobes { display: none; }
+}
+/* phones: the open chat sheet stays on screen (in landscape, 844x390, it rose 10px above the top) and scrolls its body */
+@media (max-width: 900px) {
+  .mice-chat.open { max-height: calc(100vh - var(--mbar-h, 0px) - 24px); }
+  .mice-chat.open .mice-head { flex: none; }
+  .mice-chat.open .mice-body { overflow-y: auto; overscroll-behavior: contain; }
+}
+
+/* puzzles (ported from the canonical renderer): a sealed synapse shows its prompt in place of the fact; the answer box lives in the synapse panel */
+.syn.sealed { border-style: dashed; border-color: var(--line); }
+.syn.sealed .txt { color: var(--text-3); font-style: normal; letter-spacing: 0.02em; }
+.panel .meta .unfolded { color: var(--accent); }
+.puzzle { display: flex; gap: 8px; margin: 4px 0 8px; }
+.puzzle input { flex: 1; min-width: 0; height: 36px; padding: 0 12px; border-radius: 8px; border: 1px solid var(--line); background: var(--glass); color: var(--text); outline: none; font: inherit; }
+.puzzle input:focus { border-color: rgba(255, 138, 61, 0.6); }
+.puzzle button { height: 36px; padding: 0 14px; border-radius: 8px; border: 1px solid var(--line); background: rgba(255, 138, 61, 0.14); color: var(--text); cursor: pointer; font: inherit; font-weight: 500; }
+.puzzle button:hover { background: rgba(255, 138, 61, 0.26); }
+.puzzle.shake { animation: shake 0.3s; }
+@keyframes shake { 20% { transform: translateX(-4px); } 50% { transform: translateX(4px); } 80% { transform: translateX(-2px); } }
+@media (prefers-reduced-motion: reduce) { .puzzle.shake { animation: none; } }
+.puzzle-row { display: flex; gap: 12px; align-items: center; min-height: 20px; font-size: 12.5px; color: var(--text-2); margin-bottom: 10px; }
+.hint-btn { border: 0; background: transparent; color: var(--text-3); cursor: pointer; padding: 0; font-size: 12.5px; text-decoration: underline dotted; }
+.hint-btn:hover { color: var(--text); }
+.verdict { color: var(--accent); }

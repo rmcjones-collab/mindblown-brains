@@ -1,0 +1,47 @@
+/* MindBlown — Networks panel (compose.js). Reuses the tokens and panel look of style.css; canonical, copied byte-identically. */
+#networks.on { background: var(--text); color: #0b0e14; }
+#networks.fab { position: absolute; right: 12px; bottom: 200px; width: 38px; height: 38px; border-radius: 10px; border: 1px solid var(--line); background: var(--glass); color: var(--text); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); z-index: 5; }
+#networks svg { display: block; }
+
+#networks-panel {
+  position: absolute; right: 70px; bottom: 22px; width: 290px; max-height: calc(100vh - 84px - 60px); padding: 12px 12px 10px;
+  background: var(--glass-strong); border: 1px solid var(--line); border-radius: var(--radius);
+  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+  display: flex; flex-direction: column; z-index: 7; outline: none;
+}
+#networks-panel[hidden] { display: none; }
+#networks-panel .net-head { display: flex; align-items: center; justify-content: space-between; }
+#networks-panel .net-key { font-size: 10px; letter-spacing: 0; text-transform: none; padding: 1px 6px; border: 1px solid var(--line-strong); border-radius: 6px; color: var(--text-3); }
+.net-list { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; margin-right: -6px; padding-right: 6px; scrollbar-width: thin; scrollbar-color: rgba(160, 180, 220, 0.28) transparent; }
+.net-list::-webkit-scrollbar { width: 6px; }
+.net-list::-webkit-scrollbar-track { background: transparent; }
+.net-list::-webkit-scrollbar-thumb { background: rgba(160, 180, 220, 0.28); border-radius: 999px; }
+.net-list::-webkit-scrollbar-thumb:hover { background: rgba(255, 138, 61, 0.55); }
+.net-group + .net-group { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--line); }
+.net-group h4 { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-3); margin: 0 0 4px 4px; font-weight: 500; }
+.net-group h4 a { color: inherit; text-decoration: none; }
+.net-group h4 a:hover { color: var(--text); text-decoration: underline; }
+.net-row { display: flex; align-items: center; gap: 8px; padding: 6px 6px; border-radius: 8px; font-size: 13px; color: var(--text); cursor: pointer; }
+.net-row:hover { background: rgba(255, 255, 255, 0.05); }
+.net-row input { accent-color: var(--accent); margin: 0; flex: 0 0 auto; }
+.net-row input:disabled { opacity: 0.5; }
+.net-row .sw { width: 10px; height: 10px; border-radius: 50%; flex: 0 0 auto; box-shadow: 0 0 10px currentColor; }
+.net-row .t { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.net-row:has(input:not(:checked)) { color: var(--text-3); }
+.net-row:has(input:not(:checked)) .sw { opacity: 0.35; box-shadow: none; }
+.net-row .tag { flex: 0 0 auto; font-size: 10px; line-height: 1.4; padding: 1px 6px; border: 1px solid var(--line-strong); border-radius: 999px; color: var(--text-3); white-space: nowrap; }
+.net-row .tag.err { color: #f87171; border-color: rgba(248, 113, 113, 0.5); }
+.net-empty { font-size: 12px; color: var(--text-3); padding: 6px; }
+.net-foot { flex: 0 0 auto; margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--line); display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--text-3); }
+.net-foot .status { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.net-foot .status.err { color: #f87171; }
+.net-foot .net-reset { flex: 0 0 auto; height: 26px; padding: 0 10px; border-radius: 8px; border: 1px solid var(--line); background: transparent; color: var(--text-2); font-size: 12px; cursor: pointer; }
+.net-foot .net-reset:hover { background: rgba(255, 255, 255, 0.08); color: var(--text); }
+
+.net-toast { position: absolute; left: 50%; top: 84px; transform: translate(-50%, -8px); padding: 8px 14px; border-radius: 999px; background: var(--glass-strong); border: 1px solid rgba(248, 113, 113, 0.5); color: var(--text); font-size: 12px; white-space: nowrap; max-width: calc(100vw - 32px); overflow: hidden; text-overflow: ellipsis; opacity: 0; transition: opacity 0.3s, transform 0.3s; z-index: 8; pointer-events: none; }
+.net-toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+@media (max-width: 900px) {
+  #networks-panel { left: 12px; right: 12px; width: auto; bottom: 72px; max-height: 60vh; z-index: 7; }
+  .net-toast { top: auto; bottom: 120px; }
+}
