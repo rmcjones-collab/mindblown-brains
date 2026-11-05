@@ -1,0 +1,172 @@
+{
+ "collection": "fell",
+ "title": "Puzzles that fell: solved games and settled minimums",
+ "about": "Classics whose answers were settled by exhaustive computation or by a solved game, restated in our own words. Each seals the result; the neurons in the lobe Puzzles that fell carry the history without giving the answer away.",
+ "sources": {
+  "W_MSUDOKU": {
+   "uri": "https://en.wikipedia.org/wiki/Mathematics_of_Sudoku",
+   "label": "Wikipedia · Mathematics of Sudoku"
+  },
+  "W_CHINOOK": {
+   "uri": "https://en.wikipedia.org/wiki/Chinook_(computer_program)",
+   "label": "Wikipedia · Chinook (computer program)"
+  },
+  "W_C4": {
+   "uri": "https://en.wikipedia.org/wiki/Connect_Four",
+   "label": "Wikipedia · Connect Four"
+  },
+  "W_SOLVED": {
+   "uri": "https://en.wikipedia.org/wiki/Solved_game",
+   "label": "Wikipedia · Solved game"
+  },
+  "W_MONTY": {
+   "uri": "https://en.wikipedia.org/wiki/Monty_Hall_problem",
+   "label": "Wikipedia · Monty Hall problem"
+  }
+ },
+ "puzzles": [
+  {
+   "id": "fell/sudoku-17",
+   "from": "classic",
+   "rung": 4,
+   "kind": "number",
+   "teaches": "method/search",
+   "q": "What is the fewest number of given clues a Sudoku can have and still have exactly one solution?",
+   "a": "17|seventeen",
+   "hint": "Between 15 and 20.",
+   "accept": [
+    "17",
+    "seventeen"
+   ],
+   "reject": [
+    "16",
+    "18",
+    "15"
+   ],
+   "unfolds": {
+    "lead": "Rung 4 · the Sudoku minimum",
+    "text": "Seventeen. Gary McGuire, Bastian Tugemann and Gilles Civario showed in 2012, by an exhaustive search of about 7.1 million core-hours, that no 16-clue Sudoku has a unique solution. The proof rests on the correctness of the search program; no person has checked it case by case.",
+    "cites": [
+     "W_MSUDOKU"
+    ],
+    "links": [
+     "fell/sudoku",
+     "method/search",
+     "seam/check-solve"
+    ]
+   }
+  },
+  {
+   "id": "fell/checkers",
+   "from": "classic",
+   "rung": 4,
+   "kind": "logic",
+   "teaches": "method/search",
+   "q": "If both players never make a mistake, how does a game of checkers end?",
+   "a": "(.* )?(draw|drawn|tie|tied|stalemate|nobody wins|no one wins|neither( side)?( wins)?)( .*)?",
+   "hint": "Think of tic-tac-toe played perfectly.",
+   "accept": [
+    "draw",
+    "a draw",
+    "Tie",
+    "it's a draw",
+    "nobody wins"
+   ],
+   "reject": [
+    "white",
+    "black",
+    "first player",
+    "second"
+   ],
+   "unfolds": {
+    "lead": "Rung 4 · checkers, solved",
+    "text": "A draw. Jonathan Schaeffer's team at the University of Alberta announced in 2007, after computations running since 1989, that perfect play by both sides in checkers ends in a draw; the game has about 5 × 10^20 positions.",
+    "cites": [
+     "W_CHINOOK",
+     "W_SOLVED"
+    ],
+    "links": [
+     "fell/games",
+     "method/search"
+    ]
+   }
+  },
+  {
+   "id": "fell/connect-four",
+   "from": "classic",
+   "rung": 4,
+   "kind": "logic",
+   "teaches": "method/search",
+   "q": "With perfect play in Connect Four, who wins: the first player, the second player, or nobody?",
+   "a": "(the )?first( player)?|1st( player)?|player (one|1)",
+   "hint": "The middle column is the strongest opening.",
+   "accept": [
+    "first",
+    "The first player",
+    "1st",
+    "player one"
+   ],
+   "reject": [
+    "second",
+    "nobody",
+    "draw",
+    "the second player"
+   ],
+   "unfolds": {
+    "lead": "Rung 4 · Connect Four, solved",
+    "text": "The first player, by starting in the middle column. James Dow Allen and Victor Allis solved the game independently in October 1988.",
+    "cites": [
+     "W_C4",
+     "W_SOLVED"
+    ],
+    "links": [
+     "fell/games",
+     "method/search"
+    ]
+   }
+  },
+  {
+   "id": "fell/monty-hall",
+   "from": "classic",
+   "rung": 2,
+   "kind": "logic",
+   "teaches": "method/counting",
+   "q": "Three doors hide one car and two goats. You pick door 1. The host knows where the car is; he always opens a door you did not pick to show a goat, choosing at random when both hide goats, and always offers you the switch. He opens door 3. To give yourself the best chance, should you stay or switch?",
+   "a": "(?!.*\\b(not|no|never|dont|t)\\b.*\\b(switch(ing)?|chang(e|ing)|swap(ping)?|door 2|door two|other door)\\b)(?!.*\\b(rather than|instead of|over)\\s+(switch(ing)?|chang(e|ing)|swap(ping)?|door 2|door two|other door)\\b)(?!.*\\b(stay|staying|keep|keeping)\\b.*\\b(switch(ing)?|chang(e|ing)|swap(ping)?|door 2|door two|other door)\\b).*\\b(switch(ing)?|chang(e|ing)|swap(ping)?|door 2|door two|other door)\\b.*",
+   "hint": "Your first pick was right one time in three.",
+   "accept": [
+    "switch",
+    "I should switch",
+    "change doors",
+    "door 2",
+    "swap",
+    "switch rather than stay",
+    "switching is better"
+   ],
+   "reject": [
+    "stay",
+    "keep",
+    "door 1",
+    "it does not matter",
+    "do not switch",
+    "don't switch",
+    "never switch",
+    "stay, do not swap",
+    "stay rather than switch",
+    "keep my door instead of swapping",
+    "I think you should stay because switching is worse"
+   ],
+   "unfolds": {
+    "lead": "Rung 2 · should you switch?",
+    "text": "Switch: it wins two times in three, because the host's choice is constrained by what he knows. When Marilyn vos Savant gave this answer in Parade in 1990, about 10,000 readers wrote in, many of them saying she was wrong.",
+    "cites": [
+     "W_MONTY"
+    ],
+    "links": [
+     "measure/items",
+     "frame/probability"
+    ]
+   }
+  }
+ ]
+}

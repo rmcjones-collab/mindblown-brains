@@ -4,7 +4,7 @@
    Each brain's data file assigns window.MINDBLOWN = {...} in the shared contract; `data` and `href` are relative to `host`. */
 window.MINDBLOWN_CATALOG = {
   networks: [
-    { id: 'deepanswers', title: 'Deep Answers', short: 'Deep Answers', host: 'https://deepanswers.pplx.app', brains: [
+    { id: 'deepanswers', title: 'Deep Answers', short: 'Deep Answers', host: 'https://rmcjones-collab.github.io/mindblown-brains/deepanswers/', brains: [
       { id: 'physics',    title: 'Physics',     short: 'Physics',    color: '#ff8a3d', data: 'physics-data.js',    href: 'physics.html' },
       { id: 'cosmos',     title: 'Cosmology',   short: 'Cosmos',     color: '#60a5fa', data: 'cosmos-data.js',     href: 'cosmos.html' },
       { id: 'life',       title: 'Life',        short: 'Life',       color: '#4ade80', data: 'life-data.js',       href: 'life.html' },

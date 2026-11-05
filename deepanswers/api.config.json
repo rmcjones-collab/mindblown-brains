@@ -1,0 +1,64 @@
+{
+  "host": "https://rmcjones-collab.github.io/mindblown-brains/deepanswers/",
+  "title": "MindBlown: Deep Answers network",
+  "network": {
+    "id": "deep-answers",
+    "title": "Deep Answers",
+    "data": "network-data.js"
+  },
+  "brains": [
+    {
+      "id": "physics",
+      "data": "physics-data.js",
+      "href": "physics.html",
+      "title": "Physics",
+      "color": "#ff8a3d"
+    },
+    {
+      "id": "cosmos",
+      "data": "cosmos-data.js",
+      "href": "cosmos.html",
+      "title": "Cosmology",
+      "color": "#60a5fa"
+    },
+    {
+      "id": "life",
+      "data": "life-data.js",
+      "href": "life.html",
+      "title": "Life",
+      "color": "#4ade80"
+    },
+    {
+      "id": "mind",
+      "data": "mind-data.js",
+      "href": "mind.html",
+      "title": "Mind",
+      "color": "#c084fc"
+    },
+    {
+      "id": "math",
+      "data": "math-data.js",
+      "href": "math.html",
+      "title": "Mathematics",
+      "color": "#f472b6"
+    },
+    {
+      "id": "philosophy",
+      "data": "philosophy-data.js",
+      "href": "philosophy.html",
+      "title": "Philosophy",
+      "color": "#2dd4bf"
+    },
+    {
+      "id": "puzzles",
+      "data": "puzzles-data.js",
+      "href": "puzzles.html",
+      "title": "Puzzles",
+      "color": "#facc15"
+    }
+  ],
+  "peers": [
+    "https://mensabrain.pplx.app"
+  ],
+  "license": null
+}

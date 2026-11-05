@@ -1,0 +1,673 @@
+{
+ "collection": "ladder",
+ "title": "The ladder: classics and originals",
+ "about": "Puzzles that give the ladder its upper rungs. Classics are restated in our own words (the ideas are centuries old and public; the wording is ours); originals were written for this network. Every answer was verified by computation or by hand before it entered. Each puzzle seals a fact about the method it exercises and, higher up, about the open question that method runs into. Harder rungs sit closer to the seams.",
+ "sources": {
+  "W_CRT": {
+   "uri": "https://en.wikipedia.org/wiki/Cognitive_reflection_test",
+   "label": "Wikipedia · Cognitive reflection test (Frederick 2005)"
+  },
+  "W_PIGEON": {
+   "uri": "https://en.wikipedia.org/wiki/Pigeonhole_principle",
+   "label": "Wikipedia · Pigeonhole principle"
+  },
+  "W_POLYA": {
+   "uri": "https://en.wikipedia.org/wiki/How_to_Solve_It",
+   "label": "Wikipedia · How to Solve It (Pólya 1945)"
+  },
+  "W_LAS": {
+   "uri": "https://en.wikipedia.org/wiki/Look-and-say_sequence",
+   "label": "Wikipedia · Look-and-say sequence (Conway)"
+  },
+  "W_MUTIL": {
+   "uri": "https://en.wikipedia.org/wiki/Mutilated_chessboard_problem",
+   "label": "Wikipedia · Mutilated chessboard problem"
+  },
+  "W_BINOM": {
+   "uri": "https://en.wikipedia.org/wiki/Binomial_coefficient",
+   "label": "Wikipedia · Binomial coefficient"
+  },
+  "W_HANOI": {
+   "uri": "https://en.wikipedia.org/wiki/Tower_of_Hanoi",
+   "label": "Wikipedia · Tower of Hanoi"
+  },
+  "W_KK": {
+   "uri": "https://en.wikipedia.org/wiki/Knights_and_Knaves",
+   "label": "Wikipedia · Knights and Knaves (Smullyan)"
+  },
+  "W_FTA": {
+   "uri": "https://en.wikipedia.org/wiki/Fundamental_theorem_of_arithmetic",
+   "label": "Wikipedia · Fundamental theorem of arithmetic"
+  },
+  "W_15": {
+   "uri": "https://en.wikipedia.org/wiki/15_puzzle",
+   "label": "Wikipedia · 15 puzzle"
+  },
+  "W_PARITY": {
+   "uri": "https://en.wikipedia.org/wiki/Parity_of_a_permutation",
+   "label": "Wikipedia · Parity of a permutation"
+  },
+  "W_COLLATZ": {
+   "uri": "https://en.wikipedia.org/wiki/Collatz_conjecture",
+   "label": "Wikipedia · Collatz conjecture"
+  },
+  "BARINA": {
+   "uri": "https://pcbarina.fit.vutbr.cz/",
+   "label": "Bařina · Convergence verification of the Collatz problem (project page)"
+  },
+  "TAO19": {
+   "uri": "https://arxiv.org/abs/1909.03562",
+   "label": "Tao 2019 · Almost all orbits of the Collatz map attain almost bounded values"
+  },
+  "W_PANDIG": {
+   "uri": "https://en.wikipedia.org/wiki/Pandigital_number",
+   "label": "Wikipedia · Pandigital number"
+  },
+  "W_BACKTRACK": {
+   "uri": "https://en.wikipedia.org/wiki/Backtracking",
+   "label": "Wikipedia · Backtracking"
+  },
+  "W_FLITTLE": {
+   "uri": "https://en.wikipedia.org/wiki/Fermat%27s_little_theorem",
+   "label": "Wikipedia · Fermat's little theorem"
+  },
+  "W_RSA": {
+   "uri": "https://en.wikipedia.org/wiki/RSA_cryptosystem",
+   "label": "Wikipedia · RSA cryptosystem"
+  },
+  "W_QUEENS": {
+   "uri": "https://en.wikipedia.org/wiki/Eight_queens_puzzle",
+   "label": "Wikipedia · Eight queens puzzle"
+  },
+  "GENT17": {
+   "uri": "https://jair.org/index.php/jair/article/view/11079",
+   "label": "Gent, Jefferson & Nightingale 2017 · Complexity of n-Queens Completion (JAIR)"
+  },
+  "W_INDPUZ": {
+   "uri": "https://en.wikipedia.org/wiki/Induction_puzzles",
+   "label": "Wikipedia · Induction puzzles (hat puzzles)"
+  },
+  "W_COMMON": {
+   "uri": "https://en.wikipedia.org/wiki/Common_knowledge_(logic)",
+   "label": "Wikipedia · Common knowledge (logic)"
+  },
+  "W_RAMSEY": {
+   "uri": "https://en.wikipedia.org/wiki/Ramsey%27s_theorem",
+   "label": "Wikipedia · Ramsey's theorem"
+  },
+  "A_R55": {
+   "uri": "https://arxiv.org/abs/2409.15709",
+   "label": "Angeltveit & McKay 2024 · R(5,5) ≤ 46"
+  },
+  "W_PNP": {
+   "uri": "https://en.wikipedia.org/wiki/P_versus_NP_problem",
+   "label": "Wikipedia · P versus NP problem"
+  }
+ },
+ "puzzles": [
+  {
+   "id": "ladder/bat-and-ball",
+   "from": "classic",
+   "rung": 2,
+   "kind": "number",
+   "teaches": "method/insight",
+   "q": "A bat and a ball cost 1.10 together. The bat costs 1.00 more than the ball. How much does the ball cost, in cents?",
+   "a": "(?:5|five|0?\\.05)(?: ?cents?)?\\.?",
+   "hint": "Write the two facts as equations before you answer.",
+   "accept": [
+    "5",
+    "five",
+    "0.05",
+    "5 cents",
+    "five cents",
+    "5 cents."
+   ],
+   "reject": [
+    "10",
+    "ten",
+    "0.10"
+   ],
+   "unfolds": {
+    "lead": "Rung 2 · the fluent wrong answer",
+    "text": "Ten cents is the answer that arrives first, and it is wrong; the ball costs five. Frederick built the cognitive reflection test from three items like this, each with an intuitive answer that must be noticed and overridden, and found that even students at selective universities often gave the fast one. A puzzle can measure the habit of checking, not only the power of computing.",
+    "cites": [
+     "W_CRT"
+    ],
+    "links": [
+     "method/insight",
+     "measure/items"
+    ]
+   }
+  },
+  {
+   "id": "ladder/widgets",
+   "from": "classic",
+   "rung": 2,
+   "kind": "number",
+   "teaches": "method/deduction",
+   "q": "If it takes 5 machines 5 minutes to make 5 widgets, how many minutes would 100 machines take to make 100 widgets?",
+   "a": "(?:5|five)(?: ?min(?:ute)?s?)?\\.?",
+   "hint": "How long does one machine take to make one widget?",
+   "accept": [
+    "5",
+    "five",
+    "5 minutes",
+    "five minutes",
+    "5 min."
+   ],
+   "reject": [
+    "100",
+    "20"
+   ],
+   "unfolds": {
+    "lead": "Rung 2 · rates are not totals",
+    "text": "Each machine makes one widget in five minutes, so a hundred machines make a hundred widgets in the same five. The second cognitive reflection item works because the numbers invite a proportion the problem never stated. Checking an answer against the actual claim, rather than against its surface, is the cheapest reasoning skill there is and the one most often skipped.",
+    "cites": [
+     "W_CRT"
+    ],
+    "links": [
+     "method/deduction",
+     "measure/items"
+    ]
+   }
+  },
+  {
+   "id": "ladder/lily-pads",
+   "from": "classic",
+   "rung": 2,
+   "kind": "pattern",
+   "teaches": "method/search",
+   "q": "A patch of lily pads doubles in size every day. It covers the whole lake on day 48. On which day did it cover half the lake?",
+   "a": "47|forty[ -]?seven|day 47",
+   "hint": "Work backwards one day.",
+   "accept": [
+    "47",
+    "day 47",
+    "forty-seven"
+   ],
+   "reject": [
+    "24",
+    "twenty-four"
+   ],
+   "unfolds": {
+    "lead": "Rung 2 · one step backwards",
+    "text": "Half the lake is one doubling before the whole, so day 47; day 24 is the fluent wrong answer. The third cognitive reflection item rewards working backwards from the goal, the heuristic Pólya listed among the first for any problem whose end state is clearer than its start.",
+    "cites": [
+     "W_CRT",
+     "W_POLYA"
+    ],
+    "links": [
+     "method/search",
+     "method/pattern"
+    ]
+   }
+  },
+  {
+   "id": "ladder/socks",
+   "from": "classic",
+   "rung": 2,
+   "kind": "logic",
+   "teaches": "method/counting",
+   "q": "A drawer holds ten black and ten white socks. In the dark, how many must you take out to be sure of a matching pair?",
+   "a": "3|three",
+   "hint": "You are not choosing; you are guaranteeing.",
+   "accept": [
+    "3",
+    "three"
+   ],
+   "reject": [
+    "2",
+    "11",
+    "eleven"
+   ],
+   "unfolds": {
+    "lead": "Rung 2 · the pigeonhole",
+    "text": "Three socks in two colours must repeat a colour. Dirichlet used the same observation in 1834 to prove results about approximating irrationals, and it is still the simplest tool that turns a counting fact into a certainty about something you cannot see. The local act (drawing) and the global guarantee (a pair) are joined by nothing but arithmetic.",
+    "cites": [
+     "W_PIGEON"
+    ],
+    "links": [
+     "method/counting",
+     "seam/local-global"
+    ]
+   }
+  },
+  {
+   "id": "ladder/three-boxes",
+   "from": "classic",
+   "rung": 3,
+   "kind": "logic",
+   "teaches": "method/deduction",
+   "q": "Three sealed boxes are labelled APPLES, ORANGES and MIXED, and every label is wrong. You may take one fruit from one box without looking inside. Which box do you take it from?",
+   "a": "mixed|the mixed( box| one)?|mixed box|the one (labell?ed|marked) mixed",
+   "hint": "Start with the label that you know the most about.",
+   "accept": [
+    "mixed",
+    "the mixed box",
+    "MIXED",
+    "the one labelled mixed"
+   ],
+   "reject": [
+    "apples",
+    "oranges"
+   ],
+   "unfolds": {
+    "lead": "Rung 3 · one bit that settles everything",
+    "text": "The box labelled MIXED is not mixed, so one fruit from it names its whole contents, and the other two labels, both wrong, then fall into place. One observation carries the puzzle because the constraints were already most of the way there. Pólya's first question, what is the unknown and what are the data, is doing all the work.",
+    "cites": [
+     "W_POLYA"
+    ],
+    "links": [
+     "method/deduction",
+     "method/insight"
+    ]
+   }
+  },
+  {
+   "id": "ladder/look-and-say",
+   "from": "classic",
+   "rung": 3,
+   "kind": "pattern",
+   "teaches": "method/pattern",
+   "q": "What comes next: 1, 11, 21, 1211, 111221, ?",
+   "a": "312211",
+   "hint": "Read each term aloud and describe it.",
+   "accept": [
+    "312211"
+   ],
+   "reject": [
+    "13112221",
+    "1113213211"
+   ],
+   "unfolds": {
+    "lead": "Rung 3 · an easy rule with hard consequences",
+    "text": "Each term describes the previous one (three 1s, two 2s, one 1), giving 312211. Conway showed the lengths grow by a constant, about 1.3036, that is the largest root of a degree-71 polynomial, and that every term splits into 92 recurring elements he named after the chemical elements. The rule takes a sentence; its behaviour took a theorem.",
+    "cites": [
+     "W_LAS"
+    ],
+    "links": [
+     "method/pattern",
+     "seam/description-explanation"
+    ]
+   }
+  },
+  {
+   "id": "ladder/mutilated-board",
+   "from": "classic",
+   "rung": 3,
+   "kind": "spatial",
+   "teaches": "method/invariant",
+   "q": "Two opposite corners are cut from a chessboard. Can the remaining 62 squares be covered exactly by 31 dominoes? Answer yes or no.",
+   "a": "(?:no|impossible|never|it cannot)\\.?",
+   "hint": "Look at the colours of the missing squares.",
+   "accept": [
+    "no",
+    "No",
+    "impossible",
+    "No.",
+    "Impossible."
+   ],
+   "reject": [
+    "yes",
+    "31"
+   ],
+   "unfolds": {
+    "lead": "Rung 3 · a proof that skips the search",
+    "text": "Opposite corners share a colour, so 30 squares of one colour remain against 32 of the other, and every domino covers one of each: no tiling exists. Max Black posed it in 1946. Trying placements would take forever and prove nothing; the colouring is an invariant, and invariants are how a finite mind closes an infinite case split.",
+    "cites": [
+     "W_MUTIL"
+    ],
+    "links": [
+     "method/invariant",
+     "gap/proof"
+    ]
+   }
+  },
+  {
+   "id": "ladder/round-robin",
+   "from": "original",
+   "rung": 3,
+   "kind": "number",
+   "teaches": "method/counting",
+   "q": "Twelve players each play every other player exactly once. How many games are played?",
+   "a": "66|sixty[ -]?six",
+   "hint": "Count pairs, not players.",
+   "accept": [
+    "66",
+    "sixty-six"
+   ],
+   "reject": [
+    "132",
+    "144",
+    "12"
+   ],
+   "unfolds": {
+    "lead": "Rung 3 · counting pairs",
+    "text": "Each game is a pair of players and there are 12 × 11 / 2 = 66 pairs. The binomial coefficient counts unordered choices; it is the first counting tool and still the one under most probability. Two rungs up, the same count of pairs is what Ramsey's theorem squeezes until structure appears.",
+    "cites": [
+     "W_BINOM"
+    ],
+    "links": [
+     "method/counting",
+     "ladder/rung-5"
+    ]
+   }
+  },
+  {
+   "id": "ladder/hanoi-7",
+   "from": "classic",
+   "rung": 4,
+   "kind": "number",
+   "teaches": "method/search",
+   "q": "The Tower of Hanoi with seven discs: what is the fewest number of moves that solves it?",
+   "a": "(?:127|one hundred (?:and )?twenty[ -]?seven)(?: ?moves?)?\\.?",
+   "hint": "Solve it for one, two and three discs and watch the pattern.",
+   "accept": [
+    "127",
+    "one hundred and twenty-seven",
+    "127 moves",
+    "127."
+   ],
+   "reject": [
+    "128",
+    "64",
+    "49"
+   ],
+   "unfolds": {
+    "lead": "Rung 4 · recursion",
+    "text": "Moving n discs takes 2ⁿ − 1 moves, so seven take 127. Édouard Lucas sold the puzzle in 1883 with a legend of 64 golden discs; at one move a second those would take about 585 billion years. The solution is a three-line recursion, which is why the puzzle is the first program many people write and the first exponential many people feel.",
+    "cites": [
+     "W_HANOI"
+    ],
+    "links": [
+     "method/search",
+     "frame/computation"
+    ]
+   }
+  },
+  {
+   "id": "ladder/knaves",
+   "from": "classic",
+   "rung": 4,
+   "kind": "logic",
+   "teaches": "method/deduction",
+   "q": "On an island, knights always tell the truth and knaves always lie. A says: \"We are both knaves.\" What is B?",
+   "a": "(a )?knight",
+   "hint": "Could A be a knight and say that?",
+   "accept": [
+    "knight",
+    "a knight",
+    "Knight"
+   ],
+   "reject": [
+    "knave",
+    "a knave",
+    "both knaves"
+   ],
+   "unfolds": {
+    "lead": "Rung 4 · a sentence about itself",
+    "text": "A cannot be a knight, since a knight could not truthfully call himself a knave; so A is a knave, his statement is false, and B is a knight. Raymond Smullyan built these islands in What Is the Name of This Book? (1978) as a staircase to Gödel: a sentence that speaks about its own status is the engine of the incompleteness theorems, here in a form a child can run.",
+    "cites": [
+     "W_KK"
+    ],
+    "links": [
+     "method/deduction",
+     "cross/limits-of-proof"
+    ]
+   }
+  },
+  {
+   "id": "ladder/one-to-ten",
+   "from": "original",
+   "rung": 4,
+   "kind": "number",
+   "teaches": "method/counting",
+   "q": "What is the smallest positive whole number divisible by every whole number from 1 to 10?",
+   "a": "2,?520",
+   "hint": "Think in primes: which powers of 2, 3, 5 and 7 are needed?",
+   "accept": [
+    "2520",
+    "2,520"
+   ],
+   "reject": [
+    "3628800",
+    "5040",
+    "1"
+   ],
+   "unfolds": {
+    "lead": "Rung 4 · primes as coordinates",
+    "text": "The answer is 2³ · 3² · 5 · 7 = 2520: for each prime, take the highest power that appears below 11. The fundamental theorem of arithmetic says every whole number has exactly one such factorisation, which turns divisibility questions into bookkeeping over primes. Where the primes themselves fall is the question this trick does not touch.",
+    "cites": [
+     "W_FTA"
+    ],
+    "links": [
+     "method/counting",
+     "method/invariant"
+    ]
+   }
+  },
+  {
+   "id": "ladder/fourteen-fifteen",
+   "from": "classic",
+   "rung": 4,
+   "kind": "spatial",
+   "teaches": "method/invariant",
+   "q": "A 15 puzzle sits in its solved position except that tiles 14 and 15 have been swapped with each other. Can sliding moves alone put it back in order? Answer yes or no.",
+   "a": "(?:no|impossible|never|it cannot)\\.?",
+   "hint": "Every slide is a swap with the blank. Count swaps.",
+   "accept": [
+    "no",
+    "impossible",
+    "No",
+    "No.",
+    "Impossible."
+   ],
+   "reject": [
+    "yes"
+   ],
+   "unfolds": {
+    "lead": "Rung 4 · the invariant that cost a thousand dollars",
+    "text": "No. Johnson and Story proved in 1879 that sliding moves preserve a parity (of the tile permutation together with the blank's row), so exactly half of all arrangements, including this one, are unreachable. Sam Loyd later offered 1,000 dollars for the swap and could not lose. A single invariant settles 10 trillion positions without visiting any.",
+    "cites": [
+     "W_15",
+     "W_PARITY"
+    ],
+    "links": [
+     "method/invariant",
+     "gap/proof"
+    ]
+   }
+  },
+  {
+   "id": "ladder/collatz-27",
+   "from": "classic",
+   "rung": 4,
+   "kind": "number",
+   "teaches": "method/search",
+   "q": "Start at 27. Halve it if it is even, triple it and add one if it is odd, and repeat. How many steps until you first reach 1?",
+   "a": "111|one hundred (and )?eleven",
+   "hint": "It climbs to 9,232 before it falls.",
+   "accept": [
+    "111"
+   ],
+   "reject": [
+    "110",
+    "112",
+    "27"
+   ],
+   "unfolds": {
+    "lead": "Rung 4 · a puzzle that is an open problem",
+    "text": "27 takes 111 steps and reaches 9,232 on the way. Whether every starting number reaches 1 is the Collatz conjecture: checked by Bařina's distributed computation for every start below 2⁷¹, narrowed by Tao in 2019, who proved that almost all orbits, in logarithmic density, come down to almost bounded values, which falls short of showing they reach 1, and proven for no general case. You just ran, by hand, the procedure no one can yet reason about in full.",
+    "cites": [
+     "W_COLLATZ",
+     "BARINA",
+     "TAO19"
+    ],
+    "links": [
+     "method/search",
+     "seam/finite-infinite",
+     "gap/proof"
+    ]
+   }
+  },
+  {
+   "id": "ladder/three-numbers",
+   "from": "classic",
+   "rung": 5,
+   "kind": "number",
+   "teaches": "method/search",
+   "q": "Using each digit 1 to 9 exactly once, write three 3-digit numbers so that the second is twice the first and the third is three times the first. Give the first number.",
+   "a": "192|219|273|327",
+   "hint": "The first number is below 334, and the last digits of all three numbers must differ.",
+   "accept": [
+    "192",
+    "219",
+    "273",
+    "327"
+   ],
+   "reject": [
+    "123",
+    "384",
+    "576"
+   ],
+   "unfolds": {
+    "lead": "Rung 5 · the human and the machine take different roads",
+    "text": "There are four: 192, 219, 273 and 327. A machine finds them by trying 211 candidates in a millisecond; a person finds them by constraints (the triple must stay three digits, so the first number is under 334; no digit may repeat; the last digits of n, 2n and 3n must differ). Both reach the same four and only one of them can say why there are four. That difference is what the machine-minds question is about.",
+    "cites": [
+     "W_PANDIG",
+     "W_BACKTRACK"
+    ],
+    "links": [
+     "method/search",
+     "seam/check-solve",
+     "cross/machine-minds"
+    ]
+   }
+  },
+  {
+   "id": "ladder/two-to-the-hundred",
+   "from": "original",
+   "rung": 5,
+   "kind": "number",
+   "teaches": "method/invariant",
+   "q": "What is the remainder when 2 to the power 100 is divided by 7?",
+   "a": "2|two",
+   "hint": "Look at the remainders of 2, 4, 8, 16, 32 ... they repeat.",
+   "accept": [
+    "2",
+    "two"
+   ],
+   "reject": [
+    "1",
+    "4",
+    "0"
+   ],
+   "unfolds": {
+    "lead": "Rung 5 · hardness built on purpose",
+    "text": "2³ = 8 leaves remainder 1, so 2¹⁰⁰ = (2³)³³ · 2 leaves remainder 2. Fermat's little theorem generalises the cycle, and the same arithmetic runs RSA: raising to a power modulo a large number is fast, while undoing it without the private key is believed to need factoring that number. Check-versus-solve is not only a seam in nature; here it is engineered as a product.",
+    "cites": [
+     "W_FLITTLE",
+     "W_RSA"
+    ],
+    "links": [
+     "method/invariant",
+     "seam/check-solve"
+    ]
+   }
+  },
+  {
+   "id": "ladder/eight-queens",
+   "from": "classic",
+   "rung": 5,
+   "kind": "spatial",
+   "teaches": "method/search",
+   "q": "Place eight queens on a chessboard so that no two attack each other. Counting rotations and reflections as different, how many arrangements are there?",
+   "a": "92|ninety[ -]?two",
+   "hint": "There are 12 that are genuinely different; the symmetries multiply most of them by 8.",
+   "accept": [
+    "92",
+    "ninety-two"
+   ],
+   "reject": [
+    "12",
+    "64",
+    "8"
+   ],
+   "unfolds": {
+    "lead": "Rung 5 · where search stops being enough",
+    "text": "There are 92 solutions, 12 up to symmetry; Bezzel posed the puzzle in 1848 and Gauss took an interest. Backtracking finds all 92 quickly, but no formula counts the solutions for a general n × n board, and deciding whether a partially placed set of queens can be completed is NP-complete (Gent, Jefferson and Nightingale 2017). The toy board is solved; the family it belongs to is not.",
+    "cites": [
+     "W_QUEENS",
+     "GENT17",
+     "W_PNP"
+    ],
+    "links": [
+     "method/search",
+     "frame/computation",
+     "seam/check-solve"
+    ]
+   }
+  },
+  {
+   "id": "ladder/three-hats",
+   "from": "classic",
+   "rung": 5,
+   "kind": "logic",
+   "teaches": "method/deduction",
+   "q": "Three logicians wear hats drawn from three red and two blue. Each sees the others' hats but not their own. Asked in turn whether they know their own colour, the first says no, the second says no, and the third, who is blind, says yes. What colour is the third hat?",
+   "a": "red",
+   "hint": "Each \"no\" tells the next person something.",
+   "accept": [
+    "red",
+    "Red"
+   ],
+   "reject": [
+    "blue"
+   ],
+   "unfolds": {
+    "lead": "Rung 5 · a \"no\" is information",
+    "text": "Red. If the second and third hats were both blue, the first logician would have known hers was red; her no rules that out. The second then knows: if the third hat were blue, his own would have to be red, and he would say so; his no means the third hat is red. The blind logician reasons from what the others could not conclude, which is common knowledge doing work that no single observation could.",
+    "cites": [
+     "W_INDPUZ",
+     "W_COMMON"
+    ],
+    "links": [
+     "method/deduction",
+     "seam/observer-observed"
+    ]
+   }
+  },
+  {
+   "id": "ladder/party-of-six",
+   "from": "classic",
+   "rung": 5,
+   "kind": "logic",
+   "teaches": "method/counting",
+   "q": "What is the smallest number of guests that guarantees a party contains either three people who all know each other or three who are all strangers?",
+   "a": "6|six",
+   "hint": "Pick one guest. Of the others, at least three are acquaintances or at least three are strangers.",
+   "accept": [
+    "6",
+    "six"
+   ],
+   "reject": [
+    "5",
+    "7",
+    "4"
+   ],
+   "unfolds": {
+    "lead": "Rung 5 · one step from the edge of knowledge",
+    "text": "Six. Five can be seated in a pentagon of acquaintance that avoids both triangles; with six the pigeonhole forces one. That is R(3,3) = 6; R(4,4) = 18 was found in 1955; R(5,5) is unknown, between 43 and 46 after Angeltveit and McKay's 2024 bound. Erdős said that if aliens demanded R(5,5) we should marshal every computer, and if they demanded R(6,6) we should attack. You are standing on the last rung anyone has climbed.",
+    "cites": [
+     "W_RAMSEY",
+     "A_R55"
+    ],
+    "links": [
+     "method/counting",
+     "seam/finite-infinite",
+     "gap/proof"
+    ]
+   }
+  }
+ ]
+}

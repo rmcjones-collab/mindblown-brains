@@ -1,0 +1,95 @@
+{
+ "collection": "mensa",
+ "title": "Accepted from Mensa, by link",
+ "about": "Puzzles Mensa itself has published are accepted by link only: the entry points to the page where Mensa printed the puzzle, the solver reads it there, and the answer pattern is what unseals the synapse here. The puzzle text is never copied into this network. American Mensa publishes its Mini-Quiz as questions similar to those on its Admission Test. Nothing here is affiliated with or endorsed by Mensa.",
+ "sources": {
+  "AM_QUIZ": {
+   "uri": "https://www.us.mensa.org/newsroom/mensa-mini-quiz/",
+   "label": "American Mensa · Mensa Mini-Quiz (questions similar to the Admission Test)"
+  },
+  "AM_JOIN": {
+   "uri": "https://www.us.mensa.org/join/",
+   "label": "American Mensa · How to join (supervised test or prior evidence)"
+  },
+  "MENSA_FAQ": {
+   "uri": "https://www.mensa.org/getting-your-iq-tested-faqs/",
+   "label": "Mensa International · Getting your IQ tested, FAQs"
+  },
+  "W_IRT": {
+   "uri": "https://en.wikipedia.org/wiki/Item_response_theory",
+   "label": "Wikipedia · Item response theory"
+  },
+  "W_INDUCT": {
+   "uri": "https://en.wikipedia.org/wiki/Problem_of_induction",
+   "label": "Wikipedia · Problem of induction"
+  }
+ },
+ "puzzles": [
+  {
+   "id": "mensa/mini-quiz-1",
+   "from": "mensa",
+   "link": "https://www.us.mensa.org/newsroom/mensa-mini-quiz/",
+   "rung": 2,
+   "kind": "number",
+   "teaches": "method/deduction",
+   "q": "Mensa Mini-Quiz, question 1 (the four-digit number). Read it at us.mensa.org/newsroom/mensa-mini-quiz, then enter the number.",
+   "a": "1,?155",
+   "hint": "Mensa gives a hint on the page: the digits sum to 12.",
+   "accept": [
+    "1155",
+    "1,155"
+   ],
+   "reject": [
+    "1515",
+    "5551"
+   ],
+   "unfolds": {
+    "lead": "Rung 2 · what an admission item looks like",
+    "text": "American Mensa publishes the Mini-Quiz as questions similar to those on its Admission Test; this one is a constraint puzzle with a single solution, the kind a supervised, timed test can score without judgement. Admission itself needs a supervised test with a certified proctor or prior evidence such as an accepted standardized score; Mensa International adds that online tests cannot be used.",
+    "cites": [
+     "AM_QUIZ",
+     "AM_JOIN",
+     "MENSA_FAQ"
+    ],
+    "links": [
+     "method/deduction",
+     "measure/mensa",
+     "measure/items"
+    ]
+   }
+  },
+  {
+   "id": "mensa/mini-quiz-7",
+   "from": "mensa",
+   "link": "https://www.us.mensa.org/newsroom/mensa-mini-quiz/",
+   "rung": 2,
+   "kind": "pattern",
+   "teaches": "method/pattern",
+   "q": "Mensa Mini-Quiz, question 7 (the sequence). Read it at us.mensa.org/newsroom/mensa-mini-quiz, then enter the missing number.",
+   "a": "16|sixteen",
+   "hint": "Look at the differences between neighbours.",
+   "accept": [
+    "16",
+    "sixteen"
+   ],
+   "reject": [
+    "15",
+    "18"
+   ],
+   "unfolds": {
+    "lead": "Rung 2 · difficulty is a property of the pair",
+    "text": "Item response theory models the chance of a correct answer as a function of two things at once, the item's difficulty and the person's ability, so an item has no difficulty on its own. A sequence item like this one adds a third ingredient: the solver must guess the rule the setter intended, which no finite sequence fixes.",
+    "cites": [
+     "W_IRT",
+     "W_INDUCT",
+     "AM_QUIZ"
+    ],
+    "links": [
+     "method/pattern",
+     "measure/items",
+     "cross/laws-and-induction"
+    ]
+   }
+  }
+ ]
+}

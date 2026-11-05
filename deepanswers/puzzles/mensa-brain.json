@@ -1,0 +1,378 @@
+{
+ "collection": "mensa-brain",
+ "title": "Accepted from the Mensa brain",
+ "about": "Ten puzzles written for the Mensa brain (mensabrain.pplx.app, repo rmcjones-collab/mindblown-mensa), where each seals a fact about Mensa's Mind Games. Deep Answers accepts them with tools/accept_puzzles.py --from-mensa-brain, which reads the brain's wiki with the same strict puzzle grammar its builder uses. They form rungs 1 and 2 of the ladder: here each one seals a fact about what Mensa is and how puzzles are used to measure anything at all. Nothing here is affiliated with or endorsed by Mensa.",
+ "sources": {
+  "MBRAIN": {
+   "uri": "https://mensabrain.pplx.app/",
+   "label": "MindBlown · Mensa brain (mensabrain.pplx.app)"
+  },
+  "MENSA_FAQ": {
+   "uri": "https://www.mensa.org/getting-your-iq-tested-faqs/",
+   "label": "Mensa International · Getting your IQ tested, FAQs"
+  },
+  "MENSA_CONST": {
+   "uri": "https://www.mensa.org/wp-content/uploads/2024/01/Mensa_Constitution_2023_2.pdf",
+   "label": "Mensa International · Constitution of Mensa (2023), III.A eligibility"
+  },
+  "AM_HISTORY": {
+   "uri": "https://www.us.mensa.org/learn/about/mensas-history/",
+   "label": "American Mensa · The history of Mensa"
+  },
+  "AM_ABOUT": {
+   "uri": "https://www.us.mensa.org/learn/about/",
+   "label": "American Mensa · About Mensa"
+  },
+  "AM_PUZZLER": {
+   "uri": "https://www.us.mensa.org/featured-content/quizzing-the-puzzler/",
+   "label": "American Mensa · Quizzing the Puzzler (Fraser Simpson on daily puzzles)"
+  },
+  "AM_QUIZ": {
+   "uri": "https://www.us.mensa.org/newsroom/mensa-mini-quiz/",
+   "label": "American Mensa · Mensa Mini-Quiz (questions similar to the Admission Test)"
+  },
+  "W_MENSA": {
+   "uri": "https://en.wikipedia.org/wiki/Mensa_International",
+   "label": "Wikipedia · Mensa International"
+  },
+  "W_CRT": {
+   "uri": "https://en.wikipedia.org/wiki/Cognitive_reflection_test",
+   "label": "Wikipedia · Cognitive reflection test (Frederick 2005)"
+  },
+  "W_INDUCT": {
+   "uri": "https://en.wikipedia.org/wiki/Problem_of_induction",
+   "label": "Wikipedia · Problem of induction"
+  },
+  "W_SYLL": {
+   "uri": "https://en.wikipedia.org/wiki/Syllogism",
+   "label": "Wikipedia · Syllogism"
+  },
+  "W_ANAGRAM": {
+   "uri": "https://en.wikipedia.org/wiki/Anagram",
+   "label": "Wikipedia · Anagram"
+  },
+  "AM_MINDGAMES": {
+   "uri": "https://www.us.mensa.org/attend/mindgames/",
+   "label": "American Mensa · Mind Games"
+  }
+ },
+ "puzzles": [
+  {
+   "id": "mensa-brain/games-mensa-select-1",
+   "from": "mensa-brain",
+   "rung": 1,
+   "kind": "word",
+   "teaches": "method/wordplay",
+   "accept": [
+    "seven",
+    "7"
+   ],
+   "reject": [
+    "nine",
+    "five"
+   ],
+   "unfolds": {
+    "lead": "Rung 1 · a riddle hides the level it lives on",
+    "text": "SEVEN loses its S and becomes EVEN: the puzzle works by switching from the number to its spelling. Riddles of this kind are the oldest items in the puzzler's kit and still appear in Mensa's page-a-day calendars, whose author says the ideal one lasts a cup of coffee.",
+    "cites": [
+     "AM_PUZZLER",
+     "MBRAIN"
+    ],
+    "links": [
+     "method/wordplay",
+     "method/insight"
+    ]
+   },
+   "q": "I am an odd number. Take away one letter and I become even. What number am I?",
+   "a": "seven|7",
+   "origin": "mensabrain.pplx.app · projects/games-mensa-select · synapse \"Five a year\"",
+   "hint": "Spell it out."
+  },
+  {
+   "id": "mensa-brain/games-mensa-select-2",
+   "from": "mensa-brain",
+   "rung": 1,
+   "kind": "lateral",
+   "teaches": "method/insight",
+   "accept": [
+    "1",
+    "one",
+    "once"
+   ],
+   "reject": [
+    "5",
+    "five"
+   ],
+   "unfolds": {
+    "lead": "Rung 1 · trick questions and the first answer",
+    "text": "Five is the answer your arithmetic offers and once is the answer the words allow. The cognitive reflection test (Frederick 2005) was built from exactly this gap: items with a fast, fluent wrong answer that must be overridden, and its three questions predict patience and risk choices better than their difficulty would suggest.",
+    "cites": [
+     "W_CRT",
+     "MBRAIN"
+    ],
+    "links": [
+     "method/insight",
+     "measure/items"
+    ]
+   },
+   "q": "How many times can you subtract 5 from 25?",
+   "a": "1|one|once",
+   "origin": "mensabrain.pplx.app · projects/games-mensa-select · synapse \"Top vote-getters\"",
+   "hint": "After the first time it is no longer 25."
+  },
+  {
+   "id": "mensa-brain/games-mensa-select-3",
+   "from": "mensa-brain",
+   "rung": 1,
+   "kind": "logic",
+   "teaches": "method/deduction",
+   "accept": [
+    "yes",
+    "Yes",
+    "y"
+   ],
+   "reject": [
+    "no",
+    "maybe"
+   ],
+   "unfolds": {
+    "lead": "Rung 1 · a syllogism is checking made visible",
+    "text": "All Bloops are Razzies, all Razzies are Lazzies, so all Bloops are Lazzies: Aristotle's Barbara, the first valid form in the first logic. Nonsense words are the point. Validity is a property of the shape of the argument, not of what the words mean, and that separation is what makes proof checkable by a machine.",
+    "cites": [
+     "W_SYLL",
+     "MBRAIN"
+    ],
+    "links": [
+     "method/deduction",
+     "gap/proof"
+    ]
+   },
+   "q": "All Bloops are Razzies and all Razzies are Lazzies. Are all Bloops definitely Lazzies? (yes or no)",
+   "a": "yes|y",
+   "origin": "mensabrain.pplx.app · projects/games-mensa-select · synapse \"Best-sellers\"",
+   "hint": "Follow the chain."
+  },
+  {
+   "id": "mensa-brain/games-mind-games-1",
+   "from": "mensa-brain",
+   "rung": 1,
+   "kind": "pattern",
+   "teaches": "method/pattern",
+   "accept": [
+    "36",
+    "thirty-six",
+    "Thirty six"
+   ],
+   "reject": [
+    "35",
+    "six"
+   ],
+   "unfolds": {
+    "lead": "Rung 1 · a sequence is a guess about a rule",
+    "text": "The squares continue 36 because you assumed the rule is n². Nothing in five numbers forces that rule: any finite sequence has infinitely many continuations, which is Hume's problem of induction wearing a puzzle's clothes. A sequence puzzle works only because solver and setter share a taste for the simplest rule.",
+    "cites": [
+     "W_INDUCT",
+     "MBRAIN"
+    ],
+    "links": [
+     "method/pattern",
+     "cross/laws-and-induction"
+    ]
+   },
+   "q": "Which number comes next: 1, 4, 9, 16, 25, ?",
+   "a": "36|thirty[ -]?six",
+   "origin": "mensabrain.pplx.app · projects/games-mind-games · synapse \"Founded 1990\"",
+   "hint": "Each is a square."
+  },
+  {
+   "id": "mensa-brain/games-mind-games-2",
+   "from": "mensa-brain",
+   "rung": 1,
+   "kind": "word",
+   "teaches": "method/wordplay",
+   "accept": [
+    "silent",
+    "SILENT"
+   ],
+   "reject": [
+    "tinsel",
+    "enlist"
+   ],
+   "unfolds": {
+    "lead": "Rung 1 · an anagram is a search with a check",
+    "text": "LISTEN has 720 orderings and only a handful are English words (SILENT, TINSEL, ENLIST, INLETS); you found one without trying 720 because meaning prunes the search. That is the shape of every hard problem here: candidates are cheap to check and expensive to find, and the solver survives on heuristics the checker never needs.",
+    "cites": [
+     "W_ANAGRAM",
+     "MBRAIN"
+    ],
+    "links": [
+     "method/wordplay",
+     "seam/check-solve"
+    ]
+   },
+   "q": "Rearrange the letters of LISTEN to make a word that means quiet.",
+   "a": "silent",
+   "origin": "mensabrain.pplx.app · projects/games-mind-games · synapse \"Four days\"",
+   "hint": "It is also an anagram of TINSEL."
+  },
+  {
+   "id": "mensa-brain/games-mind-games-3",
+   "from": "mensa-brain",
+   "rung": 1,
+   "kind": "number",
+   "teaches": "method/counting",
+   "accept": [
+    "7",
+    "seven"
+   ],
+   "reject": [
+    "12",
+    "six"
+   ],
+   "unfolds": {
+    "lead": "Rung 1 · where the puzzles come from",
+    "text": "The Mensa brain built its puzzles around Mind Games, the annual judging weekend American Mensa has run since 1990, where members play and critique the year's new games and five earn the Mensa Select seal. The puzzles were written for that brain; Deep Answers accepts them through its intake, not from Mensa itself.",
+    "cites": [
+     "MBRAIN",
+     "AM_MINDGAMES"
+    ],
+    "links": [
+     "method/counting",
+     "learn/this-ladder"
+    ]
+   },
+   "q": "This table has six seats. Double them, then take one away for each letter in MENSA. How many are left?",
+   "a": "7|seven",
+   "origin": "mensabrain.pplx.app · projects/games-mind-games · synapse \"Five from fifty\"",
+   "hint": "MENSA has five letters."
+  },
+  {
+   "id": "mensa-brain/games-mind-games-4",
+   "from": "mensa-brain",
+   "rung": 2,
+   "kind": "pattern",
+   "teaches": "method/insight",
+   "accept": [
+    "E",
+    "e",
+    "eight"
+   ],
+   "reject": [
+    "T",
+    "s"
+   ],
+   "unfolds": {
+    "lead": "Rung 2 · the answer was in a different alphabet",
+    "text": "O, T, T, F, F, S, S are the initials of one to seven, so E (eight) follows. The puzzle is hard only until you change what the symbols stand for; after that it is trivial. Insight puzzles measure the moment of re-representation, not computation, and that moment is the part of thinking no test item can time well.",
+    "cites": [
+     "MBRAIN",
+     "W_CRT"
+    ],
+    "links": [
+     "method/insight",
+     "measure/items"
+    ]
+   },
+   "q": "What letter comes next: O, T, T, F, F, S, S, ?",
+   "a": "e|eight",
+   "origin": "mensabrain.pplx.app · projects/games-mind-games · synapse \"Criteria\"",
+   "hint": "Count."
+  },
+  {
+   "id": "mensa-brain/games-select-winners-1",
+   "from": "mensa-brain",
+   "rung": 2,
+   "kind": "number",
+   "teaches": "method/deduction",
+   "accept": [
+    "7.5",
+    "7,5",
+    "seven and a half"
+   ],
+   "reject": [
+    "0",
+    "90"
+   ],
+   "unfolds": {
+    "lead": "Rung 2 · the hidden second motion",
+    "text": "At 3:15 the minute hand points at 3 and the hour hand has moved a quarter of the way to 4, so the gap is 7.5 degrees. The common wrong answer, zero, comes from a model that forgets one moving part. Clock-hand items of this kind appear in Mensa's Mini-Quiz, which American Mensa publishes as questions similar to those on its Admission Test.",
+    "cites": [
+     "AM_QUIZ",
+     "MBRAIN"
+    ],
+    "links": [
+     "method/deduction",
+     "measure/mensa"
+    ]
+   },
+   "q": "A clock reads 3:15. How many degrees separate the hour hand and the minute hand?",
+   "a": "7\\.5|7,5|seven and a half|7 1 2",
+   "origin": "mensabrain.pplx.app · projects/games-select-winners · synapse \"New York, 1990\"",
+   "hint": "The hour hand has moved too."
+  },
+  {
+   "id": "mensa-brain/games-select-winners-2",
+   "from": "mensa-brain",
+   "rung": 1,
+   "kind": "pattern",
+   "teaches": "method/pattern",
+   "accept": [
+    "13",
+    "thirteen"
+   ],
+   "reject": [
+    "12",
+    "15"
+   ],
+   "unfolds": {
+    "lead": "Rung 1 · what Mensa is",
+    "text": "Mensa's constitution sets one condition for membership: a score in the upper two percent of the general population on an approved, supervised intelligence test, and no other qualification or disqualification. It was founded at Oxford in 1946 by Roland Berrill and Lancelot Ware, who met on a train.",
+    "cites": [
+     "MENSA_CONST",
+     "AM_HISTORY",
+     "W_MENSA"
+    ],
+    "links": [
+     "method/pattern",
+     "measure/mensa"
+    ]
+   },
+   "q": "Fill the blank: 2, 3, 5, 7, 11, ?, 17",
+   "a": "13|thirteen",
+   "origin": "mensabrain.pplx.app · projects/games-select-winners · synapse \"1997–1999\"",
+   "hint": "Primes."
+  },
+  {
+   "id": "mensa-brain/games-select-winners-3",
+   "from": "mensa-brain",
+   "rung": 2,
+   "kind": "word",
+   "teaches": "method/wordplay",
+   "accept": [
+    "short",
+    "SHORT"
+   ],
+   "reject": [
+    "long",
+    "brief"
+   ],
+   "unfolds": {
+    "lead": "Rung 2 · what the 98th percentile is not",
+    "text": "Mensa says the term IQ score is widely used but poorly defined: tests use different scales, a 132 on one equals a 148 on another, and some tests give no IQ at all, which is why it keeps a single cutoff at the 98th percentile and rejects online tests for admission. A percentile is a rank against a norm group, not a quantity of anything.",
+    "cites": [
+     "MENSA_FAQ",
+     "MBRAIN"
+    ],
+    "links": [
+     "method/wordplay",
+     "measure/g",
+     "gap/definition"
+    ]
+   },
+   "q": "What five-letter word becomes shorter when you add two letters to it?",
+   "a": "short",
+   "origin": "mensabrain.pplx.app · projects/games-select-winners · synapse \"The seal\"",
+   "hint": "Add -er."
+  }
+ ]
+}

@@ -15,7 +15,7 @@
   // its note is his, its materials are sourced. Option order and the first two notes match Phase 1
   // so version-1 journals replay with the same words.
   const SITES = Object.freeze({ atomic: 'https://rmcjones-collab.github.io/mindblown-brains/atomicbrain/', elements: 'https://rmcjones-collab.github.io/mindblown-brains/elementsbrain/',
-    molecular: 'https://rmcjones-collab.github.io/mindblown-brains/molecularbrain/', chemistry: 'https://chembrain.pplx.app',
+    molecular: 'https://rmcjones-collab.github.io/mindblown-brains/molecularbrain/', chemistry: 'https://rmcjones-collab.github.io/mindblown-brains/chembrain/',
     biosphere: 'https://rmcjones-collab.github.io/mindblown-brains/biospherebrain/', brain42: 'https://rmcjones-collab.github.io/mindblown-brains/brain42/' });
   const M = (brain, ref, title) => Object.freeze({ brain, ref, title });
   const STEPS = [
