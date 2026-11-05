@@ -1468,11 +1468,13 @@ ctx.shadowBlur=0;});
   }
   const tip = document.getElementById('tip');
   let downAt = null, downBtn = 0, downShift = false, pressed = null;
+  let touch = null; const fingers = new Set();   // the touch gesture in progress and its active fingers
   canvas.addEventListener('contextmenu', e => e.preventDefault());   // the right button moves neurons / pans, so no menu
   window.addEventListener('keydown', e => { if (e.code === 'Space' && !e.target.closest('input')) { spaceDown = true; canvas.classList.add('space'); } });
   window.addEventListener('keyup', e => { if (e.code === 'Space') { spaceDown = false; canvas.classList.remove('space'); } });
   canvas.addEventListener('pointerdown', e => {
-    if (e.pointerType === 'touch') return;                            // touch is pan/pinch via d3-zoom
+    // mbTouchTap: d3-zoom owns pan and pinch; a one-finger tap (under 10 px and 350 ms) selects the neuron under the finger, or clears on empty canvas
+    if (e.pointerType === 'touch') { fingers.add(e.pointerId); if (touch || fingers.size > 1) { if (touch) touch.multi = true; } else touch = { id: e.pointerId, x: e.clientX, y: e.clientY, t: performance.now(), multi: false, moved: false }; tip.hidden = true; return; }
     downAt = [e.clientX, e.clientY]; downBtn = e.button; downShift = e.shiftKey; pressed = pick(e.clientX, e.clientY);
     const onNeuron = pressed?.kind === 'page';
     // mouse3 (middle or right button) on a neuron picks it up; in Select mode the left button does too
@@ -1486,7 +1488,18 @@ ctx.shadowBlur=0;});
       canvas.setPointerCapture(e.pointerId);
     } else canvas.classList.add('grabbing');
   });
+  canvas.addEventListener('pointercancel', e => { if (e.pointerType === 'touch') { fingers.delete(e.pointerId); if (touch) touch.multi = true; if (!fingers.size) touch = null; } });
   canvas.addEventListener('pointerup', e => {
+    if (e.pointerType === 'touch') {
+      fingers.delete(e.pointerId); const t = touch; if (!t) return;
+      if (fingers.size) { t.multi = true; return; }   // another finger is still down: a pinch, not a tap
+      touch = null;
+      if (t.multi || t.moved || t.id !== e.pointerId || Math.hypot(e.clientX - t.x, e.clientY - t.y) > 10 || performance.now() - t.t > 350) return;
+      const n = pick(e.clientX, e.clientY);
+      if (n) { if (navigator.vibrate) { try { navigator.vibrate(8); } catch (err) { /* vibration is optional */ } } clickNeuron(n, false); }
+      else { multi.clear(); clearSelection(); updateHint(); }
+      return;
+    }
     canvas.classList.remove('grabbing'); canvas.classList.remove('moving');
     const small = downAt && Math.hypot(e.clientX - downAt[0], e.clientY - downAt[1]) < 5;
     if (drag) {
@@ -1524,6 +1537,7 @@ ctx.shadowBlur=0;});
   }
   function setMode(m) { mode = m; canvas.classList.toggle('select', m === 'select'); document.querySelectorAll('.tool-mode').forEach(b => b.classList.toggle('on', b.dataset.mode === m)); updateHint(); }
   canvas.addEventListener('pointermove', e => {
+    if (e.pointerType === 'touch') { if (touch && touch.id === e.pointerId && Math.hypot(e.clientX - touch.x, e.clientY - touch.y) > 10) touch.moved = true; return; }   // a pan cancels the tap; d3-zoom moves the view
     if (drag) {
       const dx = (e.clientX - drag.sx) / k, dy = (e.clientY - drag.sy) / k;
       if (!drag.moved && Math.hypot(e.clientX - drag.sx, e.clientY - drag.sy) >= 3) drag.moved = true;
