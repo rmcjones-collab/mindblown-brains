@@ -10,10 +10,13 @@
        selects the neuron and flies the camera to it.
    Once in 42 presses the Drive passes through every point in the Universe and arrives exactly where it was.
    A second press within a second of landing lights the panel Arthur found.
+   The first press on a site opens a short disclaimer (role=alertdialog) that must be acknowledged with its checkbox before
+   "Engage the Drive" runs the jump; "Not today" or Escape closes it and leaves the Drive idle. The acknowledgement is kept
+   per site in localStorage (key mb-drive-disclaimer-v1), or for the page's lifetime when storage is unavailable.
 
    Self-contained: it injects its own button, readout, toast and styles, reads only window.MINDBLOWN (pages, links,
    center/centers), or window.MINDBLOWN_NETWORK on network overview pages (where it opens a shared neuron in one of
-   the member brains), and the public hooks above, writes nothing to storage and does nothing until pressed. It waits for
+   the member brains), and the public hooks above, writes only the disclaimer acknowledgement to storage and does nothing until pressed. It waits for
    brains that load their data late (boot loaders, composed networks) and recomputes the odds if the data changes. */
 (() => {
   if (window.__MB_IMPROBABILITY_DRIVE__) return;   // one Drive per page, even if a page includes the script twice
@@ -46,7 +49,22 @@
 .mb-drive-out[hidden], .mb-drive-toast[hidden] { display: none; }
 @media (max-width: 900px) { .mb-drive { width: 52px; height: 52px; font-size: 9px; } .mb-drive-out { font-size: 11px; } }
 @media (prefers-reduced-motion: reduce) { .mb-drive, .mb-drive.running { transition: none; animation: none; } }
-@media print { .mb-drive, .mb-drive-out, .mb-drive-toast { display: none !important; } }`;
+@media print { .mb-drive, .mb-drive-out, .mb-drive-toast, .mb-drive-dlg { display: none !important; } }
+.mb-drive-dlg { position: fixed; inset: 0; margin: auto; z-index: 30; height: fit-content; box-sizing: border-box; width: min(420px, calc(100vw - 32px));
+  max-height: calc(100vh - 32px); overflow: auto; padding: 22px 22px 18px; border-radius: 16px; border: 1px solid rgba(255, 255, 255, 0.16);
+  background: #0c0e16; color: #e7e9ee; font: 400 14px/1.5 'Satoshi', system-ui, sans-serif; box-shadow: 0 18px 50px rgba(0, 0, 0, 0.55); }
+.mb-drive-dlg:not([open]) { display: none; }
+.mb-drive-dlg::backdrop { background: rgba(3, 4, 8, 0.62); }
+.mb-drive-dlg h2 { margin: 0 0 10px; color: #ff5a4d; font: 700 20px/1.15 'Clash Display', 'Satoshi', system-ui, sans-serif; letter-spacing: 0.06em; }
+.mb-drive-dlg p { margin: 0 0 10px; color: #c9cdd6; }
+.mb-drive-dlg label { display: flex; gap: 10px; align-items: flex-start; margin: 14px 0 16px; cursor: pointer; color: #e7e9ee; }
+.mb-drive-dlg input { flex: none; width: 18px; height: 18px; margin: 2px 0 0; accent-color: #f2392c; cursor: pointer; }
+.mb-drive-dlg-actions { display: flex; flex-wrap: wrap; gap: 10px; justify-content: flex-end; }
+.mb-drive-dlg button { min-height: 40px; padding: 9px 16px; border-radius: 999px; cursor: pointer; font: 600 13px/1 'Satoshi', system-ui, sans-serif; }
+.mb-drive-dlg .mb-drive-dlg-no { background: transparent; color: #e7e9ee; border: 1px solid rgba(255, 255, 255, 0.28); }
+.mb-drive-dlg .mb-drive-dlg-go { background: #c8161d; color: #fff; border: 1px solid #c8161d; }
+.mb-drive-dlg .mb-drive-dlg-go:disabled { opacity: 0.45; cursor: not-allowed; }
+.mb-drive-dlg button:focus-visible, .mb-drive-dlg input:focus-visible { outline: 2px solid #fde68a; outline-offset: 3px; }`;
 
   let btn, out, toastEl, model = null;
 
@@ -160,9 +178,51 @@
   let toastT = 0;
   const toast = msg => { toastEl.textContent = msg; toastEl.hidden = false; place(); clearTimeout(toastT); toastT = setTimeout(() => { toastEl.hidden = true; }, 4200); };
 
+  // ----- first-press disclaimer: acknowledged once per site, before the Drive's first jump -----
+  const ACK_KEY = 'mb-drive-disclaimer-v1';
+  let ackedInPage = false, dlg = null, dlgBox, dlgGo, dlgResult = 'no';
+  const acked = () => { if (ackedInPage) return true; try { return window.localStorage.getItem(ACK_KEY) === '1'; } catch (e) { return false; } };
+  const acknowledge = () => { ackedInPage = true; try { window.localStorage.setItem(ACK_KEY, '1'); } catch (e) { /* storage blocked: remember for this page only */ } };
+  const dlgOpen = () => !!(dlg && dlg.hasAttribute('open'));
+  const nativeModal = () => !!(dlg && typeof dlg.showModal === 'function');
+  function dlgClosed() {
+    if (dlgResult === 'go') run();
+    else if (!nativeModal() && btn) btn.focus();   // a native modal dialog restores focus by itself
+  }
+  function closeDlg(result) {
+    dlgResult = result;
+    if (nativeModal()) { if (dlg.open) dlg.close(); return; }   // the 'close' event calls dlgClosed
+    dlg.removeAttribute('open'); dlgClosed();
+  }
+  function buildDialog() {
+    dlg = document.createElement('dialog'); dlg.className = 'mb-drive-dlg'; dlg.id = 'mb-drive-dlg';
+    dlg.setAttribute('role', 'alertdialog'); dlg.setAttribute('aria-modal', 'true');
+    dlg.setAttribute('aria-labelledby', 'mb-drive-dlg-t'); dlg.setAttribute('aria-describedby', 'mb-drive-dlg-d');
+    dlg.innerHTML = '<h2 id="mb-drive-dlg-t">DON’T PANIC</h2>'
+      + '<div id="mb-drive-dlg-d"><p>You are about to engage the Infinite Improbability Drive. Your destination is unpredictable, and the journey may take you somewhere unexpected, including another brain.</p>'
+      + '<p>Unknown results may occur. Proceed only if you’re comfortable with an unpredictable exploration experience.</p></div>'
+      + '<label><input type="checkbox" id="mb-drive-dlg-ack"><span>I understand that unknown results may occur and choose to proceed.</span></label>'
+      + '<div class="mb-drive-dlg-actions"><button type="button" class="mb-drive-dlg-no">Not today</button>'
+      + '<button type="button" class="mb-drive-dlg-go" disabled>Engage the Drive</button></div>';
+    dlgBox = dlg.querySelector('#mb-drive-dlg-ack'); dlgGo = dlg.querySelector('.mb-drive-dlg-go');
+    dlgBox.addEventListener('change', () => { dlgGo.disabled = !dlgBox.checked; });
+    dlg.querySelector('.mb-drive-dlg-no').addEventListener('click', () => closeDlg('no'));
+    dlgGo.addEventListener('click', () => { if (!dlgBox.checked) return; acknowledge(); closeDlg('go'); });
+    dlg.addEventListener('close', dlgClosed);   // native dialogs only; Escape fires cancel, then close, with dlgResult still 'no'
+    dlg.addEventListener('keydown', e => { if (e.key === 'Escape' && !nativeModal()) { e.preventDefault(); closeDlg('no'); } });
+    document.body.appendChild(dlg);
+  }
+  function askFirst() {
+    if (!dlg) buildDialog();
+    dlgResult = 'no'; dlgBox.checked = false; dlgGo.disabled = true;
+    if (nativeModal()) dlg.showModal(); else dlg.setAttribute('open', '');
+    dlgBox.focus();
+  }
+
   let busy = false, landedAt = 0;
   async function run() {
-    if (busy) return;
+    if (busy || dlgOpen()) return;
+    if (!acked()) { askFirst(); return; }
     if (Date.now() - landedAt < 1200) { toast('Please do not press this button again.'); return; }
     const m = hasBrain() ? buildModel() : buildNetworkModel();
     if (!m) { toast('The Drive is still warming the tea. Try again in a moment.'); return; }
