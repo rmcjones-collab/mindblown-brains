@@ -1,0 +1,47 @@
+/* MindBlown NNCCG drawer (phase 0). Shared by the canonical renderer and the Neural engine. */
+.nnccg-open[aria-expanded="true"]{outline:1px solid #7dd3c0;outline-offset:1px}
+.nnccg-drawer{position:fixed;top:76px;right:14px;width:min(420px,calc(100vw - 28px));max-height:calc(100dvh - 160px);overflow-y:auto;overscroll-behavior:contain;
+  z-index:60;padding:14px 14px 16px;background:rgba(10,14,25,.94);border:1px solid rgba(160,180,210,.22);border-radius:12px;
+  box-shadow:0 18px 50px rgba(0,0,0,.55);color:var(--text,#e6edf7);font:13px/1.45 Satoshi,system-ui,sans-serif;backdrop-filter:blur(10px);scrollbar-width:thin}
+.nnccg-drawer[hidden]{display:none!important}
+.nnccg-card[hidden]{display:none!important}
+.nnccg-chooser{width:100%;padding:9px;margin:4px 0 12px;background:#141b2d;color:#e6edf7;border:1px solid #536078;border-radius:6px}
+.nnccg-data{margin-top:10px;color:#a7b2cc;font-size:12px}
+.nnccg-data button{display:block;padding:8px;margin:4px 0;background:#141b2d;color:#e6edf7;border:1px solid #536078;border-radius:5px;text-align:left;cursor:pointer}
+.nnccg-mobile{display:none}
+.nnccg-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:6px}
+.nnccg-head small{display:block;color:#8fa3bf;font-size:10px;letter-spacing:.08em;text-transform:uppercase}
+.nnccg-head h2{margin:2px 0 0;font:600 17px/1.2 'Clash Display',Satoshi,system-ui,sans-serif}
+.nnccg-close{flex:none;width:30px;height:30px;border-radius:8px;border:1px solid rgba(160,180,210,.25);background:transparent;color:inherit;font-size:18px;cursor:pointer}
+.nnccg-close:hover,.nnccg-close:focus-visible{background:rgba(125,211,192,.14);outline:2px solid #7dd3c0;outline-offset:1px}
+.nnccg-note{margin:4px 0 10px;color:#a7b2cc;font-size:12px}
+.nnccg-card{border:1px solid rgba(160,180,210,.16);border-radius:10px;padding:10px;background:rgba(255,255,255,.025)}
+.nnccg-card + .nnccg-card{margin-top:10px}
+.nnccg-card-head{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.nnccg-card-head h3{margin:0;flex:1;min-width:0;font:600 14px/1.25 Satoshi,system-ui,sans-serif;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.nnccg-badge{flex:none;padding:2px 7px;border-radius:999px;background:rgba(125,211,192,.14);color:#a7f0de;font-size:10px;letter-spacing:.04em}
+.nnccg-shot{flex:none;padding:3px 8px;border-radius:6px;border:1px solid rgba(160,180,210,.25);background:transparent;color:inherit;font-size:11px;cursor:pointer}
+.nnccg-shot:hover,.nnccg-shot:focus-visible{background:rgba(125,211,192,.14);outline:2px solid #7dd3c0;outline-offset:1px}
+.nnccg-canvas{width:100%;overflow-x:auto}
+.nnccg-canvas canvas{display:block;cursor:pointer}
+.nnccg-summary{margin:6px 0 0;color:#a7b2cc;font-size:11.5px}
+.nnccg-tip{position:absolute;z-index:2;max-width:220px;padding:7px 9px;border-radius:8px;background:#141b2d;border:1px solid rgba(160,180,210,.3);
+  font-size:11.5px;line-height:1.35;pointer-events:none;box-shadow:0 8px 24px rgba(0,0,0,.5)}
+.nnccg-tip[hidden]{display:none}
+.nnccg-tip strong{display:block}
+.nnccg-tip span{color:#a7f0de}
+.nnccg-tip ul{margin:4px 0 2px;padding-left:16px}
+.nnccg-tip em{color:#8fa3bf;font-style:normal;font-size:10.5px}
+@media (max-width:900px){
+  .nnccg-mobile{display:block;position:fixed;right:10px;top:160px;z-index:55;padding:10px;background:#141b2d;color:#e6edf7;border:1px solid #7dd3c0;border-radius:8px}
+  .nnccg-drawer{top:auto;bottom:0;right:0;left:0;width:auto;max-height:62dvh;border-radius:14px 14px 0 0;padding-bottom:calc(16px + env(safe-area-inset-bottom))}
+}
+/* phones hide the rail's View group; Charts stays reachable there on its own */
+@media (max-width:900px){.rail #view-tools:has(#nnccg-open){display:flex}.rail #view-tools>:not(#nnccg-open){display:none}.rail #view-tools #nnccg-open{width:40px;height:40px}}
+@media (prefers-reduced-motion:reduce){.nnccg-drawer{backdrop-filter:none}}
+/* The engine's short-phone canvas sits between its header and the expanded lobe bar.
+   Four vertically stacked tools no longer fit there once Charts joins the group. */
+@media (max-width:900px) and (max-height:500px){
+  #tools-col #brain-tools,
+  body:has(#mbar:not([hidden])) #tools-col #brain-tools{flex-direction:row;width:max-content}
+}
