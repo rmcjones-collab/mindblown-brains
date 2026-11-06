@@ -125,17 +125,60 @@
     setItem(k, v) { if (!this.usable()) throw new Error('window.name in use'); const o = this.read() || {}; o[k] = String(v); const out = NAME_TAG + JSON.stringify(o); if (out.length > 1048576) throw new Error('too large'); window.name = out; },
     removeItem(k) { const o = this.read(); if (!o) return; delete o[k]; window.name = Object.keys(o).length ? NAME_TAG + JSON.stringify(o) : ''; }
   };
-  // Read order: window.name first (it only holds data when a localStorage write failed, so it is the newest copy), then
-  // localStorage. Writes go to localStorage; if that throws (blocked, quota) they go to window.name instead, and the
-  // existing localStorage journal is left untouched. A later successful localStorage write retires the fallback copy.
+  // Every save carries a revision (a millisecond clock, never repeated). localStorage keeps the journal, the enabled flag and
+  // the revision as three keys, revision last; the tab-scoped fallback keeps all three as ONE window.name entry, so a fallback
+  // save is all-or-nothing. On boot the newer copy wins: another tab that later updates or forgets the brain in localStorage
+  // writes a higher revision, so this tab's older fallback is dropped instead of replayed. Forgetting writes an empty journal
+  // with a fresh revision (a deletion marker) rather than only removing keys, so a copy that could not be removed can never
+  // come back. Fallback entries written before revisions existed count as revision 0 and keep their old precedence.
   const local = () => { try { return window.localStorage || null; } catch (e) { return null; } };
-  const read = k => { const n = nameStore.getItem(k); if (n !== null) return n; try { const ls = local(); return ls ? ls.getItem(k) : null; } catch (e) { return null; } };
-  const load = k => { try { const raw = read(k); return raw && raw.length <= 1048576 ? JSON.parse(raw) : null; } catch (e) { return null; } };
-  const save = () => {
-    const items = [[`mbn:entangle:${key}`, JSON.stringify(journal)], [`mbn:entangle:on:${key}`, on ? '1' : '0']];
-    try { const ls = local(); if (!ls) throw new Error('no localStorage'); for (const [k, v] of items) ls.setItem(k, v); for (const [k] of items) nameStore.removeItem(k); return; } catch (e) { /* fall through to the tab-scoped copy */ }
-    try { for (const [k, v] of items) nameStore.setItem(k, v); } catch (e) { /* nowhere to keep it: the pairs last for this page view */ }
-  };
+  const K = () => ({ j: `mbn:entangle:${key}`, on: `mbn:entangle:on:${key}`, rev: `mbn:entangle:rev:${key}`, fb: `mbn:entangle:fb:${key}` });
+  const parse = raw => { try { return typeof raw === 'string' && raw.length <= 1048576 ? JSON.parse(raw) : null; } catch (e) { return null; } };
+  let lastRev = 0;
+  const nextRev = () => (lastRev = Math.max(Date.now(), lastRev + 1));
+  function fallbackCopy() {
+    const k = K(), f = parse(nameStore.getItem(k.fb));
+    if (f && typeof f === 'object' && Array.isArray(f.journal)) return { rev: Number(f.rev) || 0, journal: f.journal, on: !!f.on };
+    const legacy = nameStore.getItem(k.j);   // pre-revision fallback: two separate entries
+    if (legacy === null) return null;
+    const j = parse(legacy);
+    return Array.isArray(j) ? { rev: 0, journal: j, on: parse(nameStore.getItem(k.on)) === 1 } : null;
+  }
+  function localCopy() {
+    const k = K();
+    try {
+      const ls = local(); if (!ls) return null;
+      const raw = ls.getItem(k.j), onRaw = ls.getItem(k.on), rev = Number(ls.getItem(k.rev)) || 0;
+      if (raw === null && onRaw === null && !rev) return null;
+      const j = parse(raw);
+      return { rev, journal: Array.isArray(j) ? j : [], on: parse(onRaw) === 1 };
+    } catch (e) { return null; }
+  }
+  const dropFallback = () => { const k = K(); for (const x of [k.fb, k.j, k.on]) nameStore.removeItem(x); };
+  function loadState() {
+    const f = fallbackCopy(), l = localCopy();
+    let pick = l;
+    if (f && (!l || f.rev >= l.rev)) pick = f;
+    else if (f) dropFallback();   // stale: another tab has written a newer copy since
+    if (pick) lastRev = Math.max(lastRev, pick.rev);
+    return pick || { rev: 0, journal: [], on: false };
+  }
+  function store(journalArr, onFlag) {
+    const k = K(), rev = nextRev(), jText = JSON.stringify(journalArr);
+    try {
+      const ls = local(); if (!ls) throw new Error('no localStorage');
+      ls.setItem(k.j, jText); ls.setItem(k.on, onFlag ? '1' : '0'); ls.setItem(k.rev, String(rev));   // revision last: a partial write stays older than the fallback below
+      dropFallback(); return true;
+    } catch (e) { /* fall through to the tab-scoped copy */ }
+    try {
+      const o = nameStore.read() || {}; delete o[k.j]; delete o[k.on];
+      o[k.fb] = JSON.stringify({ rev, journal: journalArr, on: !!onFlag });
+      const out = NAME_TAG + JSON.stringify(o);
+      if (!nameStore.usable() || out.length > 1048576) throw new Error('fallback unavailable');
+      window.name = out; return true;   // one assignment: the journal, flag and revision land together or not at all
+    } catch (e) { return false; /* nowhere to keep it: the pairs last for this page view */ }
+  }
+  const save = () => store(journal, on);
   const count = () => G() ? G().count(TAG) : { neurons: 0, lobes: 0, brains: 0, synapses: 0, links: 0 };
   const brainName = () => (document.querySelector('nav.brains a.on')?.textContent || '').trim() || (D && D.title ? String(D.title).replace(/^MindBlown:\s*/, '') : '')
     || (document.querySelector('.brand .title')?.textContent || '').replace(/^MindBlown(\s+(Neural|AI hub))?:?\s*/i, '').trim()   // canonical-renderer pages name the brain in the header only
@@ -308,16 +351,16 @@
 
   function clear() {
     journal = []; collapsed.clear(); on = false;
-    try { for (const k of [`mbn:entangle:${key}`, `mbn:entangle:on:${key}`]) { nameStore.removeItem(k); const ls = local(); if (ls) ls.removeItem(k); } } catch (e) { /* nothing to forget */ }
+    store([], false);   // a deletion marker with a fresh revision, wherever it can be kept; an older copy anywhere loses to it
   }
 
   // ---------- boot: wait for a brain, replay, wire the button ----------
   function boot() {
     const g = G(); D = window.MINDBLOWN; if (!g || !D) return false;
     key = D.brain || location.pathname.replace(/[^a-z0-9]+/gi, '-');
-    const saved = load(`mbn:entangle:${key}`);
-    journal = Array.isArray(saved) ? saved.slice(0, CAP.pairs).filter(validAct) : [];
-    on = load(`mbn:entangle:on:${key}`) === 1;
+    const saved = loadState();
+    journal = saved.journal.slice(0, CAP.pairs).filter(validAct);
+    on = saved.on;
     if (journal.length) {
       const j = journal; journal = [];
       const imageBrains = new Set();

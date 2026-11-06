@@ -108,6 +108,7 @@
         if(aborted){m.x=d.origin[0];m.y=d.origin[1];moved=true;return;}   // rollback without changing either history stack
         if(d.moved||Math.hypot(e.clientX-d.x,e.clientY-d.y)>3){
           moved=true;
+          const p=R.toWorld(e.clientX,e.clientY);m.x=d.origin[0]+(p[0]-d.world[0]);m.y=d.origin[1]+(p[1]-d.world[1]);   // the release point counts: browsers coalesce pointermoves, so the last one may never arrive
           if(JSON.stringify(state)!==JSON.stringify(d.before)){past.push(d.before);if(past.length>50)past.shift();future=[];$('modifier-undo').disabled=false;$('modifier-redo').disabled=true;}
         }
       }

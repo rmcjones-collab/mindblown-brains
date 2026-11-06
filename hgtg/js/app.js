@@ -946,6 +946,9 @@
     engine: 'neural',
     lobes: () => lobes.map(l => ({ id: l.id, name: l.name, color: l.color, on: !!lobeOn[l.id] })),
     nodes: () => pages.map(n => ({ id: n.id, title: n.title })),
+    // live graph for overlays (NNCCG Charts): grown neurons and links included; read-only copies
+    pages: () => pages.filter(n => !n.isAtom).map(n => ({ id: n.id, title: n.title, lobe: n.lobe, parent: n.parentId || null })),   // molecule atoms are a neuron's anatomy, not neurons
+    links: () => M.pageLinks.map(l => ({ s: l.source.id, t: l.target.id, w: l.w })),
     titleBoxes: () => (R.titleBoxes || []).map(b => ({ ...b })),
     selected: () => selected?.kind === 'page' ? selected.id : null,
     screenOf: id => { const n = pageById[id]; return n && visible(n) && Number.isFinite(n.x) && Number.isFinite(n.y) ? view.toScreen(n.x, n.y) : null; },
