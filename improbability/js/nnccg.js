@@ -10,7 +10,8 @@
 
   // ---------- model adapters ----------
   // Both return { lobes[{id,name,color,on}], pages[{id,title,lobe,parent}], links[{s,t,w}] }. The canonical adapter reads the
-  // static dataset; the Neural adapter also takes lobes the engine adds at runtime (e.g. mice-built lobes) from the renderer.
+  // static dataset; the Neural adapter reads lobes, pages and links live from the renderer, so material the engine grows at runtime
+  // (mice-built lobes, neurons and links) is charted too.
   const baseLobes = () => (D.lobes || []).map(l => ({ id: String(l.id), name: String(l.name || l.id), color: String(l.color || '#8aa'), on: !l.hidden }));
   const livelobes = () => { try { const v = R.lobes && R.lobes(); return Array.isArray(v) && v.length ? v : null; } catch { return null; } };
   const adapters = {
@@ -21,7 +22,10 @@
     neural() {
       const live = livelobes(), base = baseLobes(), byId = new Map(base.map(l => [l.id, l]));
       const lobes = live ? live.map(l => ({ ...(byId.get(l.id) || {}), id: String(l.id), name: String(l.name || l.id), color: String(l.color || '#8aa'), on: !!l.on })) : base;
-      return { lobes, pages: D.pages || [], links: D.links || [] };
+      // pages and links come from the renderer too, so grown neurons and links count; a renderer without them falls back to the dataset
+      const livePages = (() => { try { const v = R.pages && R.pages(); return Array.isArray(v) ? v : null; } catch { return null; } })();
+      const liveLinks = (() => { try { const v = R.links && R.links(); return Array.isArray(v) ? v : null; } catch { return null; } })();
+      return { lobes, pages: livePages || D.pages || [], links: livePages && liveLinks ? liveLinks : D.links || [] };
     }
   };
   const model = () => adapters[ENGINE]();
