@@ -104,7 +104,7 @@
       let drag=null;
       function finishDrag(e,aborted=false){
         if(!drag||e.pointerId!==drag.pointerId)return;
-        const d=drag;drag=null;if(liveDrag&&liveDrag.d===d)liveDrag=null;   // pointerup/cancel may be followed by lostpointercapture
+        const d=drag;drag=null;liveDrags.delete(d);   // pointerup/cancel may be followed by lostpointercapture
         if(aborted){m.x=d.origin[0];m.y=d.origin[1];moved=true;return;}   // rollback without changing either history stack
         if(d.moved||Math.hypot(e.clientX-d.x,e.clientY-d.y)>3){
           moved=true;
@@ -112,7 +112,7 @@
           if(JSON.stringify(state)!==JSON.stringify(d.before)){past.push(d.before);if(past.length>50)past.shift();future=[];$('modifier-undo').disabled=false;$('modifier-redo').disabled=true;}
         }
       }
-      handle.onpointerdown=e=>{if(drag||!e.isPrimary||e.button!==0)return;e.stopPropagation();moved=false;const at=R.toScreen(m.x,m.y);drag={pointerId:e.pointerId,x:e.clientX,y:e.clientY,grab:[e.clientX-at[0],e.clientY-at[1]],origin:[m.x,m.y],before:copy(state)};liveDrag={m,d:drag};   // the grab offset is kept in screen pixels: the handle is a fixed 40 px, so a zoom mid-drag must not slide it off the pointer
+      handle.onpointerdown=e=>{if(drag||!e.isPrimary||e.button!==0)return;e.stopPropagation();moved=false;const at=R.toScreen(m.x,m.y);drag={pointerId:e.pointerId,x:e.clientX,y:e.clientY,grab:[e.clientX-at[0],e.clientY-at[1]],origin:[m.x,m.y],before:copy(state)};liveDrags.set(drag,m);   // the grab offset is kept in screen pixels: the handle is a fixed 40 px, so a zoom mid-drag must not slide it off the pointer
       handle.setPointerCapture(e.pointerId);};
       handle.onpointermove=e=>{if(!drag||e.pointerId!==drag.pointerId)return;if(Math.hypot(e.clientX-drag.x,e.clientY-drag.y)>3)drag.moved=true;   // latched: a drag that returns to its start is still a drag
       if(!drag.moved)return;   // under the threshold the handle stays put, so a click never nudges it
@@ -128,11 +128,11 @@
     $('modifier-undo').disabled=!past.length;$('modifier-redo').disabled=!future.length;$('modifier-reset').disabled=!state.modifiers.length&&!state.edges.length;
     renderResults();
   }
-  // the one handle being dragged, if any: frame() re-places it from the last pointer position, so a zoom, pan or resize between pointermoves
+  // every handle being dragged (a mouse and a pen are each primary, so two can move at once): frame() re-places it from the last pointer position, so a zoom, pan or resize between pointermoves
   // keeps it under the pointer at its grab offset rather than carrying it with the world until the pointer next moves
-  let liveDrag=null;
+  const liveDrags=new Map();   // drag -> modifier
   function frame(){
-    if(liveDrag&&liveDrag.d.moved&&liveDrag.d.last){const p=R.toWorld(liveDrag.d.last[0]-liveDrag.d.grab[0],liveDrag.d.last[1]-liveDrag.d.grab[1]);liveDrag.m.x=p[0];liveDrag.m.y=p[1];}
+    liveDrags.forEach((m,d)=>{if(!d.moved||!d.last)return;const p=R.toWorld(d.last[0]-d.grab[0],d.last[1]-d.grab[1]);m.x=p[0];m.y=p[1];});
     if(!state.modifiers.length&&!state.edges.length){
       if(lastMarkup){svg.innerHTML='';lastMarkup='';}
       requestAnimationFrame(frame);return;
