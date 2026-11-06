@@ -188,7 +188,6 @@ input { font: inherit; }
   #lobes:not(.open) #lobe-list, #lobes:not(.open) .switches { display: none; }
   .level { left: 12px; right: 12px; transform: none; bottom: 14px; justify-content: center; }
   .level .hint { display: none; }
-  .zoom-ctl { right: 12px; bottom: 72px; }
   .panel { left: 12px; right: 12px; width: auto; top: auto; bottom: 0; max-height: 56vh; border-radius: 16px 16px 0 0; z-index: 6; }
 }
 
@@ -219,15 +218,71 @@ input { font: inherit; }
 .nb.net a { display: grid; grid-template-columns: 10px 1fr; gap: 10px; align-items: baseline; padding: 7px 10px; color: inherit; text-decoration: none; }
 .nb.net .note { color: var(--accent); }
 
-/* tools: select / pan / release / labels / screenshot, stacked above the zoom buttons */
-.zoom-ctl.tools { bottom: 170px; }
-.zoom-ctl.tools button { display: inline-flex; align-items: center; justify-content: center; }
-.zoom-ctl.tools button svg { display: block; }
-.zoom-ctl.tools button.on { background: var(--text); color: #0b0e14; }
+/* side rail: Tools / View / File / Zoom as separate glass groups in one column (app.js builds the groups and adopts #zoom-ctl) */
+.rail { position: absolute; right: 20px; bottom: 22px; display: flex; flex-direction: column; align-items: stretch; gap: 10px; z-index: 3; }
+.rail .zoom-ctl { position: static; gap: 2px; padding: 4px; border-radius: 13px; border: 1px solid var(--line); background: var(--glass); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+.rail .zoom-ctl button { width: 34px; height: 34px; border: 0; border-radius: 9px; background: transparent; backdrop-filter: none; -webkit-backdrop-filter: none; font-size: 17px; display: inline-flex; align-items: center; justify-content: center; color: var(--text-2); transition: background 0.12s, color 0.12s; }
+.rail .zoom-ctl button:hover, .rail .zoom-ctl button:focus-visible { background: rgba(255, 255, 255, 0.08); color: var(--text); outline: none; }
+.rail .zoom-ctl button svg { display: block; }
+.rail .zoom-ctl button.on { background: var(--text); color: #0b0e14; }
+.rail .zoom-ctl button.open { background: rgba(255, 255, 255, 0.12); color: var(--text); }
+.rail .zoom-ctl button.on:focus-visible, .rail .zoom-ctl button.open:focus-visible, .fly-row.on:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.rail .zoom-ctl button[aria-expanded="true"] { background: rgba(255, 255, 255, 0.12); color: var(--text); }
 #labels-toggle.off { color: var(--text-3); }
 #labels-toggle.off svg { opacity: 0.6; }
 #brain.select { cursor: crosshair; }
 #brain.select.pointer { cursor: grab; }
 #brain.moving { cursor: grabbing; }
 #brain.space { cursor: grab; }
-@media (max-width: 900px) { .zoom-ctl.tools { display: none; } }
+/* flyouts beside the rail: the layout picker and the saved layouts */
+.flyout { position: absolute; width: 300px; max-width: calc(100vw - 110px); padding: 8px; background: var(--glass-strong); border: 1px solid var(--line); border-radius: 14px; backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45); z-index: 7; }
+.fly-head { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-3); padding: 4px 8px 8px; display: flex; align-items: baseline; gap: 8px; }
+.fly-head .n { color: var(--text-2); letter-spacing: 0; font-variant-numeric: tabular-nums; }
+.fly-row { display: grid; grid-template-columns: 18px 1fr auto; align-items: center; gap: 12px; width: 100%; padding: 8px 10px; border: 0; border-radius: 9px; background: transparent; color: var(--text-2); text-align: left; cursor: pointer; }
+.fly-row:hover, .fly-row:focus-visible { background: rgba(255, 255, 255, 0.06); color: var(--text); outline: none; }
+.fly-row.on { color: var(--text); background: rgba(255, 255, 255, 0.08); }
+.fly-row.on:not(:has(kbd))::after { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 8px var(--accent); }
+.fly-row.on kbd { color: #0b0e14; background: var(--accent); border-color: transparent; }
+.fly-row svg { color: inherit; }
+.fly-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.fly-text b { font-weight: 500; font-size: 13px; color: inherit; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fly-text small { font-size: 11px; color: var(--text-3); line-height: 1.3; }
+.fly-row kbd { font: 500 11px/1 var(--font-body); color: var(--text-3); border: 1px solid var(--line); border-radius: 5px; padding: 3px 5px; }
+.fly-save { display: grid; grid-template-columns: 1fr auto; gap: 6px; padding: 0 2px 8px; }
+.fly-save input { height: 34px; padding: 0 12px; border-radius: 9px; border: 1px solid var(--line); background: rgba(255, 255, 255, 0.04); color: var(--text); outline: none; font-size: 13px; min-width: 0; }
+.fly-save input::placeholder { color: var(--text-3); }
+.fly-save input:focus { border-color: rgba(255, 138, 61, 0.6); }
+.fly-btn { display: inline-flex; align-items: center; justify-content: center; gap: 7px; height: 34px; padding: 0 12px; border-radius: 9px; border: 1px solid var(--line); background: rgba(255, 255, 255, 0.04); color: var(--text-2); font-size: 12px; font-weight: 500; cursor: pointer; white-space: nowrap; }
+.fly-btn:hover, .fly-btn:focus-visible { background: rgba(255, 255, 255, 0.09); color: var(--text); outline: none; }
+.fly-btn.primary { background: var(--text); color: #0b0e14; border-color: transparent; }
+.fly-btn.primary:hover { background: #fff; }
+.fly-btn svg { width: 15px; height: 15px; }
+.fly-list { list-style: none; margin: 0; padding: 0; max-height: min(40vh, 320px); overflow-y: auto; scrollbar-width: thin; scrollbar-color: rgba(160, 180, 220, 0.28) transparent; }
+.fly-list li { display: grid; grid-template-columns: 1fr auto auto; align-items: center; gap: 2px; }
+.fly-list li .fly-row { padding-right: 6px; }
+.fly-mini { width: 28px; height: 28px; border: 0; border-radius: 7px; background: transparent; color: var(--text-3); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; font-size: 15px; }
+.fly-mini svg { width: 14px; height: 14px; }
+.fly-mini:hover, .fly-mini:focus-visible { background: rgba(255, 255, 255, 0.08); color: var(--text); outline: none; }
+.fly-empty { padding: 10px 10px 12px; font-size: 12px; color: var(--text-3); line-height: 1.45; }
+.fly-foot { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding: 8px 2px 0; border-top: 1px solid var(--line); margin-top: 6px; }
+.fly-note { font-size: 11px; color: var(--text-3); padding: 8px 8px 2px; }
+/* phones: the rail keeps Brains, File (saved layouts, screenshot) and Zoom; select/pan and view switches stay in the Lobes drawer and on keys.
+   Flyouts open as a bottom sheet over the level pill instead of beside the rail. */
+@media (max-width: 900px) {
+  .rail { right: 12px; bottom: 72px; gap: 8px; }
+  .rail #tools, .rail #view-tools { display: none; }
+  .rail .zoom-ctl button { width: 40px; height: 40px; }
+  .flyout { position: fixed; left: 10px !important; right: 10px !important; top: auto !important; bottom: 10px; width: auto; max-width: none; max-height: 70dvh; overflow-y: auto; border-radius: 16px; z-index: 40; }
+  .fly-save input, .fly-btn { height: 40px; font-size: 16px; }   /* 16px keeps iOS from zooming the page when the name box takes focus */
+  .fly-mini { width: 38px; height: 38px; }
+  .fly-list { max-height: 34dvh; }
+}
+/* desktop: the right rail is static (Drive, Entangler, Randonaut, then the rail groups). An open details panel opens to its left, adjacent
+   and never over it: app.js (MINDBLOWN_RAIL.left) measures the rail's left edge into --rail-clear. The rail never steps aside for the panel. */
+@media (min-width: 901px) { .panel { right: var(--rail-clear, 86px); } }
+/* zoom glyphs are text, so they read a touch larger than the icon buttons */
+.rail #zoom-ctl button { font-size: 19px; }
+/* short windows: tighter rail so Tools, View, File and Zoom still clear the header */
+@media (max-height: 640px) { .rail { gap: 6px; } .rail .zoom-ctl { padding: 3px; } .rail .zoom-ctl button { height: 30px; } }
+/* Very narrow windows reserve the launcher and its gaps beside Lobes and the rail. */
+@media (max-width: 315px) { #lobes { width: calc(100vw - 136px); } }

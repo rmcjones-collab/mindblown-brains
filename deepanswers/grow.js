@@ -100,8 +100,9 @@
     const open = lastNeuron ? '#n=' + encodeURIComponent(lastNeuron) : '';
     setTimeout(() => {   // long enough to read the owner's toast (set just after commit) before the page redraws; the toast is carried over
       try {
-        const t = document.querySelector('.mb-ent-toast'); if (t && !t.hidden && t.textContent) sessionStorage.setItem('mbn:grow:toast-text', t.textContent.slice(0, 4000));
-        if (lastNeuron) sessionStorage.setItem('mbn:grow:open', lastNeuron);
+        const ss = window.sessionStorage;
+        const t = document.querySelector('.mb-ent-toast'); if (t && !t.hidden && t.textContent) ss.setItem('mbn:grow:toast-text', t.textContent.slice(0, 4000));
+        if (lastNeuron) ss.setItem('mbn:grow:open', lastNeuron);
       } catch (e) { /* private mode: the reload still shows the material */ }
       if (open) { try { history.replaceState(history.state, '', open); } catch (e) { /* opaque origin: the engine's own #n= handling is enough */ } }
       location.reload();
@@ -111,7 +112,7 @@
   // after the reload: show the carried toast again and open the new neuron (the engine reads #n= itself)
   function afterReload() {
     let text = null, open = null;
-    try { text = sessionStorage.getItem('mbn:grow:toast-text'); open = sessionStorage.getItem('mbn:grow:open'); sessionStorage.removeItem('mbn:grow:toast'); sessionStorage.removeItem('mbn:grow:toast-text'); sessionStorage.removeItem('mbn:grow:open'); } catch (e) { return; }
+    try { const ss = window.sessionStorage; text = ss.getItem('mbn:grow:toast-text'); open = ss.getItem('mbn:grow:open'); ss.removeItem('mbn:grow:toast'); ss.removeItem('mbn:grow:toast-text'); ss.removeItem('mbn:grow:open'); } catch (e) { return; }
     if (!text && !open) return;
     (function wait(n) {
       if (!built()) { if (n < 200) setTimeout(() => wait(n + 1), 100); return; }

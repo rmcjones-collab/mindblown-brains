@@ -114,8 +114,28 @@
   // ---------- state ----------
   let D = null, key = null, journal = [], on = false, booted = false, index = null, indexAsked = false, armedT = 0, lastMeasure = 0;
   const collapsed = new Map();   // neuron id → act (both halves of every pair)
-  const load = k => { try { const raw = localStorage.getItem(k); return raw && raw.length <= 1048576 ? JSON.parse(raw) : null; } catch (e) { return null; } };
-  const save = () => { try { localStorage.setItem(`mbn:entangle:${key}`, JSON.stringify(journal)); localStorage.setItem(`mbn:entangle:on:${key}`, on ? '1' : '0'); } catch (e) { /* private mode: the session still works, it just is not remembered */ } };
+  // Storage: localStorage when the browser allows it; otherwise a tab-scoped shim on window.name, which survives the
+  // reload that commit() performs (sandboxed previews and private modes block localStorage). The shim only claims
+  // window.name when it is empty or already ours, and is capped like the stored journal.
+  const NAME_TAG = 'mbn-entangle:';
+  const nameStore = {
+    read() { const n = typeof window.name === 'string' ? window.name : ''; if (!n.startsWith(NAME_TAG)) return null; try { const o = JSON.parse(n.slice(NAME_TAG.length)); return o && typeof o === 'object' ? o : null; } catch (e) { return null; } },
+    usable() { return window.name === '' || this.read() !== null; },
+    getItem(k) { const o = this.read(); return o && typeof o[k] === 'string' ? o[k] : null; },
+    setItem(k, v) { if (!this.usable()) throw new Error('window.name in use'); const o = this.read() || {}; o[k] = String(v); const out = NAME_TAG + JSON.stringify(o); if (out.length > 1048576) throw new Error('too large'); window.name = out; },
+    removeItem(k) { const o = this.read(); if (!o) return; delete o[k]; window.name = Object.keys(o).length ? NAME_TAG + JSON.stringify(o) : ''; }
+  };
+  // Read order: window.name first (it only holds data when a localStorage write failed, so it is the newest copy), then
+  // localStorage. Writes go to localStorage; if that throws (blocked, quota) they go to window.name instead, and the
+  // existing localStorage journal is left untouched. A later successful localStorage write retires the fallback copy.
+  const local = () => { try { return window.localStorage || null; } catch (e) { return null; } };
+  const read = k => { const n = nameStore.getItem(k); if (n !== null) return n; try { const ls = local(); return ls ? ls.getItem(k) : null; } catch (e) { return null; } };
+  const load = k => { try { const raw = read(k); return raw && raw.length <= 1048576 ? JSON.parse(raw) : null; } catch (e) { return null; } };
+  const save = () => {
+    const items = [[`mbn:entangle:${key}`, JSON.stringify(journal)], [`mbn:entangle:on:${key}`, on ? '1' : '0']];
+    try { const ls = local(); if (!ls) throw new Error('no localStorage'); for (const [k, v] of items) ls.setItem(k, v); for (const [k] of items) nameStore.removeItem(k); return; } catch (e) { /* fall through to the tab-scoped copy */ }
+    try { for (const [k, v] of items) nameStore.setItem(k, v); } catch (e) { /* nowhere to keep it: the pairs last for this page view */ }
+  };
   const count = () => G() ? G().count(TAG) : { neurons: 0, lobes: 0, brains: 0, synapses: 0, links: 0 };
   const brainName = () => (document.querySelector('nav.brains a.on')?.textContent || '').trim() || (D && D.title ? String(D.title).replace(/^MindBlown:\s*/, '') : '')
     || (document.querySelector('.brand .title')?.textContent || '').replace(/^MindBlown(\s+(Neural|AI hub))?:?\s*/i, '').trim()   // canonical-renderer pages name the brain in the header only
@@ -288,7 +308,7 @@
 
   function clear() {
     journal = []; collapsed.clear(); on = false;
-    try { localStorage.removeItem(`mbn:entangle:${key}`); localStorage.removeItem(`mbn:entangle:on:${key}`); } catch (e) { /* nothing to forget */ }
+    try { for (const k of [`mbn:entangle:${key}`, `mbn:entangle:on:${key}`]) { nameStore.removeItem(k); const ls = local(); if (ls) ls.removeItem(k); } } catch (e) { /* nothing to forget */ }
   }
 
   // ---------- boot: wait for a brain, replay, wire the button ----------

@@ -66,7 +66,7 @@
       // the cheese (mice-chat.js) and the Entangler (when it drops its .zoom-ctl) step beside the Drive on their own, so only what stays stacked counts
       const en = document.getElementById('mb-entangler'), dv = document.getElementById('mb-drive');
       const above = (en && shown(en) && en.classList.contains('zoom-ctl') ? en.offsetHeight + 12 : 0) + (dv && !dv.classList.contains('mb-hidden') && dv.getClientRects().length && (() => { const q = dv.getBoundingClientRect(), mx = q.left + q.width / 2; return mx >= r.left && mx <= r.right; })() ? (dv.offsetHeight || 56) + 12 : 0);   // the Drive counts only while it is lined up over the column (not in a side spot or the corner)
-      const top = document.getElementById('top'), ceil = top && shown(top) && window.innerWidth > 900 ? top.getBoundingClientRect().bottom + 8 : 8;
+      const top = document.getElementById('top'), ceil = top && shown(top) ? top.getBoundingClientRect().bottom + 8 : 8;
       group.classList.toggle('rail-beside', !(r.top - 10 - group.offsetHeight - above >= ceil));   // beside: the Drive and Entangler do not anchor to it
       if (r.top - 10 - group.offsetHeight - above >= ceil) { group.style.bottom = Math.round(host.bottom - r.top + 10) + 'px'; group.style.right = Math.round(host.right - r.right) + 'px'; }
       else { group.style.bottom = Math.round(host.bottom - r.bottom) + 'px'; group.style.right = Math.round(host.right - r.left + 8) + 'px'; }   // no room above (landscape phones): beside the column instead
@@ -140,7 +140,10 @@
   let labelsOn = true, labelF = 1, mouseW = null;   // labels toggle (L); when off, only the hovered neuron or lobe keeps its label
   const pageOn = p => lobeOn[p.lobe] && (!p.parent || lobeOn[p.parent.lobe]);
   const visible = n => n.kind === 'page' ? pageOn(n) : n.kind === 'syn' ? pageOn(pageById[n.page]) : n.pageNodes.some(pageOn);
-  const rebuild = warm => { L.rebuild(visible, showCocite, warm); updateStats(); };
+  const rebuild = warm => {
+    L.rebuild(visible, showCocite, warm); updateStats();
+    window.dispatchEvent(new Event('mindblown:lobes'));
+  };
 
   // ---------- zoom ----------
   let lastLevel = '', lastLevelAt = 0;
@@ -940,6 +943,8 @@
   // read-only hooks for the QA harness
   // Narrow coordinate/selection adapter for optional scenario controllers. Factual nodes are never exposed for mutation.
   window.MINDBLOWN_RENDERER = Object.freeze({
+    engine: 'neural',
+    lobes: () => lobes.map(l => ({ id: l.id, name: l.name, color: l.color, on: !!lobeOn[l.id] })),
     nodes: () => pages.map(n => ({ id: n.id, title: n.title })),
     titleBoxes: () => (R.titleBoxes || []).map(b => ({ ...b })),
     selected: () => selected?.kind === 'page' ? selected.id : null,
