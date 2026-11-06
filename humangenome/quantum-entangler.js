@@ -125,17 +125,74 @@
     setItem(k, v) { if (!this.usable()) throw new Error('window.name in use'); const o = this.read() || {}; o[k] = String(v); const out = NAME_TAG + JSON.stringify(o); if (out.length > 1048576) throw new Error('too large'); window.name = out; },
     removeItem(k) { const o = this.read(); if (!o) return; delete o[k]; window.name = Object.keys(o).length ? NAME_TAG + JSON.stringify(o) : ''; }
   };
-  // Read order: window.name first (it only holds data when a localStorage write failed, so it is the newest copy), then
-  // localStorage. Writes go to localStorage; if that throws (blocked, quota) they go to window.name instead, and the
-  // existing localStorage journal is left untouched. A later successful localStorage write retires the fallback copy.
+  // Every save carries a revision (a millisecond clock, never repeated, and always above every revision already stored for this brain, so
+  // saves keep their order across tabs and across a clock that steps back). localStorage keeps the journal, the enabled flag and the
+  // revision as ONE record key, so a save is all-or-nothing; the three separate keys of older builds are still read and are removed once a
+  // record lands. The tab-scoped fallback keeps the same record as one window.name entry. On boot the newest copy wins: another tab that
+  // later updates or forgets the brain writes a higher revision, so this tab's older fallback is dropped instead of replayed. Forgetting
+  // writes an empty journal with a fresh revision (a deletion marker) rather than only removing keys, so a copy that could not be removed
+  // can never come back. Copies written before revisions existed count as revision 0 and keep their old precedence.
   const local = () => { try { return window.localStorage || null; } catch (e) { return null; } };
-  const read = k => { const n = nameStore.getItem(k); if (n !== null) return n; try { const ls = local(); return ls ? ls.getItem(k) : null; } catch (e) { return null; } };
-  const load = k => { try { const raw = read(k); return raw && raw.length <= 1048576 ? JSON.parse(raw) : null; } catch (e) { return null; } };
-  const save = () => {
-    const items = [[`mbn:entangle:${key}`, JSON.stringify(journal)], [`mbn:entangle:on:${key}`, on ? '1' : '0']];
-    try { const ls = local(); if (!ls) throw new Error('no localStorage'); for (const [k, v] of items) ls.setItem(k, v); for (const [k] of items) nameStore.removeItem(k); return; } catch (e) { /* fall through to the tab-scoped copy */ }
-    try { for (const [k, v] of items) nameStore.setItem(k, v); } catch (e) { /* nowhere to keep it: the pairs last for this page view */ }
-  };
+  const K = () => ({ rec: `mbn:entangle:rec:${key}`, j: `mbn:entangle:${key}`, on: `mbn:entangle:on:${key}`, rev: `mbn:entangle:rev:${key}`, fb: `mbn:entangle:fb:${key}` });
+  // window.name is capped at 1 MiB by store(); localStorage has its own quota, so anything it accepted is read back whatever its size
+  const parse = (raw, cap = 1048576) => { try { return typeof raw === 'string' && raw.length <= cap ? JSON.parse(raw) : null; } catch (e) { return null; } };
+  // a stored revision is a non-negative safe integer below MAX_SAFE_INTEGER (nextRev() adds one); anything else (Infinity, NaN, 1e300) counts as 0
+  const okRev = v => { const n = Number(v); return Number.isSafeInteger(n) && n >= 0 && n < Number.MAX_SAFE_INTEGER ? n : 0; };
+  const asCopy = (o, rev) => o && typeof o === 'object' && Array.isArray(o.journal) ? { rev: okRev(o.rev ?? rev), journal: o.journal, on: !!o.on } : null;
+  let lastRev = 0;
+  function fallbackCopy() {
+    const k = K(), f = asCopy(parse(nameStore.getItem(k.fb)));
+    if (f) return f;
+    const legacy = nameStore.getItem(k.j);   // pre-revision fallback: two separate entries
+    if (legacy === null) return null;
+    const j = parse(legacy);
+    return Array.isArray(j) ? { rev: 0, journal: j, on: parse(nameStore.getItem(k.on)) === 1 } : null;
+  }
+  function localCopy() {
+    const k = K();
+    try {
+      const ls = local(); if (!ls) return null;
+      const recRaw = ls.getItem(k.rec), rec = recRaw === null ? null : asCopy(parse(recRaw, Infinity)) || { rev: 0, journal: [], on: false, unreadable: true };
+      const raw = ls.getItem(k.j), onRaw = ls.getItem(k.on), rev = okRev(ls.getItem(k.rev));
+      let old = null;
+      if (raw !== null || onRaw !== null || rev) { const j = parse(raw, Infinity); old = { rev, journal: Array.isArray(j) ? j : [], on: parse(onRaw, Infinity) === 1 }; }
+      // a record write removes the three keys, so three keys beside a record were written after it, by an older build in another tab:
+      // without a revision they are taken as the later write; with one, the higher revision wins. A readable legacy copy also beats an unreadable record.
+      if (rec && old) return rec.unreadable || !old.rev || old.rev > rec.rev ? old : rec;
+      return rec || old;
+    } catch (e) { return null; }
+  }
+  const storedRev = () => Math.max((localCopy() || {}).rev || 0, (fallbackCopy() || {}).rev || 0);
+  const nextRev = () => (lastRev = Math.max(Date.now(), lastRev + 1, storedRev() + 1));
+  const dropFallback = () => { const k = K(); for (const x of [k.fb, k.j, k.on]) nameStore.removeItem(x); };
+  function loadState() {
+    const f = fallbackCopy(), l = localCopy();
+    let pick = l && !l.unreadable ? l : null;
+    if (f && (!l || f.rev >= l.rev)) pick = f;
+    else if (f && l && !l.unreadable) dropFallback();   // stale: another tab has written a newer copy since
+    if (pick) lastRev = Math.max(lastRev, pick.rev);
+    return pick || { rev: 0, journal: [], on: false };
+  }
+  function store(journalArr, onFlag) {
+    let k, rev, rec;
+    try { k = K(); rev = nextRev(); rec = JSON.stringify({ rev, journal: journalArr, on: !!onFlag }); }
+    catch (e) { console.warn('entangler: could not serialise the journal', e); return false; }
+    try {
+      const ls = local(); if (!ls) throw new Error('no localStorage');
+      ls.setItem(k.rec, rec);   // one write: the journal, flag and revision land together or not at all
+      for (const x of [k.j, k.on, k.rev]) { try { ls.removeItem(x); } catch (e) { /* an older copy left behind loses to the record's revision */ } }
+      dropFallback(); return 'local';
+    } catch (e) { /* fall through to the tab-scoped copy */ }
+    try {
+      const o = nameStore.read() || {}; delete o[k.j]; delete o[k.on];
+      o[k.fb] = rec;
+      const out = NAME_TAG + JSON.stringify(o);
+      if (!nameStore.usable() || out.length > 1048576) throw new Error('fallback unavailable');
+      window.name = out; return 'fallback';   // one assignment: the journal, flag and revision land together or not at all
+    } catch (e) { return false; /* nowhere to keep it: the pairs last for this page view */ }
+  }
+  let held = [];   // saved pairs that could not be replayed this time (a partner brain not loaded, say): kept in the journal on disk, not drawn
+  const save = () => store([...journal, ...held].slice(0, CAP.pairs), on);
   const count = () => G() ? G().count(TAG) : { neurons: 0, lobes: 0, brains: 0, synapses: 0, links: 0 };
   const brainName = () => (document.querySelector('nav.brains a.on')?.textContent || '').trim() || (D && D.title ? String(D.title).replace(/^MindBlown:\s*/, '') : '')
     || (document.querySelector('.brand .title')?.textContent || '').replace(/^MindBlown(\s+(Neural|AI hub))?:?\s*/i, '').trim()   // canonical-renderer pages name the brain in the header only
@@ -152,7 +209,7 @@
     }
     else toast(`<b>${esc(brainName())}</b> is no longer entangled. The ${journal.length ? `${journal.length} pair${journal.length === 1 ? '' : 's'} stay` : 'pairs would stay'}; Shift-press twice to forget them.`);
   }
-  function sync() { const n = btn.querySelector('.mb-ent-n'); if (n) n.textContent = journal.length ? String(journal.length) : ''; btn.setAttribute('aria-label', `Quantum Entangler: ${on ? 'entangled, press to switch off' : 'press to entangle this brain'} (E)${journal.length ? `, ${journal.length} pair${journal.length === 1 ? '' : 's'}` : ''}`); btn.title = `Quantum Entangler (E) — ${on ? 'on' : 'off'}${journal.length ? ` · ${journal.length} pair${journal.length === 1 ? '' : 's'}` : ''}. Shift-press twice to forget the pairs.`; }
+  function sync() { btn.setAttribute('aria-pressed', String(on)); const n = btn.querySelector('.mb-ent-n'); if (n) n.textContent = journal.length ? String(journal.length) : ''; btn.setAttribute('aria-label', `Quantum Entangler: ${on ? 'entangled, press to switch off' : 'press to entangle this brain'} (E)${journal.length ? `, ${journal.length} pair${journal.length === 1 ? '' : 's'}` : ''}`); btn.title = `Quantum Entangler (E) — ${on ? 'on' : 'off'}${journal.length ? ` · ${journal.length} pair${journal.length === 1 ? '' : 's'}` : ''}. Shift-press twice to forget the pairs.`; }
 
   // ---------- evidence shared between two neurons ----------
   let pageSrcs = null, srcById = null, eligibleIds = null;
@@ -289,7 +346,7 @@
       toast(`<b>${esc(A.title)}</b> has already collapsed, with <b>${esc(other)}</b>.`);
       return prior;
     }
-    if (journal.length >= CAP.pairs) { toast(`The Entangler has drawn all ${CAP.pairs} of its pairs here. Shift-press twice to forget them and start again.`); return null; }
+    if (journal.length + held.length >= CAP.pairs) { toast(`The Entangler has drawn all ${CAP.pairs} of its pairs here. Shift-press twice to forget them and start again.`); return null; }
     askIndex();   // partners at a distance join once the index has arrived (asked for when the Entangler is switched on)
     let cands = candidates(A, pages);
     const imageBrains = new Set(g.lobes().filter(l => l.origin === TAG && l.satellite).map(l => l.id));
@@ -306,29 +363,45 @@
     return act;
   }
 
+  // forgetting is durable only when no copy is left that a later visit or another tab could replay. A deletion marker in localStorage
+  // covers every tab. A marker that could only go to the tab-scoped fallback covers this tab alone, so the shared localStorage copies are
+  // then removed as well; with no marker at all, every copy that can be removed is. Storage that cannot even be read is out of reach for
+  // every tab of this browser alike, so it counts as holding no copy. The page's pairs are cleared only once the forget is durable:
+  // a forget that fails changes nothing, here or on disk, and can simply be retried.
   function clear() {
-    journal = []; collapsed.clear(); on = false;
-    try { for (const k of [`mbn:entangle:${key}`, `mbn:entangle:on:${key}`]) { nameStore.removeItem(k); const ls = local(); if (ls) ls.removeItem(k); } } catch (e) { /* nothing to forget */ }
+    if (!booted) return false;
+    let name0 = null; try { name0 = window.name; } catch (e) { /* no tab copy to restore */ }   // a failed forget puts the tab copy back as it was
+    const where = store([], false), k = K();
+    const dropLocal = () => { try { const ls = local(); if (ls) for (const x of [k.rec, k.j, k.on, k.rev]) ls.removeItem(x); } catch (e) { /* checked below */ } };
+    let ok = where === 'local';
+    if (where === 'fallback') { dropLocal(); ok = !localCopy(); }
+    if (!where) { dropLocal(); try { dropFallback(); } catch (e) { /* checked below */ } ok = !localCopy() && !fallbackCopy(); }
+    if (!ok) { if (name0 !== null) { try { window.name = name0; } catch (e) { /* the tab copy could not be put back */ } } return false; }
+    journal = []; held = []; collapsed.clear(); on = false; btn.setAttribute('aria-pressed', 'false');
+    return true;
   }
 
   // ---------- boot: wait for a brain, replay, wire the button ----------
   function boot() {
     const g = G(); D = window.MINDBLOWN; if (!g || !D) return false;
     key = D.brain || location.pathname.replace(/[^a-z0-9]+/gi, '-');
-    const saved = load(`mbn:entangle:${key}`);
-    journal = Array.isArray(saved) ? saved.slice(0, CAP.pairs).filter(validAct) : [];
-    on = load(`mbn:entangle:on:${key}`) === 1;
+    const saved = loadState();
+    journal = saved.journal.slice(0, CAP.pairs).filter(validAct);
+    on = saved.on;
     if (journal.length) {
       const j = journal; journal = [];
       const imageBrains = new Set();
       j.forEach(a => {
-        if (collapsed.has(a.a) || !a.afield && collapsed.has(a.b)) return;
-        if (a.afield && !imageBrains.has(a.afield.brain) && imageBrains.size >= CAP.brains) return;
+        // a pair the guards turn away (a neuron already collapsed, the image-brain cap reached) is held like a failed replay: kept on disk, not drawn
+        if (collapsed.has(a.a) || !a.afield && collapsed.has(a.b)) { held.push(a); return; }
+        if (a.afield && !imageBrains.has(a.afield.brain) && imageBrains.size >= CAP.brains) { held.push(a); return; }
         a.i = journal.length;
-        try { if (apply(a)) { journal.push(a); if (a.afield) imageBrains.add(a.afield.brain); } }
+        let ok = false;
+        try { ok = !!apply(a); if (ok) { journal.push(a); if (a.afield) imageBrains.add(a.afield.brain); } }
         catch (e) { console.warn('entangler: could not replay a saved pair', e); }
+        if (!ok) held.push(a);   // kept for the next save and the next visit rather than erased by a failed replay
       });
-      g.commit({ alpha: 0.8 }); save();
+      g.commit({ alpha: 0.8 });   // nothing is written at boot: the copy on disk already holds every pair, and a newer one from another tab must not be overwritten
     }
     if (on || journal.some(a => a.afield)) askIndex();
     document.body.append(btn, toastEl);
@@ -359,16 +432,20 @@
     return true;
   }
   function forget() {
-    if (!journal.length) { toast('Nothing to forget: no pairs have been drawn here.'); return; }
-    if (armedT && Date.now() - armedT < 5000) { armedT = 0; const n = journal.length; clear(); toast(`Forgot ${n} pair${n === 1 ? '' : 's'}. Reloading…`, 1200); setTimeout(() => location.reload(), 600); return; }
+    if (!journal.length && !held.length) { toast('Nothing to forget: no pairs have been drawn here.'); return; }
+    if (armedT && Date.now() - armedT < 5000) {
+      armedT = 0; const n = journal.length + held.length;
+      if (!clear()) { sync(); toast(`Could not forget the ${n} pair${n === 1 ? '' : 's'}: this browser would not save that. Nothing was changed; Shift-press twice to try again.`, 4000); return; }
+      toast(`Forgot ${n} pair${n === 1 ? '' : 's'}. Reloading…`, 1200); setTimeout(() => location.reload(), 600); return;
+    }
     armedT = Date.now(); btn.classList.add('mb-armed'); setTimeout(() => btn.classList.remove('mb-armed'), 5000);
-    toast(`Forget ${journal.length} pair${journal.length === 1 ? '' : 's'} and reload? Shift-press again within 5 seconds.`, 5000);
+    const n = journal.length + held.length; toast(`Forget ${n} pair${n === 1 ? '' : 's'} and reload? Shift-press again within 5 seconds.`, 5000);
   }
   // pages that boot their data late (community/AI loaders, composed networks) get the Entangler when the brain arrives
   (function wait(n) { if (boot()) return; if (n < 200) setTimeout(() => wait(n + 1), 150); })(0);
 
   window.MINDBLOWN_ENTANGLER = Object.freeze({
-    on: () => on, setOn: v => { if (booted) setOn(v, { quiet: true }); return on; }, measure: (id, o) => measure(id, o), journal: () => journal.map(a => ({ ...a })), count, clear: () => { clear(); save(); sync(); },
+    on: () => on, setOn: v => { if (booted) setOn(v, { quiet: true }); return on; }, measure: (id, o) => measure(id, o), journal: () => journal.map(a => ({ ...a })), count, clear: () => { const ok = clear(); sync(); return ok; },   // true when the deletion marker was kept somewhere
     booted: () => booted, caps: CAP, color: COLOR, tag: TAG, candidates: id => { const g = G(); if (!g) return []; const A = g.pages().find(p => p.id === id); return A ? candidates(A, g.pages()).map(c => ({ id: c.id, kind: c.kind, w: +c.w.toFixed(3), shared: c.shared.length, terms: c.terms })) : []; },
     collapsed: () => [...collapsed.keys()], place, index: () => !!index, button: () => btn,
   });
