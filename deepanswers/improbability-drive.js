@@ -13,10 +13,13 @@
    The first press on a site opens a short disclaimer (role=alertdialog) that must be acknowledged with its checkbox before
    "Engage the Drive" runs the jump; "Not today" or Escape closes it and leaves the Drive idle. The acknowledgement is kept
    per site in localStorage (key mb-drive-disclaimer-v1), or for the page's lifetime when storage is unavailable.
+   On desktop the Drive keeps its place at the top of the static right rail: the details panel opens to the rail's left
+   (app.js MINDBLOWN_RAIL, --rail-clear), so the Drive no longer steps aside for it; its readout and toast sit left of that panel.
 
    Self-contained: it injects its own button, readout, toast and styles, reads only window.MINDBLOWN (pages, links,
    center/centers), or window.MINDBLOWN_NETWORK on network overview pages (where it opens a shared neuron in one of
-   the member brains), and the public hooks above, writes only the disclaimer acknowledgement to storage and does nothing until pressed. It waits for
+   the member brains), and the public hooks above, writes only the disclaimer acknowledgement to storage and does
+   nothing until pressed. It waits for
    brains that load their data late (boot loaders, composed networks) and recomputes the odds if the data changes. */
 (() => {
   if (window.__MB_IMPROBABILITY_DRIVE__) return;   // one Drive per page, even if a page includes the script twice
@@ -124,14 +127,13 @@
     // several pages stack two zoom columns (zoom + tools); sit above the highest one that is visible
     let r = null;
     document.querySelectorAll('.zoom-ctl').forEach(z => {
-      if (z.offsetParent === null) return;
+      if (z.offsetParent === null || z.classList.contains('rail-beside')) return;
       const b = z.getBoundingClientRect();
       if (b.width > 0 && b.height > 0 && (!r || b.top < r.top)) r = b;
     });
     const size = btn.offsetWidth || 56, W = window.innerWidth, H = window.innerHeight;
     let cx, bottom;
     if (r && r.width > 0 && r.top > size + 70) { cx = r.left + r.width / 2; bottom = r.top - 12; }
-    else if (r && r.width > 0 && W > 900) { cx = r.left - 12 - size / 2; bottom = r.top + size; }   // a short window: no room above the rail, so beside its top
     else { cx = W - (W <= 900 ? 16 : 24) - size / 2; bottom = H - (W <= 900 ? 16 : 24) - (parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--mbar-h')) || 0); }   // no zoom column (network overviews): the usual floating-button corner, above a phone options bar if there is one
     const clampL = x => Math.round(Math.min(W - size - 8, Math.max(8, x)));
     const mine = e => e === btn || btn.contains(e) || e === out || e === toastEl || (toastEl && toastEl.contains(e));
@@ -162,10 +164,16 @@
     const hidden = !spot;   // nowhere free: hide rather than float over reading text
     btn.classList.toggle('mb-hidden', hidden);
     btn.disabled = hidden; btn.tabIndex = hidden ? -1 : 0;   // a hidden button is out of the tab order and cannot be activated
-    const rightEdge = W - (left - 10);
+    // desktop: a details panel opened beside the rail (left of the Drive) keeps its text clear; the readout and toast sit left of it instead
+    const side = W > 900 && [...document.querySelectorAll('.panel, #mb-rando-panel')].map(p => !p.hidden && p.getClientRects().length ? p.getBoundingClientRect() : null)
+      .find(q => q && q.width > 0 && q.right <= left + 4 && q.right > W / 2 && q.top < top + size && q.bottom > top) || null;
+    const rightEdge = side ? W - side.left + 10 : W - (left - 10);
     if (out) { out.style.right = rightEdge + 'px'; out.style.top = (top + size / 2 - 14) + 'px'; }
     if (toastEl) {
-      if (hidden) {   // the button's spot is under a panel: say it centred, clear of the panel text, instead
+      if (side && !hidden) {
+        toastEl.style.left = 'auto'; toastEl.style.bottom = 'auto'; toastEl.style.transform = 'none';
+        toastEl.style.right = rightEdge + 'px'; toastEl.style.top = (top + size + 8) + 'px';   // below the readout, never over it
+      } else if (hidden) {   // the button's spot is under a panel: say it centred, clear of the panel text, instead
         toastEl.style.right = 'auto'; toastEl.style.left = '50%'; toastEl.style.transform = 'translateX(-50%)';
         if (W <= 900) { toastEl.style.bottom = 'auto'; toastEl.style.top = '12px'; } else { toastEl.style.top = 'auto'; toastEl.style.bottom = '72px'; }
       } else {
@@ -181,8 +189,8 @@
   // ----- first-press disclaimer: acknowledged once per site, before the Drive's first jump -----
   const ACK_KEY = 'mb-drive-disclaimer-v1';
   let ackedInPage = false, dlg = null, dlgBox, dlgGo, dlgResult = 'no';
-  const acked = () => { if (ackedInPage) return true; try { return window.localStorage.getItem(ACK_KEY) === '1'; } catch (e) { return false; } };
-  const acknowledge = () => { ackedInPage = true; try { window.localStorage.setItem(ACK_KEY, '1'); } catch (e) { /* storage blocked: remember for this page only */ } };
+  const acked = () => { if (ackedInPage) return true; try { const ls = window.localStorage; return ls.getItem(ACK_KEY) === '1'; } catch (e) { return false; } };
+  const acknowledge = () => { ackedInPage = true; try { const ls = window.localStorage; ls.setItem(ACK_KEY, '1'); } catch (e) { /* storage blocked: remember for this page only */ } };
   const dlgOpen = () => !!(dlg && dlg.hasAttribute('open'));
   const nativeModal = () => !!(dlg && typeof dlg.showModal === 'function');
   function dlgClosed() {
@@ -242,7 +250,6 @@
         go(m, dest.id);
         if (!m.network) toast(`Arrived at “${dest.title}” at ${fmt(oddsAgainst(m, dest))} : 1 against. Anything you still can’t cope with is therefore your own problem.`);
       } else {
-        if (!m.network) go(m, m.hubId);
         toast('The Drive passed through every point in the Universe and came back exactly where it was.');
       }
       await sleep(700);

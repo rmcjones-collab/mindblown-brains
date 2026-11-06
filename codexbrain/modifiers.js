@@ -13,7 +13,7 @@
     <p>Place a controller on this brain. Adjust a <strong>scenario signal</strong>, not a sourced fact.</p>
     <label>Target neuron<select id="modifier-target"></select></label>
     <div class="modifier-actions"><button id="modifier-place" type="button">Place on canvas</button><button id="modifier-beside" type="button">Place beside target</button></div>
-    <p id="modifier-status" role="status" aria-live="polite">Choose a target, then place a modifier. Session only; reload resets it.</p>
+    <p id="modifier-status" role="status" aria-live="polite">Choose a target, then place a modifier. Session only; save a layout to keep it.</p>
     <div id="modifier-list"></div>
     <details id="modifier-dependencies"><summary>Modeled connections</summary><p>Knowledge links are not causal. Add your own directed dependencies to propagate the scenario signal.</p>
     <label>From neuron<select id="modifier-from"></select></label><label>To neuron<select id="modifier-to"></select></label>
@@ -44,10 +44,17 @@
     try{E.evaluate(next,ids);}catch(e){status(e.message);return false;}
     past.push(copy(state));if(past.length>50)past.shift();future=[];state=next;render();if(message)status(message);return true;
   }
+  function nextModifierId(){
+    const used=new Set(state.modifiers.map(m=>m.id));
+    // At most 12 IDs are occupied. Wrap before incrementing past the safe-integer
+    // boundary and skip occupied IDs, including after restoring a maximum ID.
+    do{serial=serial>=Number.MAX_SAFE_INTEGER?1:serial+1;}while(used.has('M'+serial));
+    return 'M'+serial;
+  }
   function place(point){
     if(state.modifiers.length>=12){status('Remove a modifier before adding another (limit 12).');cancel();return;}
     const target=$('modifier-target').value;
-    const next=copy(state);next.modifiers.push({id:'M'+(++serial),target,gain:1,x:point[0],y:point[1]});
+    const next=copy(state);next.modifiers.push({id:nextModifierId(),target,gain:1,x:point[0],y:point[1]});
     commit(next,'Modifier placed. Adjust its signal below. Drag its canvas handle to reposition.');cancel();
   }
   $('modifier-place').onclick=()=>{placing=!placing;$('modifier-place').textContent=placing?'Cancel placement':'Place on canvas';document.body.classList.toggle('modifier-placing',placing);status(placing?'Click an open area of the canvas to place the controller. Escape cancels.':'Placement cancelled.');};
@@ -91,12 +98,26 @@
       range.onchange=()=>{if(before){past.push(before);future=[];before=null;$('modifier-undo').disabled=false;$('modifier-redo').disabled=true;}};
       label.append(output,range);card.append(title,label,button('Focus target',()=>R.focus(m.target)),button('Remove',()=>{const n=copy(state);n.modifiers=n.modifiers.filter(x=>x.id!==m.id);commit(n,'Modifier removed. Explicit connections remain until removed or reset.');}));
       $('modifier-list').append(card);
-      const handle=button(m.id,()=>{active=m.id;panel.hidden=false;launch.setAttribute('aria-expanded','true');card.scrollIntoView({block:'nearest'});range.focus();});
+      let moved=false;   // a drag that moved the handle must not also open the panel on release
+      const handle=button(m.id,e=>{if(moved&&e.detail!==0){moved=false;return;}moved=false;active=m.id;panel.hidden=false;launch.setAttribute('aria-expanded','true');card.scrollIntoView({block:'nearest'});range.focus();});
       handle.className='modifier-node';handle.dataset.modifier=m.id;handle.setAttribute('aria-label',`Modifier ${m.id}, target ${names.get(m.target)}. Arrow keys move.`);
       let drag=null;
-      handle.onpointerdown=e=>{e.stopPropagation();drag={x:e.clientX,y:e.clientY,before:copy(state)};handle.setPointerCapture(e.pointerId);};
-      handle.onpointermove=e=>{if(!drag)return;const p=R.toWorld(e.clientX,e.clientY);m.x=p[0];m.y=p[1];};
-      handle.onpointerup=e=>{if(!drag)return;if(Math.hypot(e.clientX-drag.x,e.clientY-drag.y)>3){past.push(drag.before);future=[];$('modifier-undo').disabled=false;$('modifier-redo').disabled=true;}drag=null;};
+      function finishDrag(e,aborted=false){
+        if(!drag||e.pointerId!==drag.pointerId)return;
+        const d=drag;drag=null;   // pointerup/cancel may be followed by lostpointercapture
+        if(aborted){m.x=d.origin[0];m.y=d.origin[1];moved=true;return;}   // rollback without changing either history stack
+        if(d.moved||Math.hypot(e.clientX-d.x,e.clientY-d.y)>3){
+          moved=true;
+          if(JSON.stringify(state)!==JSON.stringify(d.before)){past.push(d.before);if(past.length>50)past.shift();future=[];$('modifier-undo').disabled=false;$('modifier-redo').disabled=true;}
+        }
+      }
+      handle.onpointerdown=e=>{if(drag||!e.isPrimary||e.button!==0)return;e.stopPropagation();moved=false;drag={pointerId:e.pointerId,x:e.clientX,y:e.clientY,world:R.toWorld(e.clientX,e.clientY),origin:[m.x,m.y],before:copy(state)};handle.setPointerCapture(e.pointerId);};
+      handle.onpointermove=e=>{if(!drag||e.pointerId!==drag.pointerId)return;if(Math.hypot(e.clientX-drag.x,e.clientY-drag.y)>3)drag.moved=true;   // latched: a drag that returns to its start is still a drag
+      if(!drag.moved)return;   // under the threshold the handle stays put, so a click never nudges it
+      const p=R.toWorld(e.clientX,e.clientY);m.x=drag.origin[0]+(p[0]-drag.world[0]);m.y=drag.origin[1]+(p[1]-drag.world[1]);};
+      handle.onpointerup=e=>finishDrag(e);
+      handle.onpointercancel=e=>finishDrag(e,true);
+      handle.onlostpointercapture=e=>finishDrag(e,true);
       handle.onkeydown=e=>{const v={ArrowLeft:[-15,0],ArrowRight:[15,0],ArrowUp:[0,-15],ArrowDown:[0,15]}[e.key];if(!v)return;e.preventDefault();const n=copy(state),x=n.modifiers.find(x=>x.id===m.id);x.x+=v[0];x.y+=v[1];commit(n);overlay.querySelector(`[data-modifier="${m.id}"]`).focus();};
       overlay.append(handle);
     }
@@ -123,5 +144,21 @@
     requestAnimationFrame(frame);
   }
   render();requestAnimationFrame(frame);
-  window.MINDBLOWN_MODIFIERS=Object.freeze({snapshot:()=>copy(state),results:()=>copy(values)});
+  // Saved layouts (app.js) carry the scenario: restore() takes an untrusted snapshot, keeps only well-formed controllers on this brain's
+  // neurons (at most 12) and well-formed connections, and commits it as one undoable step. Returns false when the snapshot is malformed, oversized, cyclic or has entries but none valid.
+  function restore(raw){
+    if(!raw||typeof raw!=='object'||!Array.isArray(raw.modifiers)||!Array.isArray(raw.edges))return false;
+    const fin=v=>typeof v==='number'&&Number.isFinite(v),known=new Set(ids);
+    const mods=raw.modifiers.filter(m=>m&&typeof m.id==='string'&&/^M\d{1,16}$/.test(m.id)&&Number.isSafeInteger(+m.id.slice(1))&&known.has(m.target)&&fin(m.gain)&&m.gain>=0&&m.gain<=2&&fin(m.x)&&fin(m.y))
+      .slice(0,12).map(m=>({id:m.id,target:m.target,gain:m.gain,x:m.x,y:m.y}));
+    const seen=new Set(),edges=[];
+    const maxEdges=Math.min(ids.length*(ids.length-1)/2,20000);if(raw.edges.length>maxEdges)return false;   // more than the largest acyclic set over this brain's neurons: refused rather than cut short
+    for(const e of raw.edges){if(!e||!known.has(e.from)||!known.has(e.to)||!fin(e.weight)||Math.abs(e.weight)>1)continue;const k=e.from+'\u0000'+e.to;if(seen.has(k))continue;seen.add(k);edges.push({from:e.from,to:e.to,weight:e.weight});}
+    if(new Set(mods.map(m=>m.id)).size!==mods.length)return false;
+    if((raw.modifiers.length||raw.edges.length)&&!(mods.length||edges.length))return false;   // entries offered but none valid: keep the current scenario
+    if(!commit({modifiers:mods,edges},mods.length||edges.length?'Scenario restored from the saved layout.':''))return false;
+    serial=Math.max(serial,...mods.map(m=>+m.id.slice(1)));cancel();
+    return true;
+  }
+  window.MINDBLOWN_MODIFIERS=Object.freeze({snapshot:()=>copy(state),results:()=>copy(values),restore});
 })();
