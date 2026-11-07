@@ -976,7 +976,7 @@
       return dx || dy ? d3.zoomIdentity.translate(t.x + dx, t.y + dy).scale(t.k) : t;
     })
     .on('start', ev => { if (ev.sourceEvent) atHome = false; })
-    .on('zoom', ev => { k = ev.transform.k; tx = ev.transform.x; ty = ev.transform.y; updateLevel(); })
+    .on('zoom', ev => { k = ev.transform.k; tx = ev.transform.x; ty = ev.transform.y; updateLevel(true); })
     // fully out means Home: a gesture or zoom button that ends past the whole brain settles back on it, centred. A gesture that interrupts a
     // transition in flight ends that transition first (homing is still set, and d3 hands it the gesture's event), which must not settle again
     .on('end', ev => {
@@ -2382,7 +2382,9 @@ ctx.shadowBlur=0;});
       const input = form.querySelector('input'), verdict = panelBody.querySelector('.verdict');
       form.addEventListener('submit', e => {
         e.preventDefault();
-        if (solve(n, input.value)) return;   // solve() re-renders the panel with the fact
+        // solve() re-renders the panel with the fact, removing the focused input and Solve button; keep keyboard focus in the panel
+        const follow = panelBody.contains(document.activeElement);
+        if (solve(n, input.value)) { if (follow) document.getElementById('panel-close').focus(); return; }
         verdict.textContent = 'Not yet.'; form.classList.remove('shake'); void form.offsetWidth; form.classList.add('shake'); input.select();
       });
       const hb = panelBody.querySelector('.hint-btn');
@@ -2589,7 +2591,7 @@ ctx.shadowBlur=0;});
         layoutFitTimer = setTimeout(() => { if (!selected) fitAll(1100); }, 350);
       }
     }
-    updateHint();
+    if (opts.silent) updateHint();   // a non-silent change shows its layout flash for 2.2 s; flash() restores the normal hint afterwards
   }
   // switching a map off returns to the page's own default layout (MINDBLOWN_OPTIONS.layout); switching the default itself off goes to neural
   function offLayout(l) { return l === pageLayout ? 'neural' : pageLayout; }   // hoisted: updateHint can run before this line
@@ -2769,17 +2771,18 @@ ctx.shadowBlur=0;});
   });
   renderLayouts();
   // a short message in the level pill's hint slot
-  let flashT = 0;
-  function flash(msg) { hint.textContent = msg; clearTimeout(flashT); flashT = setTimeout(() => updateHint(), 2200); }
+  // a flashed warning holds the hint for its 2.2 s; zoom frames (a camera transition still in flight) must not overwrite it, user actions still can
+  let flashT = 0, flashing = false;
+  function flash(msg) { hint.textContent = msg; flashing = true; clearTimeout(flashT); flashT = setTimeout(() => { flashing = false; updateHint(); }, 2200); }
 
   canvas.classList.add('select');
   const levelText = document.getElementById('level-text'), levelDot = document.querySelector('#level .dot'), hint = document.getElementById('hint');
-  function updateLevel() {
+  function updateLevel(fromZoom) {
     const lvl = forceExplode || k >= 1.5 ? 'Synapses' : hasSubs && k >= 0.85 ? 'Sub-neurons' : k >= 0.6 ? 'Neurons' : 'Lobes';
     levelText.textContent = lvl + ` · ${k.toFixed(1)}×`;
     const c = lvl === 'Synapses' ? '#ffffff' : lvl === 'Sub-neurons' ? '#fbbf24' : lvl === 'Neurons' ? '#ff8a3d' : '#4fd1c5';
     levelDot.style.background = c; levelDot.style.boxShadow = `0 0 12px ${c}`;
-    updateHint(lvl);
+    if (!(fromZoom && flashing)) updateHint(lvl);
   }
   function updateHint(lvl) {
     lvl = lvl || (forceExplode || k >= 1.5 ? 'Synapses' : hasSubs && k >= 0.85 ? 'Sub-neurons' : k >= 0.6 ? 'Neurons' : 'Lobes');
