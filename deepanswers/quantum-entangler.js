@@ -140,6 +140,9 @@
   const okRev = v => { const n = Number(v); return Number.isSafeInteger(n) && n >= 0 && n < Number.MAX_SAFE_INTEGER ? n : 0; };
   const asCopy = (o, rev) => o && typeof o === 'object' && Array.isArray(o.journal) ? { rev: okRev(o.rev ?? rev), journal: o.journal, on: !!o.on } : null;
   let lastRev = 0;
+  // the boot read found localStorage present but throwing: the journal it may hold was not loaded, so until a read shows nothing is there to
+  // lose, no write (to localStorage, or to the tab copy that would outrank it next visit) may stand in for it. Only a forget writes regardless.
+  let bootBlocked = false;
   function fallbackCopy() {
     const k = K(), f = asCopy(parse(nameStore.getItem(k.fb)));
     if (f) return f;
@@ -167,13 +170,19 @@
   const dropFallback = () => { const k = K(); for (const x of [k.fb, k.j, k.on]) nameStore.removeItem(x); };
   function loadState() {
     const f = fallbackCopy(), l = localCopy();
+    bootBlocked = !!(l && l.blocked);
     let pick = l && !l.unreadable ? l : null;
     if (f && (!l || f.rev >= l.rev)) pick = f;
     else if (f && l && !l.unreadable) dropFallback();   // stale: another tab has written a newer copy since
     if (pick) lastRev = Math.max(lastRev, pick.rev);
     return pick || { rev: 0, journal: [], on: false };
   }
-  function store(journalArr, onFlag) {
+  function store(journalArr, onFlag, forget) {
+    if (bootBlocked && !forget) {
+      const now = localCopy();   // readable again and holding no pairs: nothing can be lost, so writes resume; otherwise the pairs last this page view
+      if (now && (now.blocked || now.journal.length)) return false;
+      bootBlocked = false;
+    }
     let k, rev, rec;
     try { k = K(); rev = nextRev(); rec = JSON.stringify({ rev, journal: journalArr, on: !!onFlag }); }
     catch (e) { console.warn('entangler: could not serialise the journal', e); return false; }
@@ -375,14 +384,16 @@
   function clear() {
     if (!booted) return false;
     let name0 = null; try { name0 = window.name; } catch (e) { /* no tab copy to restore */ }   // a failed forget puts the tab copy back as it was
-    const where = store([], false), k = K();
+    const where = store([], false, true), k = K();
     const dropLocal = () => { try { const ls = local(); if (ls) for (const x of [k.rec, k.j, k.on, k.rev]) ls.removeItem(x); } catch (e) { /* checked below */ } };
     const unreadable = !where || where === 'fallback' ? !!(localCopy() || {}).blocked : false;   // present but unreadable: remove nothing there, and the forget fails below
-    let ok = where === 'local';
+    const left = where === 'local' ? localCopy() : null;   // read back: a legacy copy whose removal threw would outrank the new record
+    let ok = !!left && !left.unreadable && !left.journal.length && !left.on;
     if (where === 'fallback') { if (!unreadable) dropLocal(); ok = !localCopy(); }
     if (!where) { if (!unreadable) dropLocal(); try { dropFallback(); } catch (e) { /* checked below */ } ok = !localCopy() && !fallbackCopy(); }
     if (!ok) { if (name0 !== null) { try { window.name = name0; } catch (e) { /* the tab copy could not be put back */ } } return false; }
     journal = []; held = []; collapsed.clear(); on = false; btn.setAttribute('aria-pressed', 'false');
+    bootBlocked = false;   // nothing is left to protect: the forget is durable
     return true;
   }
 
