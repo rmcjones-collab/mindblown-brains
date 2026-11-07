@@ -143,6 +143,9 @@
   // the boot read found localStorage present but throwing: the journal it may hold was not loaded, so until a read shows nothing is there to
   // lose, no write (to localStorage, or to the tab copy that would outrank it next visit) may stand in for it. Only a forget writes regardless.
   let bootBlocked = false;
+  // this page has reached localStorage (at boot, or by a save that landed there): a record may be kept there, so if it later vanishes from reach, a
+  // forget cannot remove that record and must fail. A browser that never offered localStorage forgets through the tab copy alone
+  let lsSeen = false;
   function fallbackCopy() {
     const k = K(), f = asCopy(parse(nameStore.getItem(k.fb)));
     if (f) return f;
@@ -170,7 +173,7 @@
   const dropFallback = () => { const k = K(); for (const x of [k.fb, k.j, k.on]) nameStore.removeItem(x); };
   function loadState() {
     const f = fallbackCopy(), l = localCopy();
-    bootBlocked = !!(l && l.blocked);
+    bootBlocked = !!(l && l.blocked); lsSeen = !!local();
     let pick = l && !l.unreadable ? l : null;
     if (f && (!l || f.rev >= l.rev)) pick = f;
     else if (f && l && !l.unreadable) dropFallback();   // stale: another tab has written a newer copy since
@@ -179,8 +182,10 @@
   }
   function store(journalArr, onFlag, forget) {
     if (bootBlocked && !forget) {
-      const now = localCopy();   // readable again and holding no pairs: nothing can be lost, so writes resume; otherwise the pairs last this page view
-      if (now && (now.blocked || now.journal.length)) return false;
+      // readable again and holding no pairs: nothing can be lost, so writes resume; otherwise the pairs last this page view. A localStorage
+      // this page cannot reach now proves nothing (localCopy() is null for both unreachable and empty), so that stays blocked too
+      const ls = local(), now = ls ? localCopy() : null;
+      if (!ls || (now && (now.blocked || now.journal.length))) return false;
       bootBlocked = false;
     }
     let k, rev, rec;
@@ -190,7 +195,7 @@
       const ls = local(); if (!ls) throw new Error('no localStorage');
       ls.setItem(k.rec, rec);   // one write: the journal, flag and revision land together or not at all
       for (const x of [k.j, k.on, k.rev]) { try { ls.removeItem(x); } catch (e) { /* an older copy left behind loses to the record's revision */ } }
-      dropFallback(); return 'local';
+      lsSeen = true; dropFallback(); return 'local';
     } catch (e) { /* fall through to the tab-scoped copy */ }
     try {
       const o = nameStore.read() || {}; delete o[k.j]; delete o[k.on];
@@ -377,12 +382,14 @@
 
   // forgetting is durable only when no copy is left that a later visit or another tab could replay. A deletion marker in localStorage
   // covers every tab. A marker that could only go to the tab-scoped fallback covers this tab alone, so the shared localStorage copies are
-  // then removed as well; with no marker at all, every copy that can be removed is. A localStorage this page cannot reach at all is out of
+  // then removed as well; with no marker at all, every copy that can be removed is. A localStorage this page has never reached is out of
   // reach for every tab of this browser alike, so it counts as holding no copy; one that is present but throws on read may still hold a
-  // record that would replay once it is readable again, so the forget fails rather than trusting it. The page's pairs are cleared only once the forget is durable:
-  // a forget that fails changes nothing, here or on disk, and can simply be retried.
+  // record that would replay once it is readable again, so the forget fails rather than trusting it. The page's pairs are cleared only once the forget is durable.
+  // Both cases are refused before anything is written: a localStorage that throws on read now, and one this page reached earlier (at boot, readable or not,
+  // or through a save) but cannot reach now: the record it may hold would replay once it is back. A read that starts failing only after the write is checked below.
   function clear() {
     if (!booted) return false;
+    if ((localCopy() || {}).blocked || ((lsSeen || bootBlocked) && !local())) return false;
     let name0 = null; try { name0 = window.name; } catch (e) { /* no tab copy to restore */ }   // a failed forget puts the tab copy back as it was
     const where = store([], false, true), k = K();
     const dropLocal = () => { try { const ls = local(); if (ls) for (const x of [k.rec, k.j, k.on, k.rev]) ls.removeItem(x); } catch (e) { /* checked below */ } };
@@ -453,7 +460,7 @@
     if (!journal.length && !held.length) { toast('Nothing to forget: no pairs have been drawn here.'); return; }
     if (armedT && Date.now() - armedT < 5000) {
       armedT = 0; const n = journal.length + held.length;
-      if (!clear()) { sync(); toast(`Could not forget the ${n} pair${n === 1 ? '' : 's'}: this browser would not save that. Nothing was changed; Shift-press twice to try again.`, 4000); return; }
+      if (!clear()) { sync(); toast(`Could not forget the ${n} pair${n === 1 ? '' : 's'}: this browser would not save that, or could not confirm it. Your pairs are still drawn here; Shift-press twice to try again.`, 4000); return; }
       toast(`Forgot ${n} pair${n === 1 ? '' : 's'}. Reloading…`, 1200); setTimeout(() => location.reload(), 600); return;
     }
     armedT = Date.now(); btn.classList.add('mb-armed'); setTimeout(() => btn.classList.remove('mb-armed'), 5000);
