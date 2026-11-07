@@ -42,7 +42,7 @@
   function cancel(){placing=false;$('modifier-place').textContent='Place on canvas';document.body.classList.remove('modifier-placing');}
   function commit(next,message){
     try{E.evaluate(next,ids);}catch(e){status(e.message);return false;}
-    past.push(copy(state));if(past.length>50)past.shift();future=[];state=next;render();if(message)status(message);return true;
+    past.push(settled());if(past.length>50)past.shift();future=[];state=next;render();if(message)status(message);return true;
   }
   function nextModifierId(){
     const used=new Set(state.modifiers.map(m=>m.id));
@@ -70,8 +70,8 @@
     next.edges.push({from:$('modifier-from').value,to:$('modifier-to').value,weight:Number(raw)});
     commit(next,'Scenario connection added. Changes now propagate through this explicit dependency.');
   };
-  $('modifier-undo').onclick=()=>{if(!past.length)return;future.push(copy(state));state=past.pop();render();status('Undone.');};
-  $('modifier-redo').onclick=()=>{if(!future.length)return;past.push(copy(state));state=future.pop();render();status('Redone.');};
+  $('modifier-undo').onclick=()=>{if(!past.length)return;future.push(settled());state=past.pop();render();status('Undone.');};
+  $('modifier-redo').onclick=()=>{if(!future.length)return;past.push(settled());state=future.pop();render();status('Redone.');};
   $('modifier-reset').onclick=()=>{cancel();commit({modifiers:[],edges:[]},'Scenario reset. Factual neurons were not changed. Undo restores the scenario.');};
   function button(text,fn){const b=document.createElement('button');b.type='button';b.textContent=text;b.onclick=fn;return b;}
   function renderResults(){
@@ -87,6 +87,7 @@
     if(!Object.keys(values).length)$('modifier-results').textContent='No modeled neurons yet.';
   }
   function render(){
+    endDrags();   // the handles are about to be replaced: a removed handle may never get its lostpointercapture, so its drag would linger in liveDrags
     $('modifier-list').replaceChildren();overlay.querySelectorAll('button').forEach(b=>b.remove());
     for(const m of state.modifiers){
       const card=document.createElement('div');card.className='modifier-card';card.dataset.modifier=m.id;
@@ -94,9 +95,9 @@
       const label=document.createElement('label');label.textContent='Scenario signal ';
       const output=document.createElement('output');output.textContent=m.gain.toFixed(2);
       const range=document.createElement('input');range.type='range';range.min='0';range.max='2';range.step='0.05';range.value=String(m.gain);range.setAttribute('aria-label',`${m.id} scenario signal`);
-      let before=null;range.oninput=()=>{if(!before)before=copy(state);m.gain=Number(range.value);output.textContent=m.gain.toFixed(2);renderResults();};
+      let before=null;range.oninput=()=>{if(!before)before=settled();m.gain=Number(range.value);output.textContent=m.gain.toFixed(2);renderResults();};
       range.onchange=()=>{if(!before)return;const prev=before;before=null;   // a slide that ends where it began leaves both history stacks alone
-        if(JSON.stringify(state)!==JSON.stringify(prev)){past.push(prev);if(past.length>50)past.shift();future=[];$('modifier-undo').disabled=false;$('modifier-redo').disabled=true;}};
+        if(JSON.stringify(settled())!==JSON.stringify(prev)){past.push(prev);if(past.length>50)past.shift();future=[];$('modifier-undo').disabled=false;$('modifier-redo').disabled=true;}};
       label.append(output,range);card.append(title,label,button('Focus target',()=>R.focus(m.target)),button('Remove',()=>{const n=copy(state);n.modifiers=n.modifiers.filter(x=>x.id!==m.id);commit(n,'Modifier removed. Explicit connections remain until removed or reset.');}));
       $('modifier-list').append(card);
       let moved=false;   // a drag that moved the handle must not also open the panel on release
@@ -105,17 +106,19 @@
       let drag=null;
       function finishDrag(e,aborted=false){
         if(!drag||e.pointerId!==drag.pointerId)return;
-        const d=drag;drag=null;liveDrags.delete(d);   // pointerup/cancel may be followed by lostpointercapture
+        const d=drag;drag=null;liveDrags.delete(d);d.m=m;   // pointerup/cancel may be followed by lostpointercapture
         if(aborted){m.x=d.origin[0];m.y=d.origin[1];moved=true;return;}   // rollback without changing either history stack
         if(d.moved||Math.hypot(e.clientX-d.x,e.clientY-d.y)>3){
           moved=true;
           const p=R.toWorld(e.clientX-d.grab[0],e.clientY-d.grab[1]);m.x=p[0];m.y=p[1];   // the release point counts: browsers coalesce pointermoves, so the last one may never arrive
           const originScreen=R.toScreen(d.origin[0],d.origin[1]);   // reproject: zoom, pan or resize can move the origin away from the original press point
           if(Math.hypot(e.clientX-d.grab[0]-originScreen[0],e.clientY-d.grab[1]-originScreen[1])<0.5){m.x=d.origin[0];m.y=d.origin[1];}   // a screen-space tolerance avoids round-trip drift at high zoom-out without discarding genuine viewport-relative moves
-          if(JSON.stringify(state)!==JSON.stringify(d.before)){past.push(d.before);if(past.length>50)past.shift();future=[];$('modifier-undo').disabled=false;$('modifier-redo').disabled=true;}
+          // this drag's own step, recorded only when this handle actually moved (other handles mid-drag don't count); in the step they
+          // sit at their origins, so concurrent drags undo one at a time
+          if(m.x!==d.origin[0]||m.y!==d.origin[1]){past.push(settled(d));if(past.length>50)past.shift();future=[];$('modifier-undo').disabled=false;$('modifier-redo').disabled=true;}
         }
       }
-      handle.onpointerdown=e=>{if(drag||!e.isPrimary||e.button!==0)return;e.stopPropagation();moved=false;const at=R.toScreen(m.x,m.y);drag={pointerId:e.pointerId,x:e.clientX,y:e.clientY,grab:[e.clientX-at[0],e.clientY-at[1]],origin:[m.x,m.y],before:copy(state)};liveDrags.set(drag,m);   // the grab offset is kept in screen pixels: the handle is a fixed 40 px, so a zoom mid-drag must not slide it off the pointer
+      handle.onpointerdown=e=>{if(drag||!e.isPrimary||e.button!==0)return;e.stopPropagation();moved=false;const at=R.toScreen(m.x,m.y);drag={pointerId:e.pointerId,x:e.clientX,y:e.clientY,grab:[e.clientX-at[0],e.clientY-at[1]],origin:[m.x,m.y],end:()=>{drag=null;},handle};liveDrags.set(drag,m);   // the grab offset is kept in screen pixels: the handle is a fixed 40 px, so a zoom mid-drag must not slide it off the pointer
       handle.setPointerCapture(e.pointerId);};
       handle.onpointermove=e=>{if(!drag||e.pointerId!==drag.pointerId)return;if(Math.hypot(e.clientX-drag.x,e.clientY-drag.y)>3)drag.moved=true;   // latched: a drag that returns to its start is still a drag
       if(!drag.moved)return;   // under the threshold the handle stays put, so a click never nudges it
@@ -134,6 +137,15 @@
   // every handle being dragged (a mouse and a pen are each primary, so two can move at once): frame() re-places it from the last pointer position, so a zoom, pan or resize between pointermoves
   // keeps it under the pointer at its grab offset rather than carrying it with the world until the pointer next moves
   const liveDrags=new Map();   // drag -> modifier
+  // the scenario as history should record it: every handle still mid-drag (plus `also`, a drag that has just ended) back at its pointer-down position
+  function settled(also){
+    const s=copy(state),reset=(d,m)=>{const x=s.modifiers.find(x=>x.id===m.id);if(x){x.x=d.origin[0];x.y=d.origin[1];}};
+    liveDrags.forEach((m,d)=>reset(d,m));if(also)reset(also,also.m);return s;
+  }
+  // a render that replaces the handles ends their drags where they are: the position becomes part of the step that caused the render (commit, undo, redo, restore)
+  function endDrags(){
+    liveDrags.forEach((m,d)=>{d.end();try{d.handle.releasePointerCapture(d.pointerId);}catch(e){}});liveDrags.clear();
+  }
   function frame(){
     liveDrags.forEach((m,d)=>{if(!d.moved||!d.last)return;const p=R.toWorld(d.last[0]-d.grab[0],d.last[1]-d.grab[1]);m.x=p[0];m.y=p[1];});
     if(!state.modifiers.length&&!state.edges.length){
@@ -169,5 +181,5 @@
     serial=Math.max(serial,...mods.map(m=>+m.id.slice(1)));cancel();
     return true;
   }
-  window.MINDBLOWN_MODIFIERS=Object.freeze({snapshot:()=>copy(state),results:()=>copy(values),restore});
+  window.MINDBLOWN_MODIFIERS=Object.freeze({snapshot:()=>copy(state),results:()=>copy(values),restore,drags:()=>liveDrags.size});   // drags: handles mid-drag, for QA
 })();
