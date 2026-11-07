@@ -110,7 +110,8 @@
         if(d.moved||Math.hypot(e.clientX-d.x,e.clientY-d.y)>3){
           moved=true;
           const p=R.toWorld(e.clientX-d.grab[0],e.clientY-d.grab[1]);m.x=p[0];m.y=p[1];   // the release point counts: browsers coalesce pointermoves, so the last one may never arrive
-          if(Math.hypot(e.clientX-d.x,e.clientY-d.y)<0.5){m.x=d.origin[0];m.y=d.origin[1];}   // released where it was pressed: not a move. Checked in screen pixels because toScreen/toWorld round-trips drift by an amount that grows with zoom-out
+          const originScreen=R.toScreen(d.origin[0],d.origin[1]);   // reproject: zoom, pan or resize can move the origin away from the original press point
+          if(Math.hypot(e.clientX-d.grab[0]-originScreen[0],e.clientY-d.grab[1]-originScreen[1])<0.5){m.x=d.origin[0];m.y=d.origin[1];}   // a screen-space tolerance avoids round-trip drift at high zoom-out without discarding genuine viewport-relative moves
           if(JSON.stringify(state)!==JSON.stringify(d.before)){past.push(d.before);if(past.length>50)past.shift();future=[];$('modifier-undo').disabled=false;$('modifier-redo').disabled=true;}
         }
       }

@@ -121,13 +121,29 @@
       label.append(output,range);card.append(title,label,button('Focus target',()=>R.focus(m.target)),button('Remove',()=>{const n=copy(state);n.modifiers=n.modifiers.filter(x=>x.id!==m.id);commit(n,'Modifier removed. Explicit connections remain until removed or reset.');}));
       $('modifier-list').append(card);
       let moved=false;
-      const handle=button(m.id,()=>{if(moved){moved=false;return;}refreshNodes();panel.hidden=false;expanded(true);card.scrollIntoView({block:'nearest'});range.focus();});
+      const handle=button(m.id,e=>{if(moved&&e.detail!==0){moved=false;return;}moved=false;refreshNodes();panel.hidden=false;expanded(true);card.scrollIntoView({block:'nearest'});range.focus();});
       handle.className='modifier-node';handle.dataset.modifier=m.id;handle.setAttribute('aria-label',`Modifier ${m.id}, target ${names.get(m.target)}. Arrow keys move.`);
       let drag=null;
-      handle.onpointerdown=e=>{if(e.button!==0)return;moved=false;e.stopPropagation();const w=R.toWorld(e.clientX,e.clientY);drag={x:e.clientX,y:e.clientY,wx:w[0],wy:w[1],mx:m.x,my:m.y,before:copy(state)};handle.setPointerCapture(e.pointerId);};
-      handle.onpointermove=e=>{if(!drag)return;if(!moved&&Math.hypot(e.clientX-drag.x,e.clientY-drag.y)<=3){m.x=drag.mx;m.y=drag.my;return;}moved=true;const p=R.toWorld(e.clientX,e.clientY);m.x=drag.mx+(p[0]-drag.wx);m.y=drag.my+(p[1]-drag.wy);};   // keep the grab offset; a click-sized wobble is not a move
-      handle.onpointerup=e=>{if(!drag)return;moved=moved||Math.hypot(e.clientX-drag.x,e.clientY-drag.y)>3;if(!moved||Math.hypot(e.clientX-drag.x,e.clientY-drag.y)<0.5){m.x=drag.mx;m.y=drag.my;}if(moved&&(m.x!==drag.mx||m.y!==drag.my)){past.push(drag.before);future=[];$('modifier-undo').disabled=false;$('modifier-redo').disabled=true;}drag=null;};   // a drag back to the start keeps redo history
-      handle.onpointercancel=()=>{if(drag){m.x=drag.before.modifiers.find(x=>x.id===m.id).x;m.y=drag.before.modifiers.find(x=>x.id===m.id).y;}drag=null;moved=false;};
+      function finishDrag(e,aborted=false){
+        if(!drag||e.pointerId!==drag.pointerId)return;
+        const d=drag;drag=null;liveDrags.delete(d);   // pointerup/cancel may be followed by lostpointercapture
+        if(aborted){m.x=d.origin[0];m.y=d.origin[1];moved=true;return;}   // rollback without changing either history stack
+        if(d.moved||Math.hypot(e.clientX-d.x,e.clientY-d.y)>3){
+          moved=true;
+          const p=R.toWorld(e.clientX-d.grab[0],e.clientY-d.grab[1]);m.x=p[0];m.y=p[1];   // the release point counts: browsers coalesce pointermoves, so the last one may never arrive
+          const originScreen=R.toScreen(d.origin[0],d.origin[1]);   // reproject: zoom, pan or resize can move the origin away from the original press point
+          if(Math.hypot(e.clientX-d.grab[0]-originScreen[0],e.clientY-d.grab[1]-originScreen[1])<0.5){m.x=d.origin[0];m.y=d.origin[1];}   // a screen-space tolerance avoids round-trip drift at high zoom-out without discarding genuine viewport-relative moves
+          if(JSON.stringify(state)!==JSON.stringify(d.before)){past.push(d.before);if(past.length>50)past.shift();future=[];$('modifier-undo').disabled=false;$('modifier-redo').disabled=true;}
+        }
+      }
+      handle.onpointerdown=e=>{if(drag||!e.isPrimary||e.button!==0)return;e.stopPropagation();moved=false;const at=R.toScreen(m.x,m.y);drag={pointerId:e.pointerId,x:e.clientX,y:e.clientY,grab:[e.clientX-at[0],e.clientY-at[1]],origin:[m.x,m.y],before:copy(state)};liveDrags.set(drag,m);   // the grab offset is kept in screen pixels: the handle is a fixed 40 px, so a zoom mid-drag must not slide it off the pointer
+      handle.setPointerCapture(e.pointerId);};
+      handle.onpointermove=e=>{if(!drag||e.pointerId!==drag.pointerId)return;if(Math.hypot(e.clientX-drag.x,e.clientY-drag.y)>3)drag.moved=true;   // latched: a drag that returns to its start is still a drag
+      if(!drag.moved)return;   // under the threshold the handle stays put, so a click never nudges it
+      drag.last=[e.clientX,e.clientY];const p=R.toWorld(e.clientX-drag.grab[0],e.clientY-drag.grab[1]);m.x=p[0];m.y=p[1];};
+      handle.onpointerup=e=>finishDrag(e);
+      handle.onpointercancel=e=>finishDrag(e,true);
+      handle.onlostpointercapture=e=>finishDrag(e,true);
       handle.onkeydown=e=>{const v={ArrowLeft:[-15,0],ArrowRight:[15,0],ArrowUp:[0,-15],ArrowDown:[0,15]}[e.key];if(!v)return;e.preventDefault();const n=copy(state),x=n.modifiers.find(x=>x.id===m.id);x.x+=v[0];x.y+=v[1];commit(n);overlay.querySelector(`[data-modifier="${m.id}"]`).focus();};
       overlay.append(handle);
     }
@@ -136,7 +152,9 @@
     $('modifier-undo').disabled=!past.length;$('modifier-redo').disabled=!future.length;$('modifier-reset').disabled=!state.modifiers.length&&!state.edges.length;
     renderResults();
   }
+  const liveDrags=new Map();   // canonical drag lifecycle; preserve this renderer’s integration
   function frame(){
+    liveDrags.forEach((m,d)=>{if(!d.moved||!d.last)return;const p=R.toWorld(d.last[0]-d.grab[0],d.last[1]-d.grab[1]);m.x=p[0];m.y=p[1];});
     const paths=[];
     for(const m of state.modifiers){
       const p=R.toScreen(m.x,m.y),t=R.screenOf(m.target),h=overlay.querySelector(`[data-modifier="${m.id}"]`);
