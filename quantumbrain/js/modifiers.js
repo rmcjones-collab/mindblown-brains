@@ -116,7 +116,8 @@
       const output=document.createElement('output');output.textContent=m.gain.toFixed(2);
       const range=document.createElement('input');range.type='range';range.min='0';range.max='2';range.step='0.05';range.value=String(m.gain);range.setAttribute('aria-label',`${m.id} scenario signal`);
       let before=null;range.oninput=()=>{if(!before)before=copy(state);m.gain=Number(range.value);output.textContent=m.gain.toFixed(2);renderResults();};
-      range.onchange=()=>{if(before){past.push(before);future=[];before=null;$('modifier-undo').disabled=false;$('modifier-redo').disabled=true;}};
+      range.onchange=()=>{if(!before)return;const prev=before;before=null;   // a slide that ends where it began leaves both history stacks alone
+        if(JSON.stringify(state)!==JSON.stringify(prev)){past.push(prev);if(past.length>50)past.shift();future=[];$('modifier-undo').disabled=false;$('modifier-redo').disabled=true;}};
       label.append(output,range);card.append(title,label,button('Focus target',()=>R.focus(m.target)),button('Remove',()=>{const n=copy(state);n.modifiers=n.modifiers.filter(x=>x.id!==m.id);commit(n,'Modifier removed. Explicit connections remain until removed or reset.');}));
       $('modifier-list').append(card);
       let moved=false;
@@ -125,7 +126,7 @@
       let drag=null;
       handle.onpointerdown=e=>{if(e.button!==0)return;moved=false;e.stopPropagation();const w=R.toWorld(e.clientX,e.clientY);drag={x:e.clientX,y:e.clientY,wx:w[0],wy:w[1],mx:m.x,my:m.y,before:copy(state)};handle.setPointerCapture(e.pointerId);};
       handle.onpointermove=e=>{if(!drag)return;if(!moved&&Math.hypot(e.clientX-drag.x,e.clientY-drag.y)<=3){m.x=drag.mx;m.y=drag.my;return;}moved=true;const p=R.toWorld(e.clientX,e.clientY);m.x=drag.mx+(p[0]-drag.wx);m.y=drag.my+(p[1]-drag.wy);};   // keep the grab offset; a click-sized wobble is not a move
-      handle.onpointerup=e=>{if(!drag)return;moved=moved||Math.hypot(e.clientX-drag.x,e.clientY-drag.y)>3;if(!moved){m.x=drag.mx;m.y=drag.my;}if(moved&&(m.x!==drag.mx||m.y!==drag.my)){past.push(drag.before);future=[];$('modifier-undo').disabled=false;$('modifier-redo').disabled=true;}drag=null;};   // a drag back to the start keeps redo history
+      handle.onpointerup=e=>{if(!drag)return;moved=moved||Math.hypot(e.clientX-drag.x,e.clientY-drag.y)>3;if(!moved||Math.hypot(e.clientX-drag.x,e.clientY-drag.y)<0.5){m.x=drag.mx;m.y=drag.my;}if(moved&&(m.x!==drag.mx||m.y!==drag.my)){past.push(drag.before);future=[];$('modifier-undo').disabled=false;$('modifier-redo').disabled=true;}drag=null;};   // a drag back to the start keeps redo history
       handle.onpointercancel=()=>{if(drag){m.x=drag.before.modifiers.find(x=>x.id===m.id).x;m.y=drag.before.modifiers.find(x=>x.id===m.id).y;}drag=null;moved=false;};
       handle.onkeydown=e=>{const v={ArrowLeft:[-15,0],ArrowRight:[15,0],ArrowUp:[0,-15],ArrowDown:[0,15]}[e.key];if(!v)return;e.preventDefault();const n=copy(state),x=n.modifiers.find(x=>x.id===m.id);x.x+=v[0];x.y+=v[1];commit(n);overlay.querySelector(`[data-modifier="${m.id}"]`).focus();};
       overlay.append(handle);

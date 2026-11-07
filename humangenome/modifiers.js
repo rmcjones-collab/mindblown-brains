@@ -95,7 +95,8 @@
       const output=document.createElement('output');output.textContent=m.gain.toFixed(2);
       const range=document.createElement('input');range.type='range';range.min='0';range.max='2';range.step='0.05';range.value=String(m.gain);range.setAttribute('aria-label',`${m.id} scenario signal`);
       let before=null;range.oninput=()=>{if(!before)before=copy(state);m.gain=Number(range.value);output.textContent=m.gain.toFixed(2);renderResults();};
-      range.onchange=()=>{if(before){past.push(before);future=[];before=null;$('modifier-undo').disabled=false;$('modifier-redo').disabled=true;}};
+      range.onchange=()=>{if(!before)return;const prev=before;before=null;   // a slide that ends where it began leaves both history stacks alone
+        if(JSON.stringify(state)!==JSON.stringify(prev)){past.push(prev);if(past.length>50)past.shift();future=[];$('modifier-undo').disabled=false;$('modifier-redo').disabled=true;}};
       label.append(output,range);card.append(title,label,button('Focus target',()=>R.focus(m.target)),button('Remove',()=>{const n=copy(state);n.modifiers=n.modifiers.filter(x=>x.id!==m.id);commit(n,'Modifier removed. Explicit connections remain until removed or reset.');}));
       $('modifier-list').append(card);
       let moved=false;   // a drag that moved the handle must not also open the panel on release
@@ -109,6 +110,7 @@
         if(d.moved||Math.hypot(e.clientX-d.x,e.clientY-d.y)>3){
           moved=true;
           const p=R.toWorld(e.clientX-d.grab[0],e.clientY-d.grab[1]);m.x=p[0];m.y=p[1];   // the release point counts: browsers coalesce pointermoves, so the last one may never arrive
+          if(Math.hypot(e.clientX-d.x,e.clientY-d.y)<0.5){m.x=d.origin[0];m.y=d.origin[1];}   // released where it was pressed: not a move. Checked in screen pixels because toScreen/toWorld round-trips drift by an amount that grows with zoom-out
           if(JSON.stringify(state)!==JSON.stringify(d.before)){past.push(d.before);if(past.length>50)past.shift();future=[];$('modifier-undo').disabled=false;$('modifier-redo').disabled=true;}
         }
       }
