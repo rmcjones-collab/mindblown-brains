@@ -87,7 +87,7 @@
     if(!Object.keys(values).length)$('modifier-results').textContent='No modeled neurons yet.';
   }
   function render(){
-    endDrags();   // the handles are about to be replaced: a removed handle may never get its lostpointercapture, so its drag would linger in liveDrags
+    endDrags();liveSlides.clear();   // the sliders and handles are about to be replaced (a removed slider never fires its change): a removed handle may never get its lostpointercapture, so its drag would linger in liveDrags
     $('modifier-list').replaceChildren();overlay.querySelectorAll('button').forEach(b=>b.remove());
     for(const m of state.modifiers){
       const card=document.createElement('div');card.className='modifier-card';card.dataset.modifier=m.id;
@@ -95,9 +95,11 @@
       const label=document.createElement('label');label.textContent='Scenario signal ';
       const output=document.createElement('output');output.textContent=m.gain.toFixed(2);
       const range=document.createElement('input');range.type='range';range.min='0';range.max='2';range.step='0.05';range.value=String(m.gain);range.setAttribute('aria-label',`${m.id} scenario signal`);
-      let before=null;range.oninput=()=>{if(!before)before=settled();m.gain=Number(range.value);output.textContent=m.gain.toFixed(2);renderResults();};
-      range.onchange=()=>{if(!before)return;const prev=before;before=null;   // a slide that ends where it began leaves both history stacks alone
-        if(JSON.stringify(settled())!==JSON.stringify(prev)){past.push(prev);if(past.length>50)past.shift();future=[];$('modifier-undo').disabled=false;$('modifier-redo').disabled=true;}};
+      range.oninput=()=>{if(!liveSlides.has(m.id))liveSlides.set(m.id,m.gain);m.gain=Number(range.value);output.textContent=m.gain.toFixed(2);renderResults();};
+      // the slider's step is the scenario as it stands now with only this gain put back: a handle drag that ended mid-slide keeps its own step,
+      // and a slide that ends where it began leaves both history stacks alone (only the gain is compared)
+      range.onchange=()=>{if(!liveSlides.has(m.id))return;const step=settled(),from=liveSlides.get(m.id);liveSlides.delete(m.id);
+        if(m.gain!==from){past.push(step);if(past.length>50)past.shift();future=[];$('modifier-undo').disabled=false;$('modifier-redo').disabled=true;}};
       label.append(output,range);card.append(title,label,button('Focus target',()=>R.focus(m.target)),button('Remove',()=>{const n=copy(state);n.modifiers=n.modifiers.filter(x=>x.id!==m.id);commit(n,'Modifier removed. Explicit connections remain until removed or reset.');}));
       $('modifier-list').append(card);
       let moved=false;   // a drag that moved the handle must not also open the panel on release
@@ -112,13 +114,18 @@
           moved=true;
           const p=R.toWorld(e.clientX-d.grab[0],e.clientY-d.grab[1]);m.x=p[0];m.y=p[1];   // the release point counts: browsers coalesce pointermoves, so the last one may never arrive
           const originScreen=R.toScreen(d.origin[0],d.origin[1]);   // reproject: zoom, pan or resize can move the origin away from the original press point
-          if(Math.hypot(e.clientX-d.grab[0]-originScreen[0],e.clientY-d.grab[1]-originScreen[1])<0.5){m.x=d.origin[0];m.y=d.origin[1];}   // a screen-space tolerance avoids round-trip drift at high zoom-out without discarding genuine viewport-relative moves
+          // released where it was pressed is not a move. When the view itself moved (a zoom, pan or resize) the test is against the reprojected origin,
+          // so a genuine viewport-relative move counts; a camera still easing a pixel or two (Home settling after the panel closes) is not a view move
+          const viewMoved=Math.hypot(originScreen[0]-d.at[0],originScreen[1]-d.at[1])>=2;
+          // screen pixels (toScreen/toWorld round-trips drift at high zoom-out): the reprojected origin always matches; the press point only while the view held still
+          const back=Math.hypot(e.clientX-d.grab[0]-originScreen[0],e.clientY-d.grab[1]-originScreen[1])<0.5||(!viewMoved&&Math.hypot(e.clientX-d.x,e.clientY-d.y)<0.5);
+          if(back){m.x=d.origin[0];m.y=d.origin[1];}
           // this drag's own step, recorded only when this handle actually moved (other handles mid-drag don't count); in the step they
           // sit at their origins, so concurrent drags undo one at a time
           if(m.x!==d.origin[0]||m.y!==d.origin[1]){past.push(settled(d));if(past.length>50)past.shift();future=[];$('modifier-undo').disabled=false;$('modifier-redo').disabled=true;}
         }
       }
-      handle.onpointerdown=e=>{if(drag||!e.isPrimary||e.button!==0)return;e.stopPropagation();moved=false;const at=R.toScreen(m.x,m.y);drag={pointerId:e.pointerId,x:e.clientX,y:e.clientY,grab:[e.clientX-at[0],e.clientY-at[1]],origin:[m.x,m.y],end:()=>{drag=null;},handle};liveDrags.set(drag,m);   // the grab offset is kept in screen pixels: the handle is a fixed 40 px, so a zoom mid-drag must not slide it off the pointer
+      handle.onpointerdown=e=>{if(drag||!e.isPrimary||e.button!==0)return;e.stopPropagation();moved=false;const at=R.toScreen(m.x,m.y);drag={pointerId:e.pointerId,x:e.clientX,y:e.clientY,at,grab:[e.clientX-at[0],e.clientY-at[1]],origin:[m.x,m.y],end:()=>{drag=null;},handle};liveDrags.set(drag,m);   // the grab offset is kept in screen pixels: the handle is a fixed 40 px, so a zoom mid-drag must not slide it off the pointer
       handle.setPointerCapture(e.pointerId);};
       handle.onpointermove=e=>{if(!drag||e.pointerId!==drag.pointerId)return;if(Math.hypot(e.clientX-drag.x,e.clientY-drag.y)>3)drag.moved=true;   // latched: a drag that returns to its start is still a drag
       if(!drag.moved)return;   // under the threshold the handle stays put, so a click never nudges it
@@ -137,10 +144,13 @@
   // every handle being dragged (a mouse and a pen are each primary, so two can move at once): frame() re-places it from the last pointer position, so a zoom, pan or resize between pointermoves
   // keeps it under the pointer at its grab offset rather than carrying it with the world until the pointer next moves
   const liveDrags=new Map();   // drag -> modifier
-  // the scenario as history should record it: every handle still mid-drag (plus `also`, a drag that has just ended) back at its pointer-down position
+  const liveSlides=new Map();   // modifier id -> its gain when the slide began (between a slider's first input and its change)
+  // the scenario as history should record it: every handle still mid-drag (plus `also`, a drag that has just ended) back at its pointer-down position, and every slider mid-slide back at its starting gain
   function settled(also){
     const s=copy(state),reset=(d,m)=>{const x=s.modifiers.find(x=>x.id===m.id);if(x){x.x=d.origin[0];x.y=d.origin[1];}};
-    liveDrags.forEach((m,d)=>reset(d,m));if(also)reset(also,also.m);return s;
+    liveDrags.forEach((m,d)=>reset(d,m));if(also)reset(also,also.m);
+    liveSlides.forEach((g,id)=>{const x=s.modifiers.find(x=>x.id===id);if(x)x.gain=g;});   // a slide in progress is back at its starting gain too
+    return s;
   }
   // a render that replaces the handles ends their drags where they are: the position becomes part of the step that caused the render (commit, undo, redo, restore)
   function endDrags(){
