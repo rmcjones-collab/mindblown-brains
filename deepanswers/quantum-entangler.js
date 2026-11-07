@@ -160,7 +160,7 @@
       // without a revision they are taken as the later write; with one, the higher revision wins. A readable legacy copy also beats an unreadable record.
       if (rec && old) return rec.unreadable || !old.rev || old.rev > rec.rev ? old : rec;
       return rec || old;
-    } catch (e) { return null; }
+    } catch (e) { return { rev: 0, journal: [], on: false, unreadable: true, blocked: true }; }   // present but unreadable just now: not proof that no copy exists
   }
   const storedRev = () => Math.max((localCopy() || {}).rev || 0, (fallbackCopy() || {}).rev || 0);
   const nextRev = () => (lastRev = Math.max(Date.now(), lastRev + 1, storedRev() + 1));
@@ -192,6 +192,8 @@
     } catch (e) { return false; /* nowhere to keep it: the pairs last for this page view */ }
   }
   let held = [];   // saved pairs that could not be replayed this time (a partner brain not loaded, say): kept in the journal on disk, not drawn
+  // the neurons a held pair still claims: it may replay on a later visit, so neither end is offered to a new pair in the meantime
+  const heldClaims = () => { const ids = new Set(), far = new Set(); for (const a of held) { ids.add(a.a); if (a.afield) far.add(`${a.afield.brain}/${a.afield.page}`); else ids.add(a.b); } return { ids, far }; };
   const save = () => store([...journal, ...held].slice(0, CAP.pairs), on);
   const count = () => G() ? G().count(TAG) : { neurons: 0, lobes: 0, brains: 0, synapses: 0, links: 0 };
   const brainName = () => (document.querySelector('nav.brains a.on')?.textContent || '').trim() || (D && D.title ? String(D.title).replace(/^MindBlown:\s*/, '') : '')
@@ -225,16 +227,16 @@
   function candidates(A, pages) {
     evidence();
     const hub = G().hub(), hidden = new Set((D.lobes || []).filter(l => l.hidden).map(l => l.id)), children = new Set((D.pages || []).filter(p => p.parent).map(p => p.id));
-    const wired = new Set(A.neighbors), ta = tokens(A.title);
+    const wired = new Set(A.neighbors), ta = tokens(A.title), claims = heldClaims();
     const out = [];
     for (const p of pages) {
-      if (!eligibleIds.has(p.id) || p === A || p.origin || p.id === hub || p.blank || hidden.has(p.lobe) || children.has(p.id) || wired.has(p.id) || collapsed.has(p.id)) continue;
+      if (claims.ids.has(p.id) || !eligibleIds.has(p.id) || p === A || p.origin || p.id === hub || p.blank || hidden.has(p.lobe) || children.has(p.id) || wired.has(p.id) || collapsed.has(p.id)) continue;
       const shared = sharedSources(A.id, p.id), terms = tokens(p.title).filter(t => ta.includes(t)).length;
       out.push({ kind: 'here', id: p.id, title: p.title, shared, terms, w: (0.04 + 2 * shared.length + 0.6 * terms) / Math.sqrt(1 + p.deg) });   // shared evidence weighs most; a title word counts a little; a bare neuron is the long shot
     }
     // partners at a distance: neurons in other brains whose titles share words with A (the origin index, once it has loaded)
     if (index && ta.length) {
-      const brains = index.brains || [], used = new Set(journal.filter(a => a.afield).map(a => `${a.afield.brain}/${a.afield.page}`)), afield = [];
+      const brains = index.brains || [], used = new Set([...journal.filter(a => a.afield).map(a => `${a.afield.brain}/${a.afield.page}`), ...claims.far]), afield = [];
       for (const row of index.pages || []) {
         const b = brains[row[0]]; if (!b || b.id === D.brain || !b.site && !b.page) continue;
         const terms = tokens(row[2]).filter(t => ta.includes(t)).length; if (terms < 1) continue;
@@ -346,6 +348,7 @@
       toast(`<b>${esc(A.title)}</b> has already collapsed, with <b>${esc(other)}</b>.`);
       return prior;
     }
+    if (heldClaims().ids.has(A.id)) { toast(`<b>${esc(A.title)}</b> belongs to a saved pair that could not be redrawn on this visit, so it is not measured again.`); return null; }
     if (journal.length + held.length >= CAP.pairs) { toast(`The Entangler has drawn all ${CAP.pairs} of its pairs here. Shift-press twice to forget them and start again.`); return null; }
     askIndex();   // partners at a distance join once the index has arrived (asked for when the Entangler is switched on)
     let cands = candidates(A, pages);
@@ -365,17 +368,19 @@
 
   // forgetting is durable only when no copy is left that a later visit or another tab could replay. A deletion marker in localStorage
   // covers every tab. A marker that could only go to the tab-scoped fallback covers this tab alone, so the shared localStorage copies are
-  // then removed as well; with no marker at all, every copy that can be removed is. Storage that cannot even be read is out of reach for
-  // every tab of this browser alike, so it counts as holding no copy. The page's pairs are cleared only once the forget is durable:
+  // then removed as well; with no marker at all, every copy that can be removed is. A localStorage this page cannot reach at all is out of
+  // reach for every tab of this browser alike, so it counts as holding no copy; one that is present but throws on read may still hold a
+  // record that would replay once it is readable again, so the forget fails rather than trusting it. The page's pairs are cleared only once the forget is durable:
   // a forget that fails changes nothing, here or on disk, and can simply be retried.
   function clear() {
     if (!booted) return false;
     let name0 = null; try { name0 = window.name; } catch (e) { /* no tab copy to restore */ }   // a failed forget puts the tab copy back as it was
     const where = store([], false), k = K();
     const dropLocal = () => { try { const ls = local(); if (ls) for (const x of [k.rec, k.j, k.on, k.rev]) ls.removeItem(x); } catch (e) { /* checked below */ } };
+    const unreadable = !where || where === 'fallback' ? !!(localCopy() || {}).blocked : false;   // present but unreadable: remove nothing there, and the forget fails below
     let ok = where === 'local';
-    if (where === 'fallback') { dropLocal(); ok = !localCopy(); }
-    if (!where) { dropLocal(); try { dropFallback(); } catch (e) { /* checked below */ } ok = !localCopy() && !fallbackCopy(); }
+    if (where === 'fallback') { if (!unreadable) dropLocal(); ok = !localCopy(); }
+    if (!where) { if (!unreadable) dropLocal(); try { dropFallback(); } catch (e) { /* checked below */ } ok = !localCopy() && !fallbackCopy(); }
     if (!ok) { if (name0 !== null) { try { window.name = name0; } catch (e) { /* the tab copy could not be put back */ } } return false; }
     journal = []; held = []; collapsed.clear(); on = false; btn.setAttribute('aria-pressed', 'false');
     return true;
@@ -390,16 +395,18 @@
     on = saved.on;
     if (journal.length) {
       const j = journal; journal = [];
-      const imageBrains = new Set();
+      const imageBrains = new Set(), claimed = new Set(), far = new Set();   // endpoints of pairs held earlier in the journal, and partners afield already taken (held or drawn): a later pair cannot take them over
+      const farId = a => a.afield ? `${a.afield.brain}/${a.afield.page}` : null;
+      const hold = a => { held.push(a); claimed.add(a.a); if (a.afield) far.add(farId(a)); else claimed.add(a.b); };
       j.forEach(a => {
         // a pair the guards turn away (a neuron already collapsed, the image-brain cap reached) is held like a failed replay: kept on disk, not drawn
-        if (collapsed.has(a.a) || !a.afield && collapsed.has(a.b)) { held.push(a); return; }
-        if (a.afield && !imageBrains.has(a.afield.brain) && imageBrains.size >= CAP.brains) { held.push(a); return; }
+        if (collapsed.has(a.a) || claimed.has(a.a) || (a.afield ? far.has(farId(a)) : collapsed.has(a.b) || claimed.has(a.b))) { hold(a); return; }
+        if (a.afield && !imageBrains.has(a.afield.brain) && imageBrains.size >= CAP.brains) { hold(a); return; }
         a.i = journal.length;
         let ok = false;
-        try { ok = !!apply(a); if (ok) { journal.push(a); if (a.afield) imageBrains.add(a.afield.brain); } }
+        try { ok = !!apply(a); if (ok) { journal.push(a); if (a.afield) { imageBrains.add(a.afield.brain); far.add(farId(a)); } } }
         catch (e) { console.warn('entangler: could not replay a saved pair', e); }
-        if (!ok) held.push(a);   // kept for the next save and the next visit rather than erased by a failed replay
+        if (!ok) hold(a);   // kept for the next save and the next visit rather than erased by a failed replay
       });
       g.commit({ alpha: 0.8 });   // nothing is written at boot: the copy on disk already holds every pair, and a newer one from another tab must not be overwritten
     }
