@@ -20,6 +20,8 @@ jobs:
           node-version: "22"
       - name: Secret scan (entire history; reviewed false positives in .gitleaksignore)
         run: docker run --rm -v "$PWD:/repo" ghcr.io/gitleaks/gitleaks:v8.30.1 git /repo --redact --no-banner
+      - name: No links to private repos
+        run: python3 tools/check_repo_links.py
       - name: JavaScript parses
         run: |
           set -e
