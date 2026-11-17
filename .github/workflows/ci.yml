@@ -26,5 +26,5 @@ jobs:
         run: |
           set -e
           n=0
-          while IFS= read -r f; do node --check "$f"; n=$((n+1)); done < <(git ls-files '*.js' '*.cjs' '*.mjs' | grep -v '/vendor/')
+          while IFS= read -r f; do node --check "$f"; n=$((n+1)); done < <(git ls-files '*.js' '*.cjs' '*.mjs' | grep -Ev '(^|/)vendor/')
           echo "parsed $n files"
