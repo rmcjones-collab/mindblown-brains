@@ -9,8 +9,8 @@ OWNER = "rmcjones-collab"
 PUBLIC = {"mindblown-brains", "mindblown-demo", "rockstar-newswire-tracker",
           "mindblown-kingfischer", "virtual-sfx-lab-downloads", "campfire-keepalive"}
 
-pat = re.compile(r"github\.com/" + OWNER + r"/([A-Za-z0-9._-]+)")
-files = subprocess.run(["git", "ls-files"], capture_output=True, text=True, check=True).stdout.split("\n")
+pat = re.compile(r"github\.com/" + re.escape(OWNER) + r"/([A-Za-z0-9._-]+)", re.IGNORECASE)
+files = subprocess.run(["git", "ls-files", "-z"], capture_output=True, text=True, check=True).stdout.split("\0")
 bad = {}
 for f in filter(None, files):
     try:
@@ -18,7 +18,7 @@ for f in filter(None, files):
     except (UnicodeDecodeError, IsADirectoryError, FileNotFoundError):
         continue
     for name in pat.findall(text):
-        name = re.sub(r"\.git$", "", name)
+        name = re.sub(r"\.git$", "", name.lower())
         if name not in PUBLIC:
             bad.setdefault(f, set()).add(name)
 if bad:
