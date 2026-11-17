@@ -1,0 +1,5 @@
+# gitleaks false positives, reviewed 2026-11-16 (values never printed):
+#  - codexbrain/tandem/peers.json: the Community project's Supabase publishable (anon) key,
+#    public by design and guarded by RLS; not a secret.
+# Add a fingerprint here only after checking the hit is not a real secret.
+bb1662bda412aeb07c37c795a9909511f0c4a1b4:codexbrain/tandem/peers.json:generic-api-key:1
